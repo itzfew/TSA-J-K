@@ -1,236 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 20px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .question-detail {
-            margin: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .question-detail h3 {
-            margin-top: 0;
-        }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .options li:hover {
-            background-color: #e0e0e0;
-        }
-        .correct {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .incorrect {
-            background-color: #f44336;
-            color: white;
-        }
-        .selected {
-            background-color: #e0e0e0;
-        }
-        .hidden {
-            display: none;
-        }
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-        .mathjax-inline {
-            white-space: nowrap;
-            display: inline-block;
-            font-size: 1.1em;
-        }
-        .question-content span {
-            display: inline-block;
-        }
-        .feedback {
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        .feedback.correct {
-            color: #4CAF50;
-        }
-        .feedback.incorrect {
-            color: #f44336;
-        }
-    </style>
-
-    <!-- Include MathJax for equation rendering -->
-    <script type="text/javascript" async 
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .quiz-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 800px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .options {
+      margin: 10px 0;
+    }
+    .option {
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #submit-btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #submit-btn:hover {
+      background-color: #0056b3;
+    }
+    #score {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #28a745;
+    }
+    .feedback {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    .explanation {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
+  <div class="quiz-container">
+    <header>
+      <h1>Quiz Game</h1>
+    </header>
+    <main id="quiz">
+      <!-- Questions will be dynamically loaded here -->
+    </main>
+    <footer>
+      <button id="submit-btn">Submit Quiz</button>
+      <div id="score"></div>
+    </footer>
+  </div>
+  <script>
+    const quizData = [
+      {
+        question_id: "1lipxfxx3",
+        chapter: "biomolecules",
+        subject: "biology",
+        topic: "proteins",
+        content: `<p>Match List - I with List - II</p>
+        <table class="tg">
+          <thead>
+            <tr>
+              <th></th>
+              <th>List - I</th>
+              <th></th>
+              <th>List - II</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>(A)</td>
+              <td>Protein</td>
+              <td>(I)</td>
+              <td>C=C double bonds</td>
+            </tr>
+            <tr>
+              <td>(B)</td>
+              <td>Unsaturated fatty acid</td>
+              <td>(II)</td>
+              <td>Phosphodiester bond</td>
+            </tr>
+            <tr>
+              <td>(C)</td>
+              <td>Nucleic acid</td>
+              <td>(III)</td>
+              <td>Glycosidic bonds</td>
+            </tr>
+            <tr>
+              <td>(D)</td>
+              <td>Polysaccharide</td>
+              <td>(IV)</td>
+              <td>Peptide bonds</td>
+            </tr>
+          </tbody>
+        </table>`,
+        options: [
+          { identifier: "A", content: "(A)-(II), (B)-(I), (C)-(IV), (D)-(III)" },
+          { identifier: "B", content: "(A)-(IV), (B)-(III), (C)-(I), (D)-(II)" },
+          { identifier: "C", content: "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)" },
+          { identifier: "D", content: "(A)-(I), (B)-(IV), (C)-(III), (D)-(II)" },
+        ],
+        correct_options: ["C"],
+        explanation: `<p>Explanation: The correct matching is based on the functional groups present in the molecules. Protein is related to peptide bonds, unsaturated fatty acid to C=C double bonds, nucleic acid to glycosidic bonds, and polysaccharide to phosphodiester bonds.</p>`
+      },
+      {
+        question_id: "1limj5b49",
+        chapter: "center-of-mass-and-collision",
+        subject: "physics",
+        topic: "impulse-momentum-theorem",
+        content: `<p>A $$1 \\mathrm{~kg}$$ object strikes a wall with velocity $$1 \\mathrm{~m} \\mathrm{~s}^{-1}$$ at an angle of $$60^{\\circ}$$ with the wall and reflects at the same angle. If it remains in contact with wall for $$0.1 \\mathrm{~s}$$, then the force exerted on the wall is :</p>`,
+        options: [
+          { identifier: "A", content: "$$30 \\sqrt{3} \\mathrm{~N}$$" },
+          { identifier: "B", content: "Zero" },
+          { identifier: "C", content: "$$10 \\sqrt{3} \\mathrm{~N}$$" },
+          { identifier: "D", content: "$$20 \\sqrt{3} \\mathrm{~N}$$" },
+        ],
+        correct_options: ["C"],
+        explanation: `<p>Explanation: The force exerted is calculated using the impulse-momentum theorem, and the result is $$10 \\sqrt{3} \\mathrm{~N}$$.</p><p><img src="https://app-content.cdn.examgoal.net/fly/@width/image/1liq02kgi/d67c45fe-5fe0-467e-a74e-9ee1cc06bba0/2b15bf20-078e-11ee-b7c8-a98448959a38/file-1liq02kgj.png?format=png" alt="Explanation Image"></p>`
+      },
+    ];
 
-<header>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
-        </ul>
-    </nav>
-</header>
+    const quizContainer = document.getElementById("quiz");
+    const submitBtn = document.getElementById("submit-btn");
+    const scoreDiv = document.getElementById("score");
 
-<main>
-    <div class="question-detail" id="question-detail">
-        <!-- Question details will appear here -->
-    </div>
-</main>
-
-<script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
-
-    function loadQuestionDetail() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                if (question) {
-                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
-                    let questionDetailHTML = `
-                        <h3>${questionContent}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
-
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
-    }               
-
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.classList.remove('selected'); // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].classList.add('selected'); // Highlight selected option
+    function loadQuiz() {
+      quizData.forEach((question, index) => {
+        const questionDiv = document.createElement("div");
+        questionDiv.classList.add("question");
+        questionDiv.innerHTML = `
+          <div><strong>${index + 1}. ${question.content}</strong></div>
+          <div class="options">
+            ${question.options
+              .map(
+                (option) => `
+              <div class="option">
+                <label>
+                  <input type="radio" name="question${index}" value="${option.identifier}" />
+                  ${option.content}
+                </label>
+              </div>`
+              )
+              .join("")}
+          </div>
+          <div class="feedback" id="feedback${index}"></div>
+          <div class="explanation" id="explanation${index}" style="display:none;">
+            ${question.explanation}
+          </div>
+        `;
+        quizContainer.appendChild(questionDiv);
+      });
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
     }
 
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
+    function calculateScore() {
+      let score = 0;
+      quizData.forEach((question, index) => {
+        const selectedOption = document.querySelector(
+          `input[name="question${index}"]:checked`
+        );
+        const feedbackDiv = document.getElementById(`feedback${index}`);
+        const explanationDiv = document.getElementById(`explanation${index}`);
+        if (selectedOption) {
+          if (question.correct_options.includes(selectedOption.value)) {
+            score += 1;
+            feedbackDiv.innerHTML = `<span class="correct">Correct!</span>`;
+          } else {
+            feedbackDiv.innerHTML = `<span class="incorrect">Incorrect!</span>`;
+          }
+          explanationDiv.style.display = "block";
         }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                const correctAnswerIndex = question.correct_options[0]; // Assuming the first correct option for now
-
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                // Feedback for user's selection
-                const feedback = selectedOptionIndex === correctAnswerIndex ? 'You selected the correct answer!' : 'Oops! Your selection was incorrect.';
-                const feedbackElement = document.createElement('p');
-                feedbackElement.classList.add('feedback', selectedOptionIndex === correctAnswerIndex ? 'correct' : 'incorrect');
-                feedbackElement.innerText = feedback;
-                document.getElementById('result').prepend(feedbackElement);
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
+      });
+      scoreDiv.innerText = `Your score is: ${score} / ${quizData.length}`;
     }
 
-    loadQuestionDetail();
-</script>
+    submitBtn.addEventListener("click", calculateScore);
 
+    // Load the quiz on page load
+    loadQuiz();
+  </script>
 </body>
 </html>
