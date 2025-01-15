@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,65 +35,39 @@
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 20px;
-            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .question-detail h3 {
             margin-top: 0;
         }
         .options {
-            margin: 10px 0;
+            list-style-type: none;
+            padding: 0;
         }
         .options li {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
             padding: 10px;
             margin: 5px 0;
-            border-radius: 5px;
-            border: 2px solid black; /* Added black solid border */
+            border: 1px solid #ddd;
             cursor: pointer;
         }
-        .options li.selected {
-            background-color: #c1e7fc;
+        .options li:hover {
+            background-color: #f0f0f0;
         }
-        .options li.correct {
-            background-color: #28a745;
+        .correct {
+            background-color: #4CAF50;
             color: white;
         }
-        .options li.incorrect {
-            background-color: #dc3545;
+        .incorrect {
+            background-color: #f44336;
             color: white;
         }
-        .check-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
+        .hidden {
+            display: none;
         }
-        .check-btn:hover {
-            background-color: #0056b3;
-        }
-        .timer {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
-            color: #333;
-            font-weight: bold;
-        }
-        .explanation {
+        .result {
             margin-top: 20px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .explanation p {
-            margin: 0;
-        }
-        /* Prevent text wrapping around inline math */
-        .question-detail p {
-            white-space: nowrap;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -104,38 +77,23 @@
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="index.html?subject=biology">Biology</a></li>
-            <li><a href="index.html?subject=physics">Physics</a></li>
-            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <!-- Direct question and options will be placed here -->
-    <div id="question-detail"></div>
-    <div class="timer" id="timer">Time Left: 1:00</div>
+    <div class="question-detail" id="question-detail">
+        <!-- Question details will appear here -->
+    </div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
-    let timerInterval;
 
-    function startTimer() {
-        let timeLeft = 60; // 1 minute timer
-        timerInterval = setInterval(function () {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-            if (timeLeft === 0) {
-                clearInterval(timerInterval);
-                alert("Time's up! Please select an option.");
-                checkAnswer();  // Automatically check the answer when time runs out
-            }
-            timeLeft--;
-        }, 1000);
-    }
-
+    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
@@ -155,29 +113,19 @@
                 if (question) {
                     let questionDetailHTML = `
                         <h3>${question.content}</h3>
-                        <ul class="options">
-                            ${question.options.map((opt, index) => 
-                                `<li data-option="${opt.identifier}" id="option${index}">
-                                    ${String.fromCharCode(65 + index)}. ${opt.content}
-                                 </li>`
-                            ).join('')}
+                        <ul class="options" id="options">
+                            ${question.options.map((opt, index) => `
+                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
+                            `).join('')}
                         </ul>
-                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
+                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                        <div id="result" class="hidden">
+                            <p class="result" id="answer-result"></p>
+                            <p><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
-
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        option.addEventListener('click', function () {
-                            options.forEach(opt => opt.classList.remove('selected'));
-                            option.classList.add('selected');
-                        });
-                    });
-
-                    startTimer();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -188,9 +136,25 @@
             });
     }
 
-    function checkAnswer(questionId) {
+    let selectedOptionIndex = null;
+
+    function selectOption(index) {
+        const options = document.querySelectorAll('.options li');
+        options.forEach((option, idx) => {
+            option.style.backgroundColor = ''; // Reset background color
+        });
+        selectedOptionIndex = index;
+        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
+    }
+
+    function checkAnswer() {
+        if (selectedOptionIndex === null) {
+            alert('Please select an option!');
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter] = urlParams.get('id').split('/');
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
         fetch(chaptersUrl)
             .then(response => response.json())
@@ -204,37 +168,26 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const selectedOption = document.querySelector('.options li.selected');
-                const correctOptions = question.correct_options;
+                const correctAnswerIndex = question.correct_option_index;
 
-                if (selectedOption) {
-                    const selectedAnswer = selectedOption.getAttribute('data-option');
-                    const explanationHTML = `
-                        <div class="explanation">
-                            <p><strong>Explanation:</strong></p>
-                            ${question.explanation}
-                        </div>
-                    `;
+                const options = document.querySelectorAll('.options li');
+                options.forEach((option, idx) => {
+                    if (idx === correctAnswerIndex) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                    }
+                });
 
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        if (correctOptions.includes(option.getAttribute('data-option'))) {
-                            option.classList.add('correct');
-                        } else if (option === selectedOption) {
-                            option.classList.add('incorrect');
-                        }
-                    });
+                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
+                document.getElementById('answer-result').innerText = resultText;
 
-                    document.getElementById('question-detail').innerHTML += explanationHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                } else {
-                    alert('Please select an option!');
-                }
-
-                clearInterval(timerInterval);
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
             })
             .catch(error => {
-                console.error('Error checking answer:', error);
+                console.error('Error checking the answer:', error);
+                alert('Error checking the answer.');
             });
     }
 
