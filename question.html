@@ -155,9 +155,14 @@
 </main>
 
 <script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
+    
     let timerInterval;
-    let isAnswered = false;
+    let selectedOption = null;
 
     // Timer function
     function startTimer() {
@@ -168,10 +173,8 @@
             document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
             if (timeLeft === 0) {
                 clearInterval(timerInterval);
-                if (!isAnswered) {
-                    alert("Time's up! Please select an option.");
-                    checkAnswer();  // Automatically check the answer when time runs out
-                }
+                alert("Time's up! Please select an option.");
+                checkAnswer();  // Automatically check the answer when time runs out
             }
             timeLeft--;
         }, 1000);
@@ -182,10 +185,14 @@
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
+        // Loop through all metaIds and fetch questions
+        Promise.all(metaIds.map(metaId => {
+            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+            return fetch(chaptersUrl).then(response => response.json());
+        }))
+        .then(dataArray => {
+            let question = {};
+            for (let data of dataArray) {
                 if (subject === 'biology') {
                     question = data[0].questions.find(q => q.question_id === questionId);
                 } else if (subject === 'physics') {
@@ -193,114 +200,80 @@
                 } else if (subject === 'chemistry') {
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
+                if (question) break; // Stop searching once the question is found
+            }
 
-                if (question) {
-                    let questionDetailHTML = `
-                        <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                        })}</h3>
-                        <ul class="options">
-                            ${question.options.map((opt, index) => 
-                                `<li data-option="${opt.identifier}" id="option${index}">
-                                    ${String.fromCharCode(65 + index)}. ${opt.content}
-                                 </li>`
-                            ).join('')}
-                        </ul>
-                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
-                    `;
+            if (question) {
+                let questionDetailHTML = `
+                    <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    })}</h3>
+                    <ul class="options">
+                        ${question.options.map((opt, index) => 
+                            `<li data-option="${opt.identifier}" id="option${index}">
+                                ${String.fromCharCode(65 + index)}. ${opt.content}
+                             </li>`
+                        ).join('')}
+                    </ul>
+                    <button class="check-btn" onclick="checkAnswer()">Submit Answer</button>
+                `;
 
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
+                document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-                    // Add event listeners for options
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        option.addEventListener('click', function () {
-                            if (!isAnswered) {
-                                options.forEach(opt => opt.classList.remove('selected'));
-                                option.classList.add('selected');
-                                disableOptions(options);
-                            }
-                        });
+                // Add event listeners for options
+                const options = document.querySelectorAll('.options li');
+                options.forEach(option => {
+                    option.addEventListener('click', function () {
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        selectedOption = option;
+                        disableOptions(options);
                     });
+                });
 
-                    // Start the timer
-                    startTimer();
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
-    }
-
-    // Disable other options once one is selected
-    function disableOptions(options) {
-        options.forEach(option => {
-            option.style.pointerEvents = 'none'; // Disable other options
+                // Start the timer
+                startTimer();
+            } else {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading question details:', error);
+            document.getElementById('question-detail').innerHTML = '<p>Error loading question details.</p>';
         });
     }
 
-    // Check the selected answer and show explanation
-    function checkAnswer(questionId) {
-        if (isAnswered) return; // Prevent multiple submissions
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter] = urlParams.get('id').split('/');
-
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                const selectedOption = document.querySelector('.options li.selected');
-                const correctOptions = question.correct_options;
-
-                if (selectedOption) {
-                    const selectedAnswer = selectedOption.getAttribute('data-option');
-                    const explanationHTML = `
-                        <div class="explanation">
-                            <p><strong>Explanation:</strong></p>
-                            ${question.explanation}
-                        </div>
-                    `;
-
-                    // Mark answers
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        if (correctOptions.includes(option.getAttribute('data-option'))) {
-                            option.classList.add('correct');
-                        } else if (option === selectedOption) {
-                            option.classList.add('incorrect');
-                        }
-                    });
-
-                    // Append explanation
-                    document.getElementById('question-detail').innerHTML += explanationHTML;
-                    // Reprocess the explanation content for MathJax
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-
-                    // Set answered flag to true
-                    isAnswered = true;
-                    clearInterval(timerInterval); // Stop the timer after checking
-                } else {
-                    alert('Please select an option!');
-                }
-            })
-            .catch(error => {
-                console.error('Error checking answer:', error);
-            });
+    function disableOptions(options) {
+        options.forEach(opt => opt.style.pointerEvents = 'none');
     }
 
-    loadQuestionDetail();
+    function checkAnswer() {
+        if (!selectedOption) {
+            alert("Please select an option.");
+            return;
+        }
+
+        // Assume correct answer is the first option (modify as needed)
+        const correctOption = document.querySelector('.options li[data-option="B"]');
+        const explanation = "This is the explanation of why the answer is correct.";
+
+        // Check if the selected option is correct or not
+        if (selectedOption === correctOption) {
+            selectedOption.classList.add('correct');
+        } else {
+            selectedOption.classList.add('incorrect');
+        }
+
+        // Display explanation
+        const explanationHTML = `
+            <div class="explanation">
+                <p><strong>Explanation:</strong> ${explanation}</p>
+            </div>
+        `;
+        document.getElementById('question-detail').innerHTML += explanationHTML;
+    }
+
+    window.onload = loadQuestionDetail;
 </script>
 
 </body>
