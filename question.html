@@ -11,20 +11,16 @@
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
         header {
             background-color: #333;
             color: white;
-            padding: 15px 0;
+            padding: 10px 0;
             text-align: center;
         }
         nav ul {
             list-style-type: none;
             padding: 0;
-            margin: 0;
         }
         nav ul li {
             display: inline;
@@ -41,27 +37,20 @@
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .question-detail h3 {
             margin-top: 0;
-            font-size: 24px;
-            color: #333;
         }
         .options {
-            margin: 20px 0;
+            margin: 10px 0;
         }
         .options li {
             background-color: #f0f0f0;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 10px;
+            margin: 5px 0;
             border-radius: 5px;
-            border: 2px solid #ccc;
+            border: 2px solid black; 
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .options li:hover {
-            background-color: #e0e0e0;
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -78,34 +67,27 @@
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 15px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
         .check-btn:hover {
             background-color: #0056b3;
         }
         .timer {
             position: fixed;
-            top: 15px;
-            right: 15px;
+            top: 10px;
+            right: 10px;
             font-size: 18px;
             color: #333;
             font-weight: bold;
-            background-color: #ff9800;
-            padding: 10px;
-            border-radius: 5px;
         }
         .explanation {
             margin-top: 20px;
             background-color: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 16px;
         }
         .explanation p {
             margin: 0;
@@ -126,6 +108,7 @@
 </header>
 
 <main>
+    <!-- Direct question and options will be placed here -->
     <div id="question-detail"></div>
     <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
@@ -151,68 +134,66 @@
     }
 
     // Load a specific question detail based on the question ID
-function loadQuestionDetail() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const [subject, chapter, questionId] = urlParams.get('id').split('/');
+    function loadQuestionDetail() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-    fetch(chaptersUrl)
-        .then(response => response.json())
-        .then(data => {
-            let question = {};
-            if (subject === 'biology') {
-                question = data[0].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'physics') {
-                question = data[1].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'chemistry') {
-                question = data[2].questions.find(q => q.question_id === questionId);
-            }
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let question = {};
+                if (subject === 'biology') {
+                    question = data[0].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'physics') {
+                    question = data[1].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'chemistry') {
+                    question = data[2].questions.find(q => q.question_id === questionId);
+                }
 
-            if (question) {
-                let questionDetailHTML = `
-                    <h3>${question.content}</h3>
-                    <ul class="options">
-                        ${question.options.map((opt, index) => 
-                            `<li data-option="${opt.identifier}" id="option${index}">
-                                ${String.fromCharCode(65 + index)}. ${opt.content}
-                             </li>`
-                        ).join('')}
-                    </ul>
-                    <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
-                `;
+                if (question) {
+                    let questionDetailHTML = `
+                        <h3>${question.content}</h3>
+                        <ul class="options">
+                            ${question.options.map((opt, index) => 
+                                `<li data-option="${opt.identifier}" id="option${index}">
+                                    ${String.fromCharCode(65 + index)}. ${opt.content}
+                                 </li>`
+                            ).join('')}
+                        </ul>
+                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
+                    `;
 
-                // Render any inline math (MathJax will handle it)
-                questionDetailHTML = questionDetailHTML.replace(/\((.*?)\)/g, function(match, p1) {
-                    return `\\(${p1}\\)`; // Wrap the text inside \( \) for MathJax inline
-                });
-
-                document.getElementById('question-detail').innerHTML = questionDetailHTML;
-
-                // Ensure MathJax processes the inline math
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-                // Add event listeners for options
-                const options = document.querySelectorAll('.options li');
-                options.forEach(option => {
-                    option.addEventListener('click', function () {
-                        options.forEach(opt => opt.classList.remove('selected'));
-                        option.classList.add('selected');
-                        disableOptions(options);
+                    // Render any inline math (MathJax will handle it)
+                    questionDetailHTML = questionDetailHTML.replace(/\((.*?)\)/g, function(match, p1) {
+                        return `\\(${p1}\\)`; // Wrap the text inside \( \) for MathJax inline
                     });
-                });
 
-                // Start the timer
-                startTimer();
-            } else {
-                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading question details:', error);
-            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-        });
-}
+                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
+                    // Ensure MathJax processes the inline math
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
+                    // Add event listeners for options
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        option.addEventListener('click', function () {
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                            disableOptions(options);
+                        });
+                    });
+
+                    // Start the timer
+                    startTimer();
+                } else {
+                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading question details:', error);
+                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+            });
+    }
 
     // Disable other options once one is selected
     function disableOptions(options) {
