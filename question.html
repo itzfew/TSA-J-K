@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -48,6 +49,7 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
+            border: 2px solid black; /* Added black solid border */
             cursor: pointer;
         }
         .options li.selected {
@@ -74,6 +76,9 @@
             background-color: #0056b3;
         }
         .timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
             font-size: 18px;
             color: #333;
             font-weight: bold;
@@ -95,9 +100,9 @@
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="index.html?subject=biology">Biology</a></li>
+            <li><a href="index.html?subject=physics">Physics</a></li>
+            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
         </ul>
     </nav>
 </header>
