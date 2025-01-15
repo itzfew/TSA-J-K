@@ -110,51 +110,54 @@
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+    const urlParams = new URLSearchParams(window.location.search);
+    const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
+    fetch(chaptersUrl)
+        .then(response => response.json())
+        .then(data => {
+            let question = {};
+            if (subject === 'biology') {
+                question = data[0].questions.find(q => q.question_id === questionId);
+            } else if (subject === 'physics') {
+                question = data[1].questions.find(q => q.question_id === questionId);
+            } else if (subject === 'chemistry') {
+                question = data[2].questions.find(q => q.question_id === questionId);
+            }
 
-                if (question) {
-                    let questionDetailHTML = `
-                        <h3>${question.content} $$ \\displaystyle E = mc^2 $$ continuing with text.</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
+            if (question) {
+                // Wrap math in the mathjax-inline class
+                let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                    return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                });
 
-                    // Update the question content with MathJax rendering
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
-    }
+                let questionDetailHTML = `
+                    <h3>${questionContent}</h3>
+                    <ul class="options" id="options">
+                        ${question.options.map((opt, index) => `
+                            <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
+                        `).join('')}
+                    </ul>
+                    <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                    <div id="result" class="hidden">
+                        <p class="result" id="answer-result"></p>
+                        <p><strong>Explanation:</strong> ${question.explanation}</p>
+                    </div>
+                `;
 
+                // Update the question content with MathJax rendering
+                document.getElementById('question-detail').innerHTML = questionDetailHTML;
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+            } else {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading question details:', error);
+            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+        });
+}               
     let selectedOptionIndex = null;
 
     function selectOption(index) {
