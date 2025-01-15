@@ -70,6 +70,8 @@
             font-weight: bold;
         }
     </style>
+    <!-- MathJax Library -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
@@ -126,6 +128,9 @@
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+                    // Trigger MathJax to render equations
+                    MathJax.typeset();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
