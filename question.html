@@ -262,9 +262,7 @@
                     const explanationHTML = `
                         <div class="explanation">
                             <p><strong>Explanation:</strong></p>
-                            <p>${question.explanation.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                                return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                            })}</p>
+                            ${question.explanation}
                         </div>
                     `;
 
@@ -280,6 +278,9 @@
 
                     // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
+
+                    // Render the MathJax content
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                 } else {
                     alert('Please select an option!');
                 }
