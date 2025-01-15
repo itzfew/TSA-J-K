@@ -153,6 +153,8 @@
                 if (question) {
                     let questionDetailHTML = `
                         <h3>${question.content}</h3>
+                        <p>The variation of susceptibility (\\(\\chi\\)) with absolute temperature (\\(T\\)) for a paramagnetic material is represented as:</p>
+                        <p>\\(\\chi = \\frac{C}{T}\\), where C is the material constant.</p>
                         <ul class="options">
                             ${question.options.map((opt, index) => 
                                 `<li data-option="${opt.identifier}" id="option${index}">
@@ -164,7 +166,7 @@
                     `;
 
                     // Render any inline math (MathJax will handle it)
-                    questionDetailHTML = questionDetailHTML.replace(/\((.*?)\)/g, function(match, p1) {
+                    questionDetailHTML = questionDetailHTML.replace(/\\\((.*?)\\\)/g, function(match, p1) {
                         return `\\(${p1}\\)`; // Wrap the text inside \( \) for MathJax inline
                     });
 
