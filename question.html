@@ -165,6 +165,9 @@
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
+                    // Render MathJax inline formulas
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
                     options.forEach(option => {
@@ -235,6 +238,10 @@
 
                     // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
+
+                    // Render MathJax inline formulas again after explanation
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
                 } else {
                     alert('Please select an option!');
                 }
