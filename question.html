@@ -155,12 +155,12 @@
 </main>
 
 <script>
-    const metaIds = [
+    let metaIds = [
         "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
         "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
-    
+
     let timerInterval;
     let selectedOption = null;
 
@@ -215,7 +215,7 @@
                              </li>`
                         ).join('')}
                     </ul>
-                    <button class="check-btn" onclick="checkAnswer()">Submit Answer</button>
+                    <button class="check-btn" onclick="checkAnswer('${questionId}')">Submit Answer</button>
                 `;
 
                 document.getElementById('question-detail').innerHTML = questionDetailHTML;
@@ -247,30 +247,56 @@
         options.forEach(opt => opt.style.pointerEvents = 'none');
     }
 
-    function checkAnswer() {
-        if (!selectedOption) {
-            alert("Please select an option.");
+    // Check the selected answer and show explanation
+    function checkAnswer(questionId) {
+        if (selectedOption === null) {
+            alert('Please select an option!');
             return;
         }
 
-        // Assume correct answer is the first option (modify as needed)
-        const correctOption = document.querySelector('.options li[data-option="B"]');
-        const explanation = "This is the explanation of why the answer is correct.";
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter] = urlParams.get('id').split('/');
 
-        // Check if the selected option is correct or not
-        if (selectedOption === correctOption) {
-            selectedOption.classList.add('correct');
-        } else {
-            selectedOption.classList.add('incorrect');
-        }
+        fetch(`https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[0]}.json`)
+            .then(response => response.json())
+            .then(data => {
+                let question = {};
+                if (subject === 'biology') {
+                    question = data[0].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'physics') {
+                    question = data[1].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'chemistry') {
+                    question = data[2].questions.find(q => q.question_id === questionId);
+                }
 
-        // Display explanation
-        const explanationHTML = `
-            <div class="explanation">
-                <p><strong>Explanation:</strong> ${explanation}</p>
-            </div>
-        `;
-        document.getElementById('question-detail').innerHTML += explanationHTML;
+                const correctOptions = question.correct_options;
+
+                // Mark answers
+                const options = document.querySelectorAll('.options li');
+                options.forEach(option => {
+                    if (correctOptions.includes(option.getAttribute('data-option'))) {
+                        option.classList.add('correct');
+                    } else if (option === selectedOption) {
+                        option.classList.add('incorrect');
+                    }
+                });
+
+                // Show explanation
+                const explanationHTML = `
+                    <div class="explanation">
+                        <p><strong>Explanation:</strong> ${question.explanation}</p>
+                    </div>
+                `;
+                document.getElementById('question-detail').innerHTML += explanationHTML;
+
+                // Reprocess the explanation content for MathJax
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
+                clearInterval(timerInterval); // Stop the timer after checking
+            })
+            .catch(error => {
+                console.error('Error checking answer:', error);
+            });
     }
 
     window.onload = loadQuestionDetail;
