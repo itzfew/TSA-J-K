@@ -169,11 +169,11 @@
 
                 if (question) {
                     let questionDetailHTML = `
-                        <h3>${question.content}</h3>
+                        <h3>${question.content.replace(/\((.*?)\)/g, '\\($1\\)')}</h3>
                         <ul class="options">
                             ${question.options.map((opt, index) => 
                                 `<li data-option="${opt.identifier}" id="option${index}">
-                                    ${String.fromCharCode(65 + index)}. ${opt.content}
+                                    ${String.fromCharCode(65 + index)}. ${opt.content.replace(/\((.*?)\)/g, '\\($1\\)')}
                                  </li>`
                             ).join('')}
                         </ul>
@@ -181,6 +181,9 @@
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+                    // Ensure MathJax processes the inline math
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
