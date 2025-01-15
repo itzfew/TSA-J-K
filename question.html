@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,102 +95,87 @@
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    // Load a specific question detail based on the question ID
-    function loadQuestionDetail() {
+    async function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
+        try {
+            const response = await fetch(chaptersUrl);
+            const data = await response.json();
+
+            let question = {};
+            switch (subject) {
+                case 'biology':
                     question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
+                    break;
+                case 'physics':
                     question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
+                    break;
+                case 'chemistry':
                     question = data[2].questions.find(q => q.question_id === questionId);
-                }
+                    break;
+                default:
+                    throw new Error('Invalid subject');
+            }
 
-                if (question) {
-                    let questionDetailHTML = `
-                        <h3>${question.content}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
+            if (!question) {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+                return;
+            }
 
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
+            renderQuestion(question);
+        } catch (error) {
+            console.error('Error loading question details:', error);
+            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+        }
+    }
+
+    function renderQuestion(question) {
+        const questionHTML = `
+            <h3>${question.content}</h3>
+            <ul class="options" id="options">
+                ${question.options.map((opt, index) => `
+                    <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
+                `).join('')}
+            </ul>
+            <button id="check-answer" onclick="checkAnswer(${question.correct_option_index})">Check Answer</button>
+            <div id="result" class="hidden">
+                <p class="result" id="answer-result"></p>
+                <p><strong>Explanation:</strong> ${question.explanation}</p>
+            </div>
+        `;
+        document.getElementById('question-detail').innerHTML = questionHTML;
+        MathJax.typeset(); // Re-render MathJax equations dynamically
     }
 
     let selectedOptionIndex = null;
 
     function selectOption(index) {
         const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
+        options.forEach(option => option.style.backgroundColor = ''); // Reset background color
         selectedOptionIndex = index;
         options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
     }
 
-    function checkAnswer() {
+    function checkAnswer(correctAnswerIndex) {
         if (selectedOptionIndex === null) {
             alert('Please select an option!');
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const options = document.querySelectorAll('.options li');
+        options.forEach((option, idx) => {
+            if (idx === correctAnswerIndex) {
+                option.classList.add('correct');
+            } else {
+                option.classList.add('incorrect');
+            }
+        });
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                const correctAnswerIndex = question.correct_option_index;
-
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
+        const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
+        document.getElementById('answer-result').innerText = resultText;
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
     }
 
     loadQuestionDetail();
