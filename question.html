@@ -69,7 +69,24 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
+        .mathjax-inline {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+
+        /* Ensuring that MathJax inline formulas don't break or overflow */
+        .question-content span {
+            display: inline-block;
+        }
+
     </style>
+
+    <!-- Include MathJax for equation rendering -->
+    <script type="text/javascript" async 
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 </head>
 <body>
 
@@ -93,7 +110,6 @@
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
@@ -111,8 +127,13 @@
                 }
 
                 if (question) {
+                    // Wrap math in the mathjax-inline class
+                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
+
                     let questionDetailHTML = `
-                        <h3>${question.content}</h3>
+                        <h3>${questionContent}</h3>
                         <ul class="options" id="options">
                             ${question.options.map((opt, index) => `
                                 <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
@@ -125,7 +146,9 @@
                         </div>
                     `;
 
+                    // Update the question content with MathJax rendering
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -134,7 +157,7 @@
                 console.error('Error loading question details:', error);
                 document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
-    }
+    }               
 
     let selectedOptionIndex = null;
 
@@ -168,9 +191,10 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctAnswerIndex = question.correct_option_index;
-
+                const correctAnswerIndex = question.correct_options[0]; // Assuming one correct option
                 const options = document.querySelectorAll('.options li');
+
+                // Highlight correct and incorrect options
                 options.forEach((option, idx) => {
                     if (idx === correctAnswerIndex) {
                         option.classList.add('correct');
