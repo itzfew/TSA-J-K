@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -50,9 +50,10 @@
             margin: 5px 0;
             border: 1px solid #ddd;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         .options li:hover {
-            background-color: #f0f0f0;
+            background-color: #e0e0e0;
         }
         .correct {
             background-color: #4CAF50;
@@ -62,6 +63,9 @@
             background-color: #f44336;
             color: white;
         }
+        .selected {
+            background-color: #e0e0e0;
+        }
         .hidden {
             display: none;
         }
@@ -69,18 +73,24 @@
             margin-top: 20px;
             font-weight: bold;
         }
-        /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
             font-size: 1.1em;
         }
-
-        /* Ensuring that MathJax inline formulas don't break or overflow */
         .question-content span {
             display: inline-block;
         }
-
+        .feedback {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .feedback.correct {
+            color: #4CAF50;
+        }
+        .feedback.incorrect {
+            color: #f44336;
+        }
     </style>
 
     <!-- Include MathJax for equation rendering -->
@@ -127,7 +137,6 @@
                 }
 
                 if (question) {
-                    // Wrap math in the mathjax-inline class
                     let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
                         return `<span class="mathjax-inline">$$${p1}$$</span>`;
                     });
@@ -146,7 +155,6 @@
                         </div>
                     `;
 
-                    // Update the question content with MathJax rendering
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
                 } else {
@@ -164,10 +172,10 @@
     function selectOption(index) {
         const options = document.querySelectorAll('.options li');
         options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
+            option.classList.remove('selected'); // Reset background color
         });
         selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
+        options[index].classList.add('selected'); // Highlight selected option
     }
 
     function checkAnswer() {
@@ -191,10 +199,9 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctAnswerIndex = question.correct_options[0]; // Assuming one correct option
-                const options = document.querySelectorAll('.options li');
+                const correctAnswerIndex = question.correct_options[0]; // Assuming the first correct option for now
 
-                // Highlight correct and incorrect options
+                const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
                     if (idx === correctAnswerIndex) {
                         option.classList.add('correct');
@@ -205,6 +212,13 @@
 
                 const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
                 document.getElementById('answer-result').innerText = resultText;
+
+                // Feedback for user's selection
+                const feedback = selectedOptionIndex === correctAnswerIndex ? 'You selected the correct answer!' : 'Oops! Your selection was incorrect.';
+                const feedbackElement = document.createElement('p');
+                feedbackElement.classList.add('feedback', selectedOptionIndex === correctAnswerIndex ? 'correct' : 'incorrect');
+                feedbackElement.innerText = feedback;
+                document.getElementById('result').prepend(feedbackElement);
 
                 document.getElementById('result').classList.remove('hidden');
                 document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
