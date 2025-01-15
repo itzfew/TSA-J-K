@@ -50,7 +50,8 @@
             margin: 5px 0;
             border: 1px solid #ddd;
             cursor: pointer;
-            transition: background-color 0.3s;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
         .options li:hover {
             background-color: #f0f0f0;
@@ -64,7 +65,25 @@
             color: white;
         }
         .selected {
-            background-color: #e0e0e0; /* Light grey background for selected */
+            background-color: #e0e0e0;
+        }
+        #timer {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #check-answer {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #check-answer:hover {
+            background-color: #45a049;
         }
         .hidden {
             display: none;
@@ -73,29 +92,7 @@
             margin-top: 20px;
             font-weight: bold;
         }
-        .button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-
-        /* Timer Styles */
-        .timer {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ff5722;
-        }
-
-        /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
+        /* Ensuring that MathJax inline formulas don't break or overflow */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
@@ -125,22 +122,29 @@
     <div class="question-detail" id="question-detail">
         <!-- Question details will appear here -->
     </div>
-
-    <div class="timer" id="timer">Time Left: <span id="time-left">60</span> seconds</div>
+    <div id="timer">Time left: 60s</div>
 </main>
 
 <script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
-    let timerInterval;
-    let timeLeft = 60; // 60 seconds for each question
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
+
+    const randomMetaId = metaIds[Math.floor(Math.random() * metaIds.length)];
+    const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${randomMetaId}.json`;
+
+    let timer;
+    let timeLeft = 60; // Timer set to 60 seconds
 
     function loadQuestionDetail() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
         fetch(chaptersUrl)
             .then(response => response.json())
             .then(data => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const [subject, chapter, questionId] = urlParams.get('id').split('/');
+
                 let question = {};
                 if (subject === 'biology') {
                     question = data[0].questions.find(q => q.question_id === questionId);
@@ -151,7 +155,6 @@
                 }
 
                 if (question) {
-                    // Wrap math in the mathjax-inline class
                     let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
                         return `<span class="mathjax-inline">$$${p1}$$</span>`;
                     });
@@ -163,19 +166,15 @@
                                 <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
                             `).join('')}
                         </ul>
-                        <button class="button" id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
                         <div id="result" class="hidden">
                             <p class="result" id="answer-result"></p>
                             <p><strong>Explanation:</strong> ${question.explanation}</p>
                         </div>
                     `;
 
-                    // Update the question content with MathJax rendering
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-
-                    // Start the timer
-                    startTimer();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -187,16 +186,15 @@
     }
 
     let selectedOptionIndex = null;
-    let correctAnswerIndex = null;
 
     function selectOption(index) {
         const options = document.querySelectorAll('.options li');
         options.forEach((option, idx) => {
-            option.classList.remove('selected'); // Remove the selected class from all options
+            option.classList.remove('selected');
         });
 
         selectedOptionIndex = index;
-        options[index].classList.add('selected'); // Highlight selected option
+        options[index].classList.add('selected');
     }
 
     function checkAnswer() {
@@ -221,7 +219,6 @@
                 }
 
                 const correctOption = question.correct_options[0];
-
                 const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
                     if (option.innerText === correctOption) {
@@ -242,7 +239,7 @@
                 document.getElementById('answer-result').innerText = resultText;
 
                 document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+                document.getElementById('check-answer').classList.add('hidden');
             })
             .catch(error => {
                 console.error('Error checking the answer:', error);
@@ -250,20 +247,23 @@
             });
     }
 
+    // Timer function
     function startTimer() {
-        timerInterval = setInterval(() => {
+        timer = setInterval(function() {
             if (timeLeft > 0) {
                 timeLeft--;
-                document.getElementById('time-left').innerText = timeLeft;
+                document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
             } else {
-                clearInterval(timerInterval);
+                clearInterval(timer);
                 alert('Time is up!');
                 checkAnswer();
             }
         }, 1000);
     }
 
+    // Load question and start the timer
     loadQuestionDetail();
+    startTimer();
 </script>
 
 </body>
