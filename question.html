@@ -175,58 +175,60 @@
     }
 
     function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                correctAnswerIndex = question.correct_options;
-
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    // Apply styles based on whether the option is correct or incorrect
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                // Apply styles to the selected option
-                const selectedOption = options[selectedOptionIndex];
-                if (selectedOptionIndex === correctAnswerIndex) {
-                    selectedOption.classList.add('correct');
-                } else {
-                    selectedOption.classList.add('incorrect');
-                }
-
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
+    if (selectedOptionIndex === null) {
+        alert('Please select an option!');
+        return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const [subject, chapter, questionId] = urlParams.get('id').split('/');
+
+    fetch(chaptersUrl)
+        .then(response => response.json())
+        .then(data => {
+            let question = {};
+            if (subject === 'biology') {
+                question = data[0].questions.find(q => q.question_id === questionId);
+            } else if (subject === 'physics') {
+                question = data[1].questions.find(q => q.question_id === questionId);
+            } else if (subject === 'chemistry') {
+                question = data[2].questions.find(q => q.question_id === questionId);
+            }
+
+            // Fetch correct option from the `correct_options` array
+            const correctOption = question.correct_options[0]; // Assuming it's a single option in the array
+
+            const options = document.querySelectorAll('.options li');
+            options.forEach((option, idx) => {
+                // Apply styles based on whether the option is correct or incorrect
+                if (option.innerText === correctOption) {
+                    option.classList.add('correct');
+                } else {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            // Apply styles to the selected option
+            const selectedOption = options[selectedOptionIndex];
+            if (selectedOption.innerText === correctOption) {
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+            }
+
+            const resultText = selectedOption.innerText === correctOption ? 'Correct!' : 'Incorrect.';
+            document.getElementById('answer-result').innerText = resultText;
+
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+        })
+        .catch(error => {
+            console.error('Error checking the answer:', error);
+            alert('Error checking the answer.');
+        });
+}
+
+                
     loadQuestionDetail();
 </script>
 
