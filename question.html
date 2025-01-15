@@ -35,39 +35,52 @@
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
         .question-detail h3 {
             margin-top: 0;
         }
         .options {
-            list-style-type: none;
-            padding: 0;
+            margin: 10px 0;
         }
         .options li {
-            background-color: #f9f9f9;
+            background-color: #f0f0f0;
             padding: 10px;
             margin: 5px 0;
-            border: 1px solid #ddd;
+            border-radius: 5px;
             cursor: pointer;
         }
-        .options li:hover {
-            background-color: #f0f0f0;
+        .options li.selected {
+            background-color: #c1e7fc;
         }
-        .correct {
-            background-color: #4CAF50;
+        .options li.correct {
+            background-color: #28a745;
             color: white;
         }
-        .incorrect {
-            background-color: #f44336;
+        .options li.incorrect {
+            background-color: #dc3545;
             color: white;
         }
-        .hidden {
-            display: none;
+        .check-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
         }
-        .result {
+        .check-btn:hover {
+            background-color: #0056b3;
+        }
+        .explanation {
             margin-top: 20px;
-            font-weight: bold;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .explanation p {
+            margin: 0;
         }
     </style>
 </head>
@@ -113,19 +126,22 @@
                 if (question) {
                     let questionDetailHTML = `
                         <h3>${question.content}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
+                        <ul class="options">
+                            ${question.options.map(opt => `<li data-option="${opt.identifier}">${opt.content}</li>`).join('')}
                         </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
+                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+                    // Add event listeners for options
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        option.addEventListener('click', function () {
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                        });
+                    });
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -136,25 +152,10 @@
             });
     }
 
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
-    }
-
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
-        }
-
+    // Check the selected answer and show explanation
+    function checkAnswer(questionId) {
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const [subject, chapter] = urlParams.get('id').split('/');
 
         fetch(chaptersUrl)
             .then(response => response.json())
@@ -168,26 +169,36 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctAnswerIndex = question.correct_option_index;
+                const selectedOption = document.querySelector('.options li.selected');
+                const correctOptions = question.correct_options;
 
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
+                if (selectedOption) {
+                    const selectedAnswer = selectedOption.getAttribute('data-option');
+                    const explanationHTML = `
+                        <div class="explanation">
+                            <p><strong>Explanation:</strong></p>
+                            ${question.explanation}
+                        </div>
+                    `;
 
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
+                    // Mark answers
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        if (correctOptions.includes(option.getAttribute('data-option'))) {
+                            option.classList.add('correct');
+                        } else if (option === selectedOption) {
+                            option.classList.add('incorrect');
+                        }
+                    });
 
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+                    // Append explanation
+                    document.getElementById('question-detail').innerHTML += explanationHTML;
+                } else {
+                    alert('Please select an option!');
+                }
             })
             .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
+                console.error('Error checking answer:', error);
             });
     }
 
