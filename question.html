@@ -37,7 +37,6 @@
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 10px;
-            white-space: nowrap; /* Prevents breaks between content */
         }
         .question-detail h3 {
             margin-top: 0;
@@ -50,10 +49,8 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            border: 2px solid black;
+            border: 2px solid black; /* Added black solid border */
             cursor: pointer;
-            display: inline-block; /* Makes options inline */
-            white-space: nowrap; /* Prevents breaking options into new lines */
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -94,10 +91,6 @@
         }
         .explanation p {
             margin: 0;
-        }
-        .inline-mathjax {
-            display: inline-block;
-            vertical-align: middle; /* Align math and text inline */
         }
     </style>
 </head>
