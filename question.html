@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
         header {
             background-color: #333;
             color: white;
-            padding: 10px 0;
+            padding: 15px;
             text-align: center;
         }
         nav ul {
@@ -30,80 +32,109 @@
             text-decoration: none;
             font-weight: bold;
         }
-        .question-detail {
-            margin: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
+        main {
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .question-detail {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 900px;
         }
         .question-detail h3 {
             margin-top: 0;
+            font-size: 1.8em;
+            color: #333;
         }
         .options {
-            list-style-type: none;
-            padding: 0;
+            margin: 20px 0;
         }
         .options li {
             background-color: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid #ddd;
             cursor: pointer;
-            border-radius: 5px;
+            font-size: 1.1em;
             transition: all 0.3s ease;
         }
         .options li:hover {
-            background-color: #f0f0f0;
+            background-color: #e6f7ff;
         }
-        .correct {
-            background-color: #4CAF50;
+        .options li.selected {
+            background-color: #c1e7fc;
+        }
+        .options li.correct {
+            background-color: #28a745;
             color: white;
         }
-        .incorrect {
-            background-color: #f44336;
+        .options li.incorrect {
+            background-color: #dc3545;
             color: white;
         }
-        .selected {
-            background-color: #e0e0e0;
-        }
-        #timer {
-            font-size: 20px;
-            color: #333;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        #check-answer {
-            background-color: #4CAF50;
+        .check-btn {
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 25px;
             cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
             transition: background-color 0.3s ease;
         }
-        #check-answer:hover {
-            background-color: #45a049;
+        .check-btn:hover {
+            background-color: #0056b3;
         }
-        .hidden {
-            display: none;
+        .timer {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2em;
+            color: #333;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .result {
+        .explanation {
             margin-top: 20px;
-            font-weight: bold;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
         }
-        /* Ensuring that MathJax inline formulas don't break or overflow */
+        .explanation p {
+            margin: 0;
+            font-size: 1.1em;
+        }
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        /* Ensure responsive design */
+        @media screen and (max-width: 768px) {
+            .question-detail {
+                padding: 15px;
+                max-width: 100%;
+            }
+            nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+            .options li {
+                font-size: 1em;
+                padding: 10px;
+            }
         }
     </style>
-
-    <!-- Include MathJax for equation rendering -->
-    <script type="text/javascript" async 
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
 </head>
 <body>
 
@@ -111,98 +142,40 @@
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="index.html?subject=biology">Biology</a></li>
+            <li><a href="index.html?subject=physics">Physics</a></li>
+            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <div class="question-detail" id="question-detail">
-        <!-- Question details will appear here -->
-    </div>
-    <div id="timer">Time left: 60s</div>
+    <div id="question-detail"></div>
+    <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
 
 <script>
-    const metaIds = [
-        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
-        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
-        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
-    ];
+    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    let timerInterval;
 
-    const randomMetaId = metaIds[Math.floor(Math.random() * metaIds.length)];
-    const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${randomMetaId}.json`;
+    // Timer function
+    function startTimer() {
+        let timeLeft = 60; // 1 minute timer
+        timerInterval = setInterval(function () {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Please select an option.");
+                checkAnswer();  // Automatically check the answer when time runs out
+            }
+            timeLeft--;
+        }, 1000);
+    }
 
-    let timer;
-    let timeLeft = 60; // Timer set to 60 seconds
-
+    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                if (question) {
-                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
-                    let questionDetailHTML = `
-                        <h3>${questionContent}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
-
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
-    }
-
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.classList.remove('selected');
-        });
-
-        selectedOptionIndex = index;
-        options[index].classList.add('selected');
-    }
-
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
@@ -218,52 +191,107 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctOption = question.correct_options[0];
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (option.innerText === correctOption) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
+                if (question) {
+                    let questionDetailHTML = `
+                        <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                        })}</h3>
+                        <ul class="options">
+                            ${question.options.map((opt, index) => 
+                                `<li data-option="${opt.identifier}" id="option${index}">
+                                    ${String.fromCharCode(65 + index)}. ${opt.content}
+                                 </li>`
+                            ).join('')}
+                        </ul>
+                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
+                    `;
 
-                const selectedOption = options[selectedOptionIndex];
-                if (selectedOption.innerText === correctOption) {
-                    selectedOption.classList.add('correct');
+                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+                    // Add event listeners for options
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        option.addEventListener('click', function () {
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                            disableOptions(options);
+                        });
+                    });
+
+                    // Start the timer
+                    startTimer();
                 } else {
-                    selectedOption.classList.add('incorrect');
+                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
-
-                const resultText = selectedOption.innerText === correctOption ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden');
             })
             .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
+                console.error('Error loading question details:', error);
+                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
     }
 
-    // Timer function
-    function startTimer() {
-        timer = setInterval(function() {
-            if (timeLeft > 0) {
-                timeLeft--;
-                document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
-            } else {
-                clearInterval(timer);
-                alert('Time is up!');
-                checkAnswer();
-            }
-        }, 1000);
+    // Disable other options once one is selected
+    function disableOptions(options) {
+        options.forEach(option => {
+            option.style.pointerEvents = 'none'; // Disable other options
+        });
     }
 
-    // Load question and start the timer
+    // Check the selected answer and show explanation
+    function checkAnswer(questionId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter] = urlParams.get('id').split('/');
+
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let question = {};
+                if (subject === 'biology') {
+                    question = data[0].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'physics') {
+                    question = data[1].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'chemistry') {
+                    question = data[2].questions.find(q => q.question_id === questionId);
+                }
+
+                const selectedOption = document.querySelector('.options li.selected');
+                const correctOptions = question.correct_options;
+
+                if (selectedOption) {
+                    const selectedAnswer = selectedOption.getAttribute('data-option');
+                    const explanationHTML = `
+                        <div class="explanation">
+                            <p><strong>Explanation:</strong></p>
+                            ${question.explanation}
+                        </div>
+                    `;
+
+                    // Mark answers
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        if (correctOptions.includes(option.getAttribute('data-option'))) {
+                            option.classList.add('correct');
+                        } else if (option === selectedOption) {
+                            option.classList.add('incorrect');
+                        }
+                    });
+
+                    // Append explanation
+                    document.getElementById('question-detail').innerHTML += explanationHTML;
+                    // Reprocess the explanation content for MathJax
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+                } else {
+                    alert('Please select an option!');
+                }
+
+                clearInterval(timerInterval); // Stop the timer after checking
+            })
+            .catch(error => {
+                console.error('Error checking answer:', error);
+            });
+    }
+
     loadQuestionDetail();
-    startTimer();
 </script>
 
 </body>
