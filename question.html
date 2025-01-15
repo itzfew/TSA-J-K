@@ -195,7 +195,7 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                correctAnswerIndex = question.correct_option_index;
+                correctAnswerIndex = question.correct_options;
 
                 const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
