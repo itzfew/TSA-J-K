@@ -43,12 +43,6 @@
         .question:hover {
             background-color: #f0f0f0;
         }
-        .chapter-title {
-            font-size: 20px;
-            margin-top: 30px;
-            font-weight: bold;
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
@@ -77,13 +71,13 @@
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
-    // Load all questions from each chapter for all metaIds
+    // Load all questions from all chapters and subjects across all metaIds
     function loadQuestions() {
         const urlParams = new URLSearchParams(window.location.search);
         const subject = urlParams.get('subject') || 'biology';
-        
-        let allChapters = {}; // Will hold chapters and their questions
 
+        let allQuestions = [];
+        
         // Loop through each metaId and fetch the questions
         const fetchPromises = metaIds.map(metaId => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
@@ -91,19 +85,16 @@
             return fetch(chaptersUrl)
                 .then(response => response.json())
                 .then(data => {
-                    // Find the subject data
+                    // For each subject, collect questions from all chapters
                     const subjectData = data.find(item => item.subject === subject);
                     if (subjectData) {
-                        // For each chapter in the subject, collect questions
                         subjectData.chapters.forEach(chapter => {
-                            if (!allChapters[chapter.name]) {
-                                allChapters[chapter.name] = [];
-                            }
                             chapter.questions.forEach(q => {
-                                allChapters[chapter.name].push({
-                                    metaId: metaId,
-                                    questionId: q.question_id,
-                                    question: q.content
+                                allQuestions.push({
+                                    subject: subject,
+                                    chapter: chapter.name,
+                                    question: q.content,
+                                    questionId: q.question_id
                                 });
                             });
                         });
@@ -117,30 +108,23 @@
         // Wait for all fetch requests to finish
         Promise.all(fetchPromises)
             .then(() => {
-                displayQuestions(allChapters);
+                displayQuestions(allQuestions);
             })
             .catch(error => {
                 document.getElementById('question-list').innerHTML = '<p>Error loading questions. Please try again later.</p>';
             });
     }
 
-    // Display the questions grouped by chapter
-    function displayQuestions(allChapters) {
+    // Display the questions in HTML
+    function displayQuestions(questions) {
         let questionListHTML = '';
-        
-        // For each chapter, display all its questions
-        for (const chapterName in allChapters) {
-            if (allChapters.hasOwnProperty(chapterName)) {
-                questionListHTML += `<div class="chapter-title">${chapterName}</div>`;
-                allChapters[chapterName].forEach(q => {
-                    questionListHTML += `
-                        <div class="question">
-                            <a href="question.html?id=${q.metaId}/${chapterName}/${q.questionId}">${q.question}</a>
-                        </div>
-                    `;
-                });
-            }
-        }
+        questions.forEach(q => {
+            questionListHTML += `
+                <div class="question">
+                    <a href="question.html?id=${q.subject}/${q.chapter}/${q.questionId}">${q.question}</a>
+                </div>
+            `;
+        });
 
         document.getElementById('question-list').innerHTML = questionListHTML;
     }
