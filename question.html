@@ -11,11 +11,12 @@
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
         header {
             background-color: #333;
             color: white;
-            padding: 10px 0;
+            padding: 15px;
             text-align: center;
         }
         nav ul {
@@ -31,26 +32,38 @@
             text-decoration: none;
             font-weight: bold;
         }
+        main {
+            padding: 20px;
+        }
         .question-detail {
-            margin: 20px;
             background-color: #fff;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 900px;
         }
         .question-detail h3 {
             margin-top: 0;
+            font-size: 1.8em;
+            color: #333;
         }
         .options {
-            margin: 10px 0;
+            margin: 20px 0;
         }
         .options li {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: 2px solid black; /* Added black solid border */
+            background-color: #f9f9f9;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid #ddd;
             cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        .options li:hover {
+            background-color: #e6f7ff;
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -67,42 +80,59 @@
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 10px;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
         }
         .check-btn:hover {
             background-color: #0056b3;
         }
         .timer {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2em;
             color: #333;
-            font-weight: bold;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .explanation {
             margin-top: 20px;
             background-color: #f9f9f9;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
         }
         .explanation p {
             margin: 0;
+            font-size: 1.1em;
         }
-
-        /* Styling for MathJax inline math */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            color: #007bff;
         }
 
-        /* Ensuring that MathJax inline formulas don't break or overflow */
-        .question-detail span {
-            display: inline-block;
+        /* Ensure responsive design */
+        @media screen and (max-width: 768px) {
+            .question-detail {
+                padding: 15px;
+                max-width: 100%;
+            }
+            nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+            .options li {
+                font-size: 1em;
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -120,7 +150,6 @@
 </header>
 
 <main>
-    <!-- Direct question and options will be placed here -->
     <div id="question-detail"></div>
     <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
@@ -163,13 +192,10 @@
                 }
 
                 if (question) {
-                    // Wrap math in mathjax-inline class
-                    const formattedContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
                     let questionDetailHTML = `
-                        <h3>${formattedContent}</h3>
+                        <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                        })}</h3>
                         <ul class="options">
                             ${question.options.map((opt, index) => 
                                 `<li data-option="${opt.identifier}" id="option${index}">
