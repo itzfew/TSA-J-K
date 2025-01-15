@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
-    <!-- MathJax Script -->
-    <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,8 +87,8 @@
         .explanation p {
             margin: 0;
         }
-        
-        /* MathJax inline styling */
+
+        /* Prevent MathJax line breaks and ensure inline equations are rendered smoothly */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
@@ -100,8 +96,8 @@
         }
         .mathjax-block {
             display: block;
-            margin: 15px 0;
-            font-size: 1.2em;
+            text-align: center;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -125,6 +121,7 @@
     <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
     let timerInterval;
@@ -176,6 +173,9 @@
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+                    // Process MathJax inline equations
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
@@ -231,7 +231,7 @@
                     const explanationHTML = `
                         <div class="explanation">
                             <p><strong>Explanation:</strong></p>
-                            <div class="mathjax-inline">${question.explanation}</div>
+                            ${question.explanation}
                         </div>
                     `;
 
@@ -245,9 +245,11 @@
                         }
                     });
 
-                    // Append explanation with MathJax
+                    // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
+                    // Process MathJax inline equations
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                 } else {
                     alert('Please select an option!');
                 }
