@@ -1,81 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Home</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
-    .container {
-      width: 80%;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .post-preview {
-      background-color: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .post-preview h2 {
-      margin: 0 0 10px;
-    }
-    .post-preview p {
-      font-size: 16px;
-    }
-    .post-preview .read-more {
-      font-weight: bold;
-      color: #007BFF;
-      text-decoration: none;
-    }
-    .post-preview .read-more:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .chapter-list {
+            margin: 20px;
+        }
+        .chapter {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .chapter:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="post-list">
-    <!-- Posts will be dynamically inserted here -->
-  </div>
 
-  <script>
-    // Function to fetch JSON data (simulating fetching from posts folder)
-    const loadPosts = async () => {
-      const postFiles = ['11012025.json', '12012025.json', '13012025.json']; // List your post files here
-      const posts = [];
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+        </ul>
+    </nav>
+</header>
 
-      for (const postFile of postFiles) {
-        const response = await fetch(`posts/${postFile}`);
-        const data = await response.json();
-        posts.push(data);
-      }
+<main>
+    <div class="chapter-list" id="chapter-list">
+        <!-- Chapter list will appear here -->
+    </div>
+</main>
 
-      return posts;
-    };
+<script>
+    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    // Function to render post previews on index.html
-    const renderPostPreviews = (posts) => {
-      const postListContainer = document.getElementById('post-list');
-      posts.forEach(post => {
-        const postElement = document.createElement('div');
-        postElement.classList.add('post-preview');
-        postElement.innerHTML = `
-          <h2>${post.title}</h2>
-          <p>${post.description}</p>
-          <a href="post.html?postId=${post.id}" class="read-more">Read more...</a>
-        `;
-        postListContainer.appendChild(postElement);
-      });
-    };
+    // Load chapter list dynamically based on subject
+    function loadChapters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject') || 'biology';
 
-    // Load posts and render previews
-    loadPosts().then(posts => renderPostPreviews(posts));
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let chapters = {};
+                if (subject === 'biology') {
+                    chapters = data[0].questions;
+                } else if (subject === 'physics') {
+                    chapters = data[1].questions;
+                } else if (subject === 'chemistry') {
+                    chapters = data[2].questions;
+                }
 
-  </script>
+                // Group questions by chapter
+                let chapterListHTML = '';
+                chapters.forEach(q => {
+                    if (!chapterListHTML.includes(q.chapter)) {
+                        chapterListHTML += `
+                            <div class="chapter">
+                                <a href="subject.html?subject=${subject}&chapter=${encodeURIComponent(q.chapter)}">${q.chapter}</a>
+                            </div>
+                        `;
+                    }
+                });
+
+                document.getElementById('chapter-list').innerHTML = chapterListHTML;
+            })
+            .catch(error => {
+                console.error('Error loading chapters:', error);
+                document.getElementById('chapter-list').innerHTML = '<p>Error loading chapters. Please try again later.</p>';
+            });
+    }
+
+    loadChapters();
+</script>
+
 </body>
 </html>
