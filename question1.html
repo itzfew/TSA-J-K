@@ -117,7 +117,7 @@
 
                 if (question) {
                     let questionDetailHTML = `
-                        <h3>${question.content}</h3>
+                        <h3>${question.content} $$ \\displaystyle E = mc^2 $$ continuing with text.</h3>
                         <ul class="options" id="options">
                             ${question.options.map((opt, index) => `
                                 <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
