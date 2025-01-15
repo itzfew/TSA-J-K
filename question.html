@@ -73,6 +73,11 @@
         .check-btn:hover {
             background-color: #0056b3;
         }
+        .timer {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
         .explanation {
             margin-top: 20px;
             background-color: #f9f9f9;
@@ -101,10 +106,28 @@
     <div class="question-detail" id="question-detail">
         <!-- Question details will appear here -->
     </div>
+    <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    let timerInterval;
+
+    // Timer function
+    function startTimer() {
+        let timeLeft = 60; // 1 minute timer
+        timerInterval = setInterval(function () {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Please select an option.");
+                checkAnswer();  // Automatically check the answer when time runs out
+            }
+            timeLeft--;
+        }, 1000);
+    }
 
     // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
@@ -127,7 +150,11 @@
                     let questionDetailHTML = `
                         <h3>${question.content}</h3>
                         <ul class="options">
-                            ${question.options.map(opt => `<li data-option="${opt.identifier}">${opt.content}</li>`).join('')}
+                            ${question.options.map((opt, index) => 
+                                `<li data-option="${opt.identifier}" id="option${index}">
+                                    ${String.fromCharCode(65 + index)}. ${opt.content}
+                                 </li>`
+                            ).join('')}
                         </ul>
                         <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
                     `;
@@ -140,8 +167,12 @@
                         option.addEventListener('click', function () {
                             options.forEach(opt => opt.classList.remove('selected'));
                             option.classList.add('selected');
+                            disableOptions(options);
                         });
                     });
+
+                    // Start the timer
+                    startTimer();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -150,6 +181,13 @@
                 console.error('Error loading question details:', error);
                 document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
+    }
+
+    // Disable other options once one is selected
+    function disableOptions(options) {
+        options.forEach(option => {
+            option.style.pointerEvents = 'none'; // Disable other options
+        });
     }
 
     // Check the selected answer and show explanation
@@ -196,6 +234,8 @@
                 } else {
                     alert('Please select an option!');
                 }
+
+                clearInterval(timerInterval); // Stop the timer after checking
             })
             .catch(error => {
                 console.error('Error checking answer:', error);
