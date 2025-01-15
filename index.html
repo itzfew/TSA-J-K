@@ -43,6 +43,12 @@
         .chapter:hover {
             background-color: #f0f0f0;
         }
+        .subject-section {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -50,17 +56,22 @@
 <header>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="#" onclick="showSubject('biology')">Biology</a></li>
+            <li><a href="#" onclick="showSubject('physics')">Physics</a></li>
+            <li><a href="#" onclick="showSubject('chemistry')">Chemistry</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <div class="chapter-list" id="chapter-list">
-        <!-- Chapter list will appear here -->
+    <div id="biology" class="subject-section">
+        <div class="chapter-list" id="biology-chapter-list"></div>
+    </div>
+    <div id="physics" class="subject-section">
+        <div class="chapter-list" id="physics-chapter-list"></div>
+    </div>
+    <div id="chemistry" class="subject-section">
+        <div class="chapter-list" id="chemistry-chapter-list"></div>
     </div>
 </main>
 
@@ -68,14 +79,11 @@
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
     // Load chapter list dynamically based on subject
-    function loadChapters() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const subject = urlParams.get('subject') || 'biology';
-
+    function loadChapters(subject) {
         fetch(chaptersUrl)
             .then(response => response.json())
             .then(data => {
-                let chapters = {};
+                let chapters = [];
                 if (subject === 'biology') {
                     chapters = data[0].questions;
                 } else if (subject === 'physics') {
@@ -96,15 +104,32 @@
                     }
                 });
 
-                document.getElementById('chapter-list').innerHTML = chapterListHTML;
+                document.getElementById(`${subject}-chapter-list`).innerHTML = chapterListHTML;
             })
             .catch(error => {
                 console.error('Error loading chapters:', error);
-                document.getElementById('chapter-list').innerHTML = '<p>Error loading chapters. Please try again later.</p>';
+                document.getElementById(`${subject}-chapter-list`).innerHTML = '<p>Error loading chapters. Please try again later.</p>';
             });
     }
 
-    loadChapters();
+    // Function to show specific subject's chapters
+    function showSubject(subject) {
+        const subjects = ['biology', 'physics', 'chemistry'];
+
+        // Hide all subjects
+        subjects.forEach(s => {
+            document.getElementById(s).classList.remove('active');
+        });
+
+        // Show the selected subject
+        document.getElementById(subject).classList.add('active');
+
+        // Load chapters for the selected subject
+        loadChapters(subject);
+    }
+
+    // Initially load biology chapters
+    showSubject('biology');
 </script>
 
 </body>
