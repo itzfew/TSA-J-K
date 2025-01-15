@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
         header {
             background-color: #333;
             color: white;
-            padding: 15px;
+            padding: 10px 0;
             text-align: center;
         }
         nav ul {
@@ -32,109 +30,87 @@
             text-decoration: none;
             font-weight: bold;
         }
-        main {
-            padding: 20px;
-        }
         .question-detail {
+            margin: 20px;
             background-color: #fff;
             border: 2px solid #ddd;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 0 auto;
-            max-width: 900px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
         .question-detail h3 {
             margin-top: 0;
-            font-size: 1.8em;
             color: #333;
         }
         .options {
-            margin: 20px 0;
+            list-style-type: none;
+            padding: 0;
         }
         .options li {
             background-color: #f9f9f9;
-            padding: 12px 20px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 2px solid #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
         .options li:hover {
-            background-color: #e6f7ff;
-        }
-        .options li.selected {
-            background-color: #c1e7fc;
+            background-color: #e0e0e0;
         }
         .options li.correct {
-            background-color: #28a745;
+            background-color: #4CAF50;
             color: white;
         }
         .options li.incorrect {
-            background-color: #dc3545;
+            background-color: #f44336;
             color: white;
         }
-        .check-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 1.2em;
-            transition: background-color 0.3s ease;
+        .hidden {
+            display: none;
         }
-        .check-btn:hover {
-            background-color: #0056b3;
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
         }
         .timer {
-            position: fixed;
-            top: 15px;
-            right: 15px;
             font-size: 1.2em;
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #ffeb3b;
             color: #333;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
         }
-        .explanation {
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
+        .timer.warning {
+            background-color: #ff5722;
         }
-        .explanation p {
-            margin: 0;
+        .feedback {
             font-size: 1.1em;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
+        /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
-            font-size: 1.2em;
-            color: #007bff;
+            font-size: 1.1em;
         }
 
-        /* Ensure responsive design */
-        @media screen and (max-width: 768px) {
-            .question-detail {
-                padding: 15px;
-                max-width: 100%;
-            }
-            nav ul li {
-                display: block;
-                margin: 10px 0;
-            }
-            .options li {
-                font-size: 1em;
-                padding: 10px;
-            }
+        .question-content span {
+            display: inline-block;
         }
+
     </style>
+
+    <!-- Include MathJax for equation rendering -->
+    <script type="text/javascript" async 
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 </head>
 <body>
 
@@ -142,39 +118,27 @@
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="index.html?subject=biology">Biology</a></li>
-            <li><a href="index.html?subject=physics">Physics</a></li>
-            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <div id="question-detail"></div>
-    <div class="timer" id="timer">Time Left: 1:00</div>
+    <div class="question-detail" id="question-detail">
+        <!-- Question details will appear here -->
+    </div>
+    <div id="timer" class="timer">Time: 1:00</div>
+    <div id="feedback" class="feedback hidden"></div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
-    let timerInterval;
+    let timer;
+    let countdown = 60;
+    let selectedOptionIndex = null;
 
-    // Timer function
-    function startTimer() {
-        let timeLeft = 60; // 1 minute timer
-        timerInterval = setInterval(function () {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-            if (timeLeft === 0) {
-                clearInterval(timerInterval);
-                alert("Time's up! Please select an option.");
-                checkAnswer();  // Automatically check the answer when time runs out
-            }
-            timeLeft--;
-        }, 1000);
-    }
-
-    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
@@ -192,34 +156,26 @@
                 }
 
                 if (question) {
+                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
+
                     let questionDetailHTML = `
-                        <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                        })}</h3>
-                        <ul class="options">
-                            ${question.options.map((opt, index) => 
-                                `<li data-option="${opt.identifier}" id="option${index}">
-                                    ${String.fromCharCode(65 + index)}. ${opt.content}
-                                 </li>`
-                            ).join('')}
+                        <h3>${questionContent}</h3>
+                        <ul class="options" id="options">
+                            ${question.options.map((opt, index) => `
+                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
+                            `).join('')}
                         </ul>
-                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
+                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                        <div id="result" class="hidden">
+                            <p class="result" id="answer-result"></p>
+                            <p><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
-
-                    // Add event listeners for options
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        option.addEventListener('click', function () {
-                            options.forEach(opt => opt.classList.remove('selected'));
-                            option.classList.add('selected');
-                            disableOptions(options);
-                        });
-                    });
-
-                    // Start the timer
-                    startTimer();
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -228,19 +184,47 @@
                 console.error('Error loading question details:', error);
                 document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
+        
+        startTimer();
     }
 
-    // Disable other options once one is selected
-    function disableOptions(options) {
-        options.forEach(option => {
-            option.style.pointerEvents = 'none'; // Disable other options
+    function startTimer() {
+        const timerElement = document.getElementById('timer');
+        timer = setInterval(function() {
+            const minutes = Math.floor(countdown / 60);
+            const seconds = countdown % 60;
+            timerElement.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            countdown--;
+
+            if (countdown <= 10) {
+                timerElement.classList.add('warning');
+            }
+
+            if (countdown < 0) {
+                clearInterval(timer);
+                alert('Time is up!');
+                checkAnswer();
+            }
+        }, 1000);
+    }
+
+    function selectOption(index) {
+        const options = document.querySelectorAll('.options li');
+        options.forEach((option, idx) => {
+            option.style.backgroundColor = ''; // Reset background color
         });
+        selectedOptionIndex = index;
+        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
     }
 
-    // Check the selected answer and show explanation
-    function checkAnswer(questionId) {
+    function checkAnswer() {
+        if (selectedOptionIndex === null) {
+            alert('Please select an option!');
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter] = urlParams.get('id').split('/');
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
         fetch(chaptersUrl)
             .then(response => response.json())
@@ -254,41 +238,24 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const selectedOption = document.querySelector('.options li.selected');
-                const correctOptions = question.correct_options;
+                const correctAnswerIndex = question.correct_option_index;
+                const options = document.querySelectorAll('.options li');
+                options.forEach((option, idx) => {
+                    if (idx === correctAnswerIndex) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                    }
+                });
 
-                if (selectedOption) {
-                    const selectedAnswer = selectedOption.getAttribute('data-option');
-                    const explanationHTML = `
-                        <div class="explanation">
-                            <p><strong>Explanation:</strong></p>
-                            ${question.explanation}
-                        </div>
-                    `;
-
-                    // Mark answers
-                    const options = document.querySelectorAll('.options li');
-                    options.forEach(option => {
-                        if (correctOptions.includes(option.getAttribute('data-option'))) {
-                            option.classList.add('correct');
-                        } else if (option === selectedOption) {
-                            option.classList.add('incorrect');
-                        }
-                    });
-
-                    // Append explanation
-                    document.getElementById('question-detail').innerHTML += explanationHTML;
-
-                    // Reprocess the explanation content for MathJax
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    alert('Please select an option!');
-                }
-
-                clearInterval(timerInterval); // Stop the timer after checking
+                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
+                document.getElementById('answer-result').innerText = resultText;
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('check-answer').classList.add('hidden');
             })
             .catch(error => {
-                console.error('Error checking answer:', error);
+                console.error('Error checking the answer:', error);
+                alert('Error checking the answer.');
             });
     }
 
