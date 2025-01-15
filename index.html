@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
+    <title>Dynamic Quiz App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
         }
         header {
             background-color: #333;
-            color: white;
+            color: #fff;
             padding: 10px 0;
             text-align: center;
         }
@@ -30,192 +30,106 @@
             text-decoration: none;
             font-weight: bold;
         }
-        .question-detail {
+        .chapter-list {
             margin: 20px;
+        }
+        .chapter {
             background-color: #fff;
             border: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .question-detail h3 {
-            margin-top: 0;
-        }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
             cursor: pointer;
         }
-        .options li:hover {
+        .chapter:hover {
             background-color: #f0f0f0;
         }
-        .correct {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .incorrect {
-            background-color: #f44336;
-            color: white;
-        }
-        .hidden {
+        .subject-section {
             display: none;
         }
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
+        .active {
+            display: block;
         }
-        /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
-        .mathjax-inline {
-            white-space: nowrap;
-            display: inline-block;
-            font-size: 1.1em;
-        }
-
-        /* Ensuring that MathJax inline formulas don't break or overflow */
-        .question-content span {
-            display: inline-block;
-        }
-
     </style>
-
-    <!-- Include MathJax for equation rendering -->
-    <script type="text/javascript" async 
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
 </head>
 <body>
 
 <header>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="#" onclick="showSubject('biology')">Biology</a></li>
+            <li><a href="#" onclick="showSubject('physics')">Physics</a></li>
+            <li><a href="#" onclick="showSubject('chemistry')">Chemistry</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <div class="question-detail" id="question-detail">
-        <!-- Question details will appear here -->
+    <div id="biology" class="subject-section">
+        <div class="chapter-list" id="biology-chapter-list"></div>
+    </div>
+    <div id="physics" class="subject-section">
+        <div class="chapter-list" id="physics-chapter-list"></div>
+    </div>
+    <div id="chemistry" class="subject-section">
+        <div class="chapter-list" id="chemistry-chapter-list"></div>
     </div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    function loadQuestionDetail() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
+    // Load chapter list dynamically based on subject
+    function loadChapters(subject) {
         fetch(chaptersUrl)
             .then(response => response.json())
             .then(data => {
-                let question = {};
+                let chapters = [];
                 if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
+                    chapters = data[0].questions;
                 } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
+                    chapters = data[1].questions;
                 } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
+                    chapters = data[2].questions;
                 }
 
-                if (question) {
-                    // Wrap math in the mathjax-inline class
-                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
-                    let questionDetailHTML = `
-                        <h3>${questionContent}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
-
-                    // Update the question content with MathJax rendering
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-            });
-    }               
-
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
-    }
-
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                const correctAnswerIndex = question.correct_options[0]; // Assuming one correct option
-                const options = document.querySelectorAll('.options li');
-
-                // Highlight correct and incorrect options
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
+                // Group questions by chapter
+                let chapterListHTML = '';
+                chapters.forEach(q => {
+                    if (!chapterListHTML.includes(q.chapter)) {
+                        chapterListHTML += `
+                            <div class="chapter">
+                                <a href="subject.html?subject=${subject}&chapter=${encodeURIComponent(q.chapter)}">${q.chapter}</a>
+                            </div>
+                        `;
                     }
                 });
 
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+                document.getElementById(`${subject}-chapter-list`).innerHTML = chapterListHTML;
             })
             .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
+                console.error('Error loading chapters:', error);
+                document.getElementById(`${subject}-chapter-list`).innerHTML = '<p>Error loading chapters. Please try again later.</p>';
             });
     }
 
-    loadQuestionDetail();
+    // Function to show specific subject's chapters
+    function showSubject(subject) {
+        const subjects = ['biology', 'physics', 'chemistry'];
+
+        // Hide all subjects
+        subjects.forEach(s => {
+            document.getElementById(s).classList.remove('active');
+        });
+
+        // Show the selected subject
+        document.getElementById(subject).classList.add('active');
+
+        // Load chapters for the selected subject
+        loadChapters(subject);
+    }
+
+    // Initially load biology chapters
+    showSubject('biology');
 </script>
 
 </body>
