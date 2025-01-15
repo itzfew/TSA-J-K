@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .question-detail {
+            margin: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        .question-detail h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="question-detail" id="question-detail">
+        <!-- Question details will appear here -->
+    </div>
+</main>
+
+<script>
+    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+
+    // Load a specific question detail based on the question ID
+    function loadQuestionDetail() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let question = {};
+                if (subject === 'biology') {
+                    question = data[0].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'physics') {
+                    question = data[1].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'chemistry') {
+                    question = data[2].questions.find(q => q.question_id === questionId);
+                }
+
+                if (question) {
+                    let questionDetailHTML = `
+                        <h3>${question.content}</h3>
+                        <p><strong>Marks:</strong> ${question.marks}</p>
+                        <ul>
+                            <li><strong>Options:</strong></li>
+                            ${question.options.map(opt => `<li>${opt.content}</li>`).join('')}
+                        </ul>
+                        <p><strong>Explanation:</strong> ${question.explanation}</p>
+                    `;
+
+                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
+                } else {
+                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading question details:', error);
+                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+            });
+    }
+
+    loadQuestionDetail();
+</script>
+
+</body>
+</html>
