@@ -92,6 +92,18 @@
         .explanation p {
             margin: 0;
         }
+
+        /* Styling for MathJax inline math */
+        .mathjax-inline {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+
+        /* Ensuring that MathJax inline formulas don't break or overflow */
+        .question-detail span {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -151,8 +163,13 @@
                 }
 
                 if (question) {
+                    // Wrap math in mathjax-inline class
+                    const formattedContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
+
                     let questionDetailHTML = `
-                        <h3>${question.content}</h3>
+                        <h3>${formattedContent}</h3>
                         <ul class="options">
                             ${question.options.map((opt, index) => 
                                 `<li data-option="${opt.identifier}" id="option${index}">
