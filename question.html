@@ -11,20 +11,16 @@
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
         header {
             background-color: #333;
             color: white;
-            padding: 15px 0;
+            padding: 10px 0;
             text-align: center;
         }
         nav ul {
             list-style-type: none;
             padding: 0;
-            margin: 0;
         }
         nav ul li {
             display: inline;
@@ -41,27 +37,20 @@
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .question-detail h3 {
             margin-top: 0;
-            font-size: 24px;
-            color: #333;
         }
         .options {
-            margin: 20px 0;
+            margin: 10px 0;
         }
         .options li {
             background-color: #f0f0f0;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 10px;
+            margin: 5px 0;
             border-radius: 5px;
-            border: 2px solid #ccc;
+            border: 2px solid black; /* Added black solid border */
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .options li:hover {
-            background-color: #e0e0e0;
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -78,34 +67,33 @@
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 15px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
         .check-btn:hover {
             background-color: #0056b3;
         }
         .timer {
             position: fixed;
-            top: 15px;
-            right: 15px;
-            font-size: 18px;
-            color: #333;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            font-size: 20px;
+            padding: 10px 15px;
+            border-radius: 50%;
             font-weight: bold;
-            background-color: #ff9800;
-            padding: 10px;
-            border-radius: 5px;
+            text-align: center;
+            width: 50px;
+            height: 50px;
         }
         .explanation {
             margin-top: 20px;
             background-color: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 16px;
         }
         .explanation p {
             margin: 0;
@@ -126,8 +114,9 @@
 </header>
 
 <main>
+    <!-- Direct question and options will be placed here -->
     <div id="question-detail"></div>
-    <div class="timer" id="timer">Time Left: 1:00</div>
+    <div class="timer" id="timer">1:00</div>
 </main>
 
 <script>
@@ -140,7 +129,7 @@
         timerInterval = setInterval(function () {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
             if (timeLeft === 0) {
                 clearInterval(timerInterval);
                 alert("Time's up! Please select an option.");
@@ -169,11 +158,11 @@
 
                 if (question) {
                     let questionDetailHTML = `
-                        <h3>${question.content.replace(/\((.*?)\)/g, '\\($1\\)')}</h3>
+                        <h3>${question.content}</h3>
                         <ul class="options">
                             ${question.options.map((opt, index) => 
                                 `<li data-option="${opt.identifier}" id="option${index}">
-                                    ${String.fromCharCode(65 + index)}. ${opt.content.replace(/\((.*?)\)/g, '\\($1\\)')}
+                                    ${String.fromCharCode(65 + index)}. ${opt.content}
                                  </li>`
                             ).join('')}
                         </ul>
@@ -181,9 +170,6 @@
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
-
-                    // Ensure MathJax processes the inline math
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
@@ -197,6 +183,9 @@
 
                     // Start the timer
                     startTimer();
+
+                    // Apply MathJax for inline equations
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -253,7 +242,7 @@
                         }
                     });
 
-                    // Append explanation
+                    // Append explanation (ensuring it stays visible after submit)
                     document.getElementById('question-detail').innerHTML += explanationHTML;
                 } else {
                     alert('Please select an option!');
@@ -267,6 +256,12 @@
     }
 
     loadQuestionDetail();
+
+    // Apply MathJax every second to ensure it processes inline equations
+    setInterval(() => {
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }, 1000);
+
 </script>
 
 </body>
