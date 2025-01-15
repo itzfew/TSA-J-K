@@ -76,10 +76,16 @@
 </main>
 
 <script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
 
-    // Load chapter list dynamically based on subject
-    function loadChapters(subject) {
+    // Function to load chapters based on the metaId
+    function loadChapters(subject, metaId) {
+        const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+
         fetch(chaptersUrl)
             .then(response => response.json())
             .then(data => {
@@ -124,8 +130,9 @@
         // Show the selected subject
         document.getElementById(subject).classList.add('active');
 
-        // Load chapters for the selected subject
-        loadChapters(subject);
+        // Load chapters for the selected subject from one of the metaIds
+        // Example: You can choose any metaId, for this example we'll choose the first one in the array
+        loadChapters(subject, metaIds[0]); // You can change the index for other metaIds
     }
 
     // Initially load biology chapters
