@@ -50,6 +50,7 @@
             margin: 5px 0;
             border: 1px solid #ddd;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         .options li:hover {
             background-color: #f0f0f0;
@@ -72,16 +73,33 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        /* Timer Styles */
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff5722;
+        }
+
         /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
             font-size: 1.1em;
-        }
-
-        /* Ensuring that MathJax inline formulas don't break or overflow */
-        .question-content span {
-            display: inline-block;
         }
     </style>
 
@@ -107,10 +125,14 @@
     <div class="question-detail" id="question-detail">
         <!-- Question details will appear here -->
     </div>
+
+    <div class="timer" id="timer">Time Left: <span id="time-left">60</span> seconds</div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    let timerInterval;
+    let timeLeft = 60; // 60 seconds for each question
 
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -138,10 +160,10 @@
                         <h3>${questionContent}</h3>
                         <ul class="options" id="options">
                             ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${String.fromCharCode(65 + index)}. ${opt.content}</li>
+                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
                             `).join('')}
                         </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                        <button class="button" id="check-answer" onclick="checkAnswer()">Check Answer</button>
                         <div id="result" class="hidden">
                             <p class="result" id="answer-result"></p>
                             <p><strong>Explanation:</strong> ${question.explanation}</p>
@@ -151,6 +173,9 @@
                     // Update the question content with MathJax rendering
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
+                    // Start the timer
+                    startTimer();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -195,28 +220,25 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                // Fetch correct option from the `correct_options` array
-                const correctOption = question.correct_options[0]; // Assuming it's a single option in the array
+                const correctOption = question.correct_options[0];
 
                 const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
-                    // Apply styles based on whether the option is correct or incorrect
-                    if (String.fromCharCode(65 + idx) === correctOption) {
+                    if (option.innerText === correctOption) {
                         option.classList.add('correct');
                     } else {
                         option.classList.add('incorrect');
                     }
                 });
 
-                // Apply styles to the selected option
                 const selectedOption = options[selectedOptionIndex];
-                if (String.fromCharCode(65 + selectedOptionIndex) === correctOption) {
+                if (selectedOption.innerText === correctOption) {
                     selectedOption.classList.add('correct');
                 } else {
                     selectedOption.classList.add('incorrect');
                 }
 
-                const resultText = String.fromCharCode(65 + selectedOptionIndex) === correctOption ? 'Correct!' : 'Incorrect.';
+                const resultText = selectedOption.innerText === correctOption ? 'Correct!' : 'Incorrect.';
                 document.getElementById('answer-result').innerText = resultText;
 
                 document.getElementById('result').classList.remove('hidden');
@@ -226,6 +248,19 @@
                 console.error('Error checking the answer:', error);
                 alert('Error checking the answer.');
             });
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('time-left').innerText = timeLeft;
+            } else {
+                clearInterval(timerInterval);
+                alert('Time is up!');
+                checkAnswer();
+            }
+        }, 1000);
     }
 
     loadQuestionDetail();
