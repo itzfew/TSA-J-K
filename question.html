@@ -203,7 +203,7 @@
                                  </li>`
                             ).join('')}
                         </ul>
-                        <button class="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
+                        <button class="check-btn" id="check-btn" onclick="checkAnswer('${questionId}')">Check Answer</button>
                     `;
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
@@ -280,6 +280,9 @@
                     document.getElementById('question-detail').innerHTML += explanationHTML;
                     // Reprocess the explanation content for MathJax
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
+                    // Disable the check answer button after submission
+                    document.getElementById('check-btn').disabled = true;
                 } else {
                     alert('Please select an option!');
                 }
