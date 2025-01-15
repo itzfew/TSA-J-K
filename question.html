@@ -62,6 +62,9 @@
             background-color: #f44336;
             color: white;
         }
+        .selected {
+            background-color: #e0e0e0; /* Light grey background for selected */
+        }
         .hidden {
             display: none;
         }
@@ -80,14 +83,6 @@
         .question-content span {
             display: inline-block;
         }
-
-        .timer {
-            font-size: 20px;
-            margin-top: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-
     </style>
 
     <!-- Include MathJax for equation rendering -->
@@ -112,27 +107,10 @@
     <div class="question-detail" id="question-detail">
         <!-- Question details will appear here -->
     </div>
-    <div id="timer" class="timer"></div>
 </main>
 
 <script>
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
-    let selectedOptionIndex = null;
-    let timer;
-    let countdownTime = 60; // Timer set to 60 seconds per question
-
-    // Start countdown timer
-    function startTimer() {
-        timer = setInterval(function() {
-            document.getElementById('timer').innerText = `Time Left: ${countdownTime}s`;
-            if (countdownTime === 0) {
-                clearInterval(timer);
-                checkAnswer();
-            } else {
-                countdownTime--;
-            }
-        }, 1000);
-    }
 
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -169,10 +147,10 @@
                             <p><strong>Explanation:</strong> ${question.explanation}</p>
                         </div>
                     `;
+
                     // Update the question content with MathJax rendering
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                    startTimer(); // Start the timer when question is loaded
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
                 }
@@ -183,13 +161,17 @@
             });
     }
 
+    let selectedOptionIndex = null;
+    let correctAnswerIndex = null;
+
     function selectOption(index) {
         const options = document.querySelectorAll('.options li');
         options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
+            option.classList.remove('selected'); // Remove the selected class from all options
         });
+
         selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
+        options[index].classList.add('selected'); // Highlight selected option
     }
 
     function checkAnswer() {
@@ -213,10 +195,12 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctOption = question.correct_options[0]; // Assuming single correct option
+                // Fetch correct option from the `correct_options` array
+                const correctOption = question.correct_options[0]; // Assuming it's a single option in the array
 
                 const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
+                    // Apply styles based on whether the option is correct or incorrect
                     if (option.innerText === correctOption) {
                         option.classList.add('correct');
                     } else {
@@ -224,6 +208,7 @@
                     }
                 });
 
+                // Apply styles to the selected option
                 const selectedOption = options[selectedOptionIndex];
                 if (selectedOption.innerText === correctOption) {
                     selectedOption.classList.add('correct');
