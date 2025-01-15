@@ -121,7 +121,6 @@
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
     let timerInterval;
 
-    // Timer function
     function startTimer() {
         let timeLeft = 60; // 1 minute timer
         timerInterval = setInterval(function () {
@@ -137,7 +136,6 @@
         }, 1000);
     }
 
-    // Load a specific question detail based on the question ID
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
@@ -169,20 +167,16 @@
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-                    // Start MathJax rendering
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
-                    // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
                     options.forEach(option => {
                         option.addEventListener('click', function () {
                             options.forEach(opt => opt.classList.remove('selected'));
                             option.classList.add('selected');
-                            disableOptions(options);
                         });
                     });
 
-                    // Start the timer
                     startTimer();
                 } else {
                     document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
@@ -194,14 +188,6 @@
             });
     }
 
-    // Disable other options once one is selected
-    function disableOptions(options) {
-        options.forEach(option => {
-            option.style.pointerEvents = 'none'; // Disable other options
-        });
-    }
-
-    // Check the selected answer and show explanation
     function checkAnswer(questionId) {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter] = urlParams.get('id').split('/');
@@ -230,7 +216,6 @@
                         </div>
                     `;
 
-                    // Mark answers
                     const options = document.querySelectorAll('.options li');
                     options.forEach(option => {
                         if (correctOptions.includes(option.getAttribute('data-option'))) {
@@ -240,16 +225,13 @@
                         }
                     });
 
-                    // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
-
-                    // Start MathJax rendering again to update any new content
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                 } else {
                     alert('Please select an option!');
                 }
 
-                clearInterval(timerInterval); // Stop the timer after checking
+                clearInterval(timerInterval);
             })
             .catch(error => {
                 console.error('Error checking answer:', error);
