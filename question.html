@@ -49,8 +49,10 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            border: 2px solid black; /* Added black solid border */
+            border: 2px solid black;
             cursor: pointer;
+            display: flex;
+            justify-content: space-between;
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -165,6 +167,9 @@
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
+                    // Process MathJax content (to handle inline equations like $$ ... $$)
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
                     options.forEach(option => {
@@ -235,6 +240,9 @@
 
                     // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
+
+                    // Re-process MathJax content (to handle equations in the explanation)
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
                 } else {
                     alert('Please select an option!');
                 }
