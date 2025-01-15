@@ -138,7 +138,7 @@
                         <h3>${questionContent}</h3>
                         <ul class="options" id="options">
                             ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
+                                <li id="option-${index}" onclick="selectOption(${index})">${String.fromCharCode(65 + index)}. ${opt.content}</li>
                             `).join('')}
                         </ul>
                         <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
@@ -201,7 +201,7 @@
                 const options = document.querySelectorAll('.options li');
                 options.forEach((option, idx) => {
                     // Apply styles based on whether the option is correct or incorrect
-                    if (option.innerText === correctOption) {
+                    if (String.fromCharCode(65 + idx) === correctOption) {
                         option.classList.add('correct');
                     } else {
                         option.classList.add('incorrect');
@@ -210,13 +210,13 @@
 
                 // Apply styles to the selected option
                 const selectedOption = options[selectedOptionIndex];
-                if (selectedOption.innerText === correctOption) {
+                if (String.fromCharCode(65 + selectedOptionIndex) === correctOption) {
                     selectedOption.classList.add('correct');
                 } else {
                     selectedOption.classList.add('incorrect');
                 }
 
-                const resultText = selectedOption.innerText === correctOption ? 'Correct!' : 'Incorrect.';
+                const resultText = String.fromCharCode(65 + selectedOptionIndex) === correctOption ? 'Correct!' : 'Incorrect.';
                 document.getElementById('answer-result').innerText = resultText;
 
                 document.getElementById('result').classList.remove('hidden');
