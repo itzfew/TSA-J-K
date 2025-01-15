@@ -49,10 +49,8 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            border: 2px solid black;
+            border: 2px solid black; /* Added black solid border */
             cursor: pointer;
-            display: flex;
-            justify-content: space-between;
         }
         .options li.selected {
             background-color: #c1e7fc;
@@ -93,6 +91,10 @@
         }
         .explanation p {
             margin: 0;
+        }
+        /* Prevent text wrapping around inline math */
+        .question-detail p {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -167,8 +169,8 @@
 
                     document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-                    // Process MathJax content (to handle inline equations like $$ ... $$)
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+                    // Start MathJax rendering
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
                     // Add event listeners for options
                     const options = document.querySelectorAll('.options li');
@@ -241,8 +243,8 @@
                     // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
 
-                    // Re-process MathJax content (to handle equations in the explanation)
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+                    // Start MathJax rendering again to update any new content
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
                 } else {
                     alert('Please select an option!');
                 }
