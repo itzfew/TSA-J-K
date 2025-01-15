@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject - Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .question-list {
+            margin: 20px;
+        }
+        .question {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .question:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="question-list" id="question-list">
+        <!-- Question list will appear here -->
+    </div>
+</main>
+
+<script>
+    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+
+    // Load questions dynamically based on chapter
+    function loadQuestions() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject') || 'biology';
+        const chapter = urlParams.get('chapter') || 'biomolecule';
+
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let questions = [];
+                if (subject === 'biology') {
+                    questions = data[0].questions.filter(q => q.chapter === chapter);
+                } else if (subject === 'physics') {
+                    questions = data[1].questions.filter(q => q.chapter === chapter);
+                } else if (subject === 'chemistry') {
+                    questions = data[2].questions.filter(q => q.chapter === chapter);
+                }
+
+                let questionListHTML = '';
+                questions.forEach(q => {
+                    questionListHTML += `
+                        <div class="question">
+                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('question-list').innerHTML = questionListHTML;
+            })
+            .catch(error => {
+                console.error('Error loading questions:', error);
+                document.getElementById('question-list').innerHTML = '<p>Error loading questions. Please try again later.</p>';
+            });
+    }
+
+    loadQuestions();
+</script>
+
+</body>
+</html>
