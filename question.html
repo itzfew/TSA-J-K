@@ -279,8 +279,8 @@
                     // Append explanation
                     document.getElementById('question-detail').innerHTML += explanationHTML;
 
-                    // Render the MathJax content
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                    // Reprocess the explanation content for MathJax
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
                 } else {
                     alert('Please select an option!');
                 }
