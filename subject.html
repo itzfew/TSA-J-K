@@ -19,8 +19,8 @@
             margin: 0;
             display: flex;
             align-items: flex-start;
-            position: relative; /* For positioning the label at the bottom left */
-            min-height: 80px; /* Ensures there's space for the label */
+            position: relative;
+            min-height: 80px;
         }
         .question a {
             text-decoration: none;
@@ -45,8 +45,8 @@
             color: #555;
             font-style: italic;
             position: absolute;
-            bottom: 5px; /* Keeps the label at the bottom */
-            left: 10px;  /* Aligns it to the left */
+            bottom: 5px;
+            left: 10px;
             opacity: 0.7;
         }
     </style>
@@ -111,7 +111,7 @@
                             <div class="question">
                                 <div class="question-number">${index + 1}.</div>
                                 <div class="question-content">
-                                    <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
+                                    <a href="?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
                                     <div class="source-label">example (source: ${meta.title})</div>
                                 </div>
                             </div>
