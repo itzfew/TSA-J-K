@@ -259,13 +259,6 @@ function renderQuestion(question) {
     // Start the timer
     startTimer();
 }
-
-// Disable other options once one is selected
-function disableOptions(options) {
-    options.forEach(option => {
-        option.style.pointerEvents = 'none'; // Disable other options
-    });
-}
     // Check the selected answer and show explanation
     function checkAnswer(questionId) {
         const urlParams = new URLSearchParams(window.location.search);
