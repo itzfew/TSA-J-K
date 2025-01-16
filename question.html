@@ -79,7 +79,6 @@
         }
     </style>
 
-    <!-- Include MathJax for equation rendering -->
     <script type="text/javascript" async 
         src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
@@ -123,24 +122,18 @@
                 }
 
                 if (question) {
-                    const correctOptions = question.correct_options;
-
                     let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
                         return `<span class="mathjax-inline">$$${p1}$$</span>`;
                     });
-
-                    const optionLabels = ['A', 'B', 'C', 'D'];
 
                     let questionDetailHTML = `
                         <h3>${questionContent}</h3>
                         <ul class="options" id="options">
                             ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">
-                                    <strong>${optionLabels[index]}.</strong> ${opt.content}
-                                </li>
+                                <li id="option-${index}" onclick="selectOption(${index})">${opt.label}: ${opt.content}</li>
                             `).join('')}
                         </ul>
-                        <button id="check-answer" onclick="checkAnswer(${JSON.stringify(correctOptions)})">Check Answer</button>
+                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
                         <div id="result" class="hidden">
                             <p class="result" id="answer-result"></p>
                             <p><strong>Explanation:</strong> ${question.explanation}</p>
@@ -157,39 +150,61 @@
                 console.error('Error loading question details:', error);
                 document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
-    }
+    }               
 
     let selectedOptionIndex = null;
 
     function selectOption(index) {
         const options = document.querySelectorAll('.options li');
-        options.forEach(option => {
+        options.forEach((option, idx) => {
             option.style.backgroundColor = ''; // Reset background color
         });
         selectedOptionIndex = index;
         options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
     }
 
-    function checkAnswer(correctOptions) {
+    function checkAnswer() {
         if (selectedOptionIndex === null) {
             alert('Please select an option!');
             return;
         }
 
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            if (correctOptions.includes(idx)) {
-                option.classList.add('correct');
-            } else {
-                option.classList.add('incorrect');
-            }
-        });
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-        const resultText = correctOptions.includes(selectedOptionIndex) ? 'Correct!' : 'Incorrect.';
-        document.getElementById('answer-result').innerText = resultText;
+        fetch(chaptersUrl)
+            .then(response => response.json())
+            .then(data => {
+                let question = {};
+                if (subject === 'biology') {
+                    question = data[0].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'physics') {
+                    question = data[1].questions.find(q => q.question_id === questionId);
+                } else if (subject === 'chemistry') {
+                    question = data[2].questions.find(q => q.question_id === questionId);
+                }
 
-        document.getElementById('result').classList.remove('hidden');
-        document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+                const correctOptions = question.correct_options;
+
+                const options = document.querySelectorAll('.options li');
+                options.forEach((option, idx) => {
+                    if (correctOptions.includes(idx)) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                    }
+                });
+
+                const resultText = correctOptions.includes(selectedOptionIndex) ? 'Correct!' : 'Incorrect.';
+                document.getElementById('answer-result').innerText = resultText;
+
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+            })
+            .catch(error => {
+                console.error('Error checking the answer:', error);
+                alert('Error checking the answer.');
+            });
     }
 
     loadQuestionDetail();
