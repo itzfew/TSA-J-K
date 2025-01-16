@@ -75,6 +75,7 @@
             font-size: 1.1em;
         }
     </style>
+
     <script type="text/javascript" async 
         src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
@@ -99,53 +100,60 @@
 </main>
 
 <script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
-    function loadQuestionDetail() {
+    async function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const idParams = urlParams.get('id');
+        if (!idParams) {
+            document.getElementById('question-detail').innerHTML = '<p>Invalid question ID.</p>';
+            return;
+        }
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let chapterData = data.find(ch => ch.subject === subject && ch.chapter === chapter);
+        const [subject, chapter, questionId] = idParams.split('/');
+        try {
+            const response = await fetch(chaptersUrl);
+            const data = await response.json();
 
-                if (!chapterData) {
-                    document.getElementById('question-detail').innerHTML = '<p>Chapter not found.</p>';
-                    return;
-                }
+            let question;
+            if (subject === 'biology') {
+                question = data.find(q => q.subject === 'biology' && q.question_id === questionId);
+            } else if (subject === 'physics') {
+                question = data.find(q => q.subject === 'physics' && q.question_id === questionId);
+            } else if (subject === 'chemistry') {
+                question = data.find(q => q.subject === 'chemistry' && q.question_id === questionId);
+            }
 
-                let question = chapterData.questions.find(q => q.question_id === questionId);
+            if (!question) {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+                return;
+            }
 
-                if (question) {
-                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
-                    let questionDetailHTML = `
-                        <h3>${questionContent}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.identifier}: ${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
-
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+            // Render question content
+            const questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                return `<span class="mathjax-inline">$$${p1}$$</span>`;
             });
+
+            const questionDetailHTML = `
+                <h3>${questionContent}</h3>
+                <ul class="options" id="options">
+                    ${question.options.map((opt, index) => `
+                        <li id="option-${index}" onclick="selectOption(${index})">${opt.identifier}: ${opt.content}</li>
+                    `).join('')}
+                </ul>
+                <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
+                <div id="result" class="hidden">
+                    <p class="result" id="answer-result"></p>
+                    <p><strong>Explanation:</strong> ${question.explanation}</p>
+                </div>
+            `;
+
+            document.getElementById('question-detail').innerHTML = questionDetailHTML;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+        } catch (error) {
+            console.error('Error loading question details:', error);
+            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+        }
     }
 
     let selectedOptionIndex = null;
@@ -163,36 +171,22 @@
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const options = document.querySelectorAll('.options li');
+        const correctOptions = [2]; // Assuming option C is correct (0-indexed)
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let chapterData = data.find(ch => ch.subject === subject && ch.chapter === chapter);
-                let question = chapterData.questions.find(q => q.question_id === questionId);
+        options.forEach((option, idx) => {
+            if (correctOptions.includes(idx)) {
+                option.classList.add('correct');
+            } else {
+                option.classList.add('incorrect');
+            }
+        });
 
-                const correctOptions = question.correct_options;
-                const options = document.querySelectorAll('.options li');
+        const resultText = correctOptions.includes(selectedOptionIndex) ? 'Correct!' : 'Incorrect.';
+        document.getElementById('answer-result').innerText = resultText;
 
-                options.forEach((option, idx) => {
-                    if (correctOptions.includes(option.innerText[0])) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                const resultText = correctOptions.includes(options[selectedOptionIndex].innerText[0]) ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden');
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('check-answer').classList.add('hidden');
     }
 
     loadQuestionDetail();
