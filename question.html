@@ -69,18 +69,14 @@
             margin-top: 20px;
             font-weight: bold;
         }
-                /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
         .mathjax-inline {
             white-space: nowrap;
             display: inline-block;
             font-size: 1.1em;
         }
-
-        /* Ensuring that MathJax inline formulas don't break or overflow */
         .question-content span {
             display: inline-block;
         }
-
     </style>
 
     <!-- Include MathJax for equation rendering -->
@@ -111,70 +107,6 @@
     const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
 
     function loadQuestionDetail() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-    fetch(chaptersUrl)
-        .then(response => response.json())
-        .then(data => {
-            let question = {};
-            if (subject === 'biology') {
-                question = data[0].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'physics') {
-                question = data[1].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'chemistry') {
-                question = data[2].questions.find(q => q.question_id === questionId);
-            }
-
-            if (question) {
-                // Wrap math in the mathjax-inline class
-                let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                    return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                });
-
-                let questionDetailHTML = `
-                    <h3>${questionContent}</h3>
-                    <ul class="options" id="options">
-                        ${question.options.map((opt, index) => `
-                            <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                        `).join('')}
-                    </ul>
-                    <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                    <div id="result" class="hidden">
-                        <p class="result" id="answer-result"></p>
-                        <p><strong>Explanation:</strong> ${question.explanation}</p>
-                    </div>
-                `;
-
-                // Update the question content with MathJax rendering
-                document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-            } else {
-                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading question details:', error);
-            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-        });
-}               
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
-    }
-
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
@@ -190,26 +122,74 @@
                     question = data[2].questions.find(q => q.question_id === questionId);
                 }
 
-                const correctAnswerIndex = question.correct_options;
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
+                if (question) {
+                    const correctOptions = question.correct_options;
 
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
+                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
 
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
+                    const optionLabels = ['A', 'B', 'C', 'D'];
+
+                    let questionDetailHTML = `
+                        <h3>${questionContent}</h3>
+                        <ul class="options" id="options">
+                            ${question.options.map((opt, index) => `
+                                <li id="option-${index}" onclick="selectOption(${index})">
+                                    <strong>${optionLabels[index]}.</strong> ${opt.content}
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <button id="check-answer" onclick="checkAnswer(${JSON.stringify(correctOptions)})">Check Answer</button>
+                        <div id="result" class="hidden">
+                            <p class="result" id="answer-result"></p>
+                            <p><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
+                    `;
+
+                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
+                } else {
+                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+                }
             })
             .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
+                console.error('Error loading question details:', error);
+                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
+    }
+
+    let selectedOptionIndex = null;
+
+    function selectOption(index) {
+        const options = document.querySelectorAll('.options li');
+        options.forEach(option => {
+            option.style.backgroundColor = ''; // Reset background color
+        });
+        selectedOptionIndex = index;
+        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
+    }
+
+    function checkAnswer(correctOptions) {
+        if (selectedOptionIndex === null) {
+            alert('Please select an option!');
+            return;
+        }
+
+        const options = document.querySelectorAll('.options li');
+        options.forEach((option, idx) => {
+            if (correctOptions.includes(idx)) {
+                option.classList.add('correct');
+            } else {
+                option.classList.add('incorrect');
+            }
+        });
+
+        const resultText = correctOptions.includes(selectedOptionIndex) ? 'Correct!' : 'Incorrect.';
+        document.getElementById('answer-result').innerText = resultText;
+
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
     }
 
     loadQuestionDetail();
