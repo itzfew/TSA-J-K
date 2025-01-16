@@ -19,8 +19,6 @@
             margin: 0;
             display: flex;
             align-items: flex-start;
-            position: relative;
-            min-height: 80px;
         }
         .question a {
             text-decoration: none;
@@ -40,15 +38,6 @@
             font-size: 1.2em;
             color: #007bff;
         }
-        .source-label {
-            font-size: 0.9em;
-            color: #555;
-            font-style: italic;
-            position: absolute;
-            bottom: 5px;
-            left: 10px;
-            opacity: 0.7;
-        }
     </style>
 </head>
 <body>
@@ -59,15 +48,9 @@
 
 <script>
     const metaIds = [
-        { id: "3c48616f-298a-5f69-91d2-bcd59444c455", title: "Biology - Biomolecules" },
-        { id: "cbfbed57-d7d8-5a07-9957-478e4cb62f17", title: "Chemistry - Organic Chemistry" },
-        { id: "8dd253c6-09a8-5875-b127-a0c00a165a1b", title: "Physics - Mechanics" },
-        { id: "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", title: "Biology - Genetics" },
-        { id: "2ff56f11-0061-566e-aeca-9cc14246e8fb", title: "Chemistry - Inorganic Chemistry" },
-        { id: "27ba990b-5085-5196-87dd-9727f95fc228", title: "Physics - Thermodynamics" },
-        { id: "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", title: "Biology - Cell Biology" },
-        { id: "ce68b80b-fff0-5db8-8d6a-668d729d487a", title: "Chemistry - Physical Chemistry" },
-        { id: "57222784-be0a-5653-930c-8ac44c689e21", title: "Physics - Electromagnetism" }
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
     function loadQuestions() {
@@ -77,8 +60,8 @@
         
         let allQuestions = [];
 
-        const fetchPromises = metaIds.map(meta => {
-            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${meta.id}.json`;
+        const fetchPromises = metaIds.map(metaId => {
+            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
             return fetch(chaptersUrl)
                 .then(response => response.json())
                 .then(data => {
@@ -90,33 +73,27 @@
                     } else if (subject === 'physics') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
-
-                    // Add the title and questions to the array
-                    allQuestions.push({ title: meta.title, questions });
+                    allQuestions = [...allQuestions, ...questions];
                 })
-                .catch(error => console.error('Error loading questions from metaId:', meta.id, error));
+                .catch(error => console.error('Error loading questions from metaId:', metaId, error));
         });
 
         Promise.all(fetchPromises)
             .then(() => {
                 let questionListHTML = '';
-
-                allQuestions.forEach(meta => {
-                    meta.questions.forEach((q, index) => {
-                        const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                        });
-
-                        questionListHTML += `
-                            <div class="question">
-                                <div class="question-number">${index + 1}.</div>
-                                <div class="question-content">
-                                    <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
-                                    <div class="source-label">example (source: ${meta.title})</div>
-                                </div>
-                            </div>
-                        `;
+                allQuestions.forEach((q, index) => {
+                    const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
                     });
+
+                    questionListHTML += `
+                        <div class="question">
+                            <span class="question-number">${index + 1}.</span>
+                            <div class="question-content">
+                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
+                            </div>
+                        </div>
+                    `;
                 });
 
                 document.getElementById('question-list').innerHTML = questionListHTML;
