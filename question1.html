@@ -6,7 +6,135 @@
     <title>Question Details</title>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
-        /* (Keep the same styles) */
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        main {
+            padding: 20px;
+        }
+        .question-detail {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 900px;
+        }
+        .question-detail h3 {
+            margin-top: 0;
+            font-size: 1.8em;
+            color: #333;
+        }
+        .options {
+            margin: 20px 0;
+        }
+        .options li {
+            background-color: #f9f9f9;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        .options li:hover {
+            background-color: #e6f7ff;
+        }
+        .options li.selected {
+            background-color: #c1e7fc;
+        }
+        .options li.correct {
+            background-color: #28a745;
+            color: white;
+        }
+        .options li.incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+        .check-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+        .check-btn:hover {
+            background-color: #0056b3;
+        }
+        .timer {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2em;
+            color: #333;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .explanation {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .explanation p {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        .mathjax-inline {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        /* Ensure responsive design */
+        @media screen and (max-width: 768px) {
+            .question-detail {
+                padding: 15px;
+                max-width: 100%;
+            }
+            nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+            .options li {
+                font-size: 1em;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
