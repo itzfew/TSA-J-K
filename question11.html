@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
+    <title>Question Detail</title>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
-        
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -119,6 +118,17 @@
             font-size: 1.2em;
             color: #007bff;
         }
+        .source {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            color: #555;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
 
         /* Ensure responsive design */
         @media screen and (max-width: 768px) {
@@ -155,11 +165,19 @@
     <div class="timer" id="timer">Time Left: 1:00</div>
 </main>
 
+<div class="source" id="source"></div>
+
 <script>
     const metaIds = [
-        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
-        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
-        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+        { id: "3c48616f-298a-5f69-91d2-bcd59444c455", title: "Biology - Biomolecules" },
+        { id: "cbfbed57-d7d8-5a07-9957-478e4cb62f17", title: "Chemistry - Organic Chemistry" },
+        { id: "8dd253c6-09a8-5875-b127-a0c00a165a1b", title: "Physics - Mechanics" },
+        { id: "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", title: "Biology - Genetics" },
+        { id: "2ff56f11-0061-566e-aeca-9cc14246e8fb", title: "Chemistry - Inorganic Chemistry" },
+        { id: "27ba990b-5085-5196-87dd-9727f95fc228", title: "Physics - Thermodynamics" },
+        { id: "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", title: "Biology - Cell Biology" },
+        { id: "ce68b80b-fff0-5db8-8d6a-668d729d487a", title: "Chemistry - Physical Chemistry" },
+        { id: "57222784-be0a-5653-930c-8ac44c689e21", title: "Physics - Electromagnetism" }
     ];
 
     let timerInterval;
@@ -190,7 +208,7 @@
 
         (async function fetchQuestion() {
             for (let i = 0; i < metaIds.length; i++) {
-                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i]}.json`;
+                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i].id}.json`;
 
                 try {
                     const response = await fetch(chaptersUrl);
@@ -200,9 +218,9 @@
 
                     if (subject === 'biology') {
                         question = data[0].questions.find(q => q.question_id === questionId);
-                    } else if (subject === 'physics') {
-                        question = data[1].questions.find(q => q.question_id === questionId);
                     } else if (subject === 'chemistry') {
+                        question = data[1].questions.find(q => q.question_id === questionId);
+                    } else if (subject === 'physics') {
                         question = data[2].questions.find(q => q.question_id === questionId);
                     }
 
@@ -210,6 +228,8 @@
                         questionFound = true;
                         renderQuestionDetail(question);
                         startTimer();
+                        // Set source title in the bottom right corner
+                        document.getElementById('source').textContent = `Source: ${metaIds[i].title}`;
                         break; // Stop the loop when the question is found
                     }
                 } catch (error) {
@@ -226,13 +246,11 @@
     // Render question details in the HTML
     function renderQuestionDetail(question) {
         let questionDetailHTML = `
-            <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                return `<span class="mathjax-inline">$$${p1}$$</span>`;
-            })}</h3>
+            <h3>${renderMath(question.content)}</h3>
             <ul class="options">
                 ${question.options.map((opt, index) => 
                     `<li data-option="${opt.identifier}" id="option${index}">
-                        ${String.fromCharCode(65 + index)}. ${opt.content}
+                        ${String.fromCharCode(65 + index)}. ${renderMath(opt.content)}
                      </li>`
                 ).join('')}
             </ul>
@@ -241,102 +259,79 @@
 
         document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-        // Add event listeners for options
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+        // Attach event listeners to options
         const options = document.querySelectorAll('.options li');
         options.forEach(option => {
             option.addEventListener('click', function () {
                 options.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
-                disableOptions(options);
             });
         });
+
+        // Render explanation if present
+        if (question.explanation) {
+            const explanationHTML = `
+                <div class="explanation">
+                    <h4>Explanation:</h4>
+                    <p>${renderMath(question.explanation)}</p>
+                </div>
+            `;
+            document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
+        }
     }
 
-    // Disable other options once one is selected
-    function disableOptions(options) {
-        options.forEach(option => {
-            option.style.pointerEvents = 'none'; // Disable other options
+    // Render LaTeX using MathJax
+    function renderMath(input) {
+        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+            return `<span class="mathjax-inline">$$${p1}$$</span>`;
         });
     }
 
-    // Check the selected answer and show explanation
+    // Check and display the correct answer
     function checkAnswer(questionId) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter] = urlParams.get('id').split('/');
+        const selectedOption = document.querySelector('.options li.selected');
+        if (!selectedOption) {
+            alert("Please select an option.");
+            return;
+        }
 
-        let questionFound = false;
+        const correctAnswer = getCorrectAnswer(questionId);
+        const options = document.querySelectorAll('.options li');
 
-        (async function fetchQuestion() {
-            for (let i = 0; i < metaIds.length; i++) {
-                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i]}.json`;
-
-                try {
-                    const response = await fetch(chaptersUrl);
-                    const data = await response.json();
-
-                    let question = {};
-
-                    if (subject === 'biology') {
-                        question = data[0].questions.find(q => q.question_id === questionId);
-                    } else if (subject === 'physics') {
-                        question = data[1].questions.find(q => q.question_id === questionId);
-                    } else if (subject === 'chemistry') {
-                        question = data[2].questions.find(q => q.question_id === questionId);
-                    }
-
-                    if (question) {
-                        questionFound = true;
-                        const selectedOption = document.querySelector('.options li.selected');
-                        const correctOptions = question.correct_options;
-
-                        if (selectedOption) {
-                            const selectedAnswer = selectedOption.getAttribute('data-option');
-
-                            // Mark answers
-                            const options = document.querySelectorAll('.options li');
-                            options.forEach(option => {
-                                if (correctOptions.includes(option.getAttribute('data-option'))) {
-                                    option.classList.add('correct');
-                                } else if (option === selectedOption) {
-                                    option.classList.add('incorrect');
-                                }
-                            });
-
-                            // Create explanation container if it doesn't exist
-                            let explanationContainer = document.querySelector('.explanation');
-                            if (!explanationContainer) {
-                                explanationContainer = document.createElement('div');
-                                explanationContainer.className = 'explanation';
-                                document.getElementById('question-detail').appendChild(explanationContainer);
-                            }
-
-                            // Update explanation content
-                            explanationContainer.innerHTML = `
-                                <p><strong>Explanation:</strong></p>
-                                ${question.explanation}
-                            `;
-
-                            // Reprocess MathJax content without disturbing the rest
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, explanationContainer]);
-                        } else {
-                            alert('Please select an option!');
-                        }
-
-                        clearInterval(timerInterval); // Stop the timer after checking
-                        break; // Stop the loop when the question is found
-                    }
-                } catch (error) {
-                    console.error('Error checking answer:', error);
-                }
+        options.forEach(option => {
+            option.classList.remove('correct', 'incorrect');
+            if (option.dataset.option === correctAnswer) {
+                option.classList.add('correct');
+            } else if (option === selectedOption) {
+                option.classList.add('incorrect');
             }
+        });
 
-            if (!questionFound) {
-                alert('Question not found!');
-            }
-        })();
+        showExplanation(questionId);
     }
 
-    loadQuestionDetail();
+    // Get correct answer based on the question ID (example logic)
+    function getCorrectAnswer(questionId) {
+        // Replace with actual logic to fetch the correct answer
+        return 'A'; // Placeholder for correct answer
+    }
+
+    // Show explanation after checking answer
+    function showExplanation(questionId) {
+        const explanation = `
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>Here's the explanation for the question.</p>
+            </div>
+        `;
+        document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanation);
+    }
+
+    // Load the question detail on page load
+    window.onload = loadQuestionDetail;
 </script>
 
 </body>
