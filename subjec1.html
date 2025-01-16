@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questions</title>
-    <script type="text/javascript" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+    <title>Subject - Questions</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,44 +11,31 @@
             margin: 0;
             padding: 0;
         }
-        main {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
         .question-list {
-            margin: 0;
-            padding: 0;
+            margin: 20px;
         }
         .question {
             background-color: #fff;
-            border-top: 2px solid #ddd;
+            border-bottom: 2px solid #ddd;
             padding: 15px;
-            font-size: 16px;
+            margin: 0;
+            cursor: pointer;
         }
-        .question a {
-            color: #333;
+        .question:hover {
+            background-color: #f0f0f0;
+        }
+        a {
             text-decoration: none;
-        }
-        .question a:hover {
-            text-decoration: underline;
-        }
-        .question-number {
+            color: #333;
             font-weight: bold;
-            margin-right: 10px;
-        }
-        @media (max-width: 600px) {
-            .question {
-                font-size: 14px;
-                padding: 10px;
-            }
         }
     </style>
 </head>
 <body>
+
 <main>
     <div class="question-list" id="question-list">
-        <!-- Question list will be dynamically loaded -->
+        <!-- Question list will appear here -->
     </div>
 </main>
 
@@ -62,6 +46,7 @@
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
+    // Load questions dynamically based on chapter
     function loadQuestions() {
         const urlParams = new URLSearchParams(window.location.search);
         const subject = urlParams.get('subject') || 'biology';
@@ -69,6 +54,7 @@
         
         let allQuestions = [];
 
+        // Loop through all metaIds to fetch data for all of them
         const fetchPromises = metaIds.map(metaId => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
             return fetch(chaptersUrl)
@@ -82,29 +68,24 @@
                     } else if (subject === 'chemistry') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
-                    allQuestions = [...allQuestions, ...questions];
+                    allQuestions = [...allQuestions, ...questions]; // Combine questions
                 })
                 .catch(error => console.error('Error loading questions from metaId:', metaId, error));
         });
 
+        // After all fetches are done, display questions
         Promise.all(fetchPromises)
             .then(() => {
                 let questionListHTML = '';
-                allQuestions.forEach((q, index) => {
+                allQuestions.forEach(q => {
                     questionListHTML += `
                         <div class="question">
-                            <span class="question-number">${index + 1}.</span>
-                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">
-                                ${q.content}
-                            </a>
+                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
                         </div>
                     `;
                 });
 
                 document.getElementById('question-list').innerHTML = questionListHTML;
-
-                // Render MathJax for mathematical content
-                MathJax.typesetPromise();
             })
             .catch(error => {
                 console.error('Error loading all questions:', error);
@@ -114,5 +95,6 @@
 
     loadQuestions();
 </script>
+
 </body>
 </html>
