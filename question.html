@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
+    <title>Question Detail</title>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
         body {
@@ -204,7 +204,6 @@
 ];
 
 
-
     let timerInterval;
 
     // Timer function
@@ -295,6 +294,8 @@
                 disableOptions(options);
             });
         });
+
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);  // Ensure LaTeX math is rendered
     }
 
     // Disable options after selection
@@ -321,8 +322,8 @@
 
     // Get the correct answer from the question
     function getCorrectAnswer(questionId) {
-        // You can replace this logic with actual logic to fetch the correct answer
-        return 'B'; // Just a placeholder
+        // Replace with actual logic to fetch the correct answer
+        return 'A';  // Just a placeholder for correct answer
     }
 
     // Display explanation after checking answer
