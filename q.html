@@ -270,13 +270,11 @@
     // Render question details in the HTML
     function renderQuestionDetail(question) {
         let questionDetailHTML = `
-            <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                return `<span class="mathjax-inline">$$${p1}$$</span>`;
-            })}</h3>
+            <h3>${renderMath(question.content)}</h3>
             <ul class="options">
                 ${question.options.map((opt, index) => 
                     `<li data-option="${opt.identifier}" id="option${index}">
-                        ${String.fromCharCode(65 + index)}. ${opt.content}
+                        ${String.fromCharCode(65 + index)}. ${renderMath(opt.content)}
                      </li>`
                 ).join('')}
             </ul>
@@ -284,49 +282,55 @@
         `;
 
         document.getElementById('question-detail').innerHTML = questionDetailHTML;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
-        // Add event listeners for options
+        // Attach event listeners to options
         const options = document.querySelectorAll('.options li');
         options.forEach(option => {
             option.addEventListener('click', function () {
                 options.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
-                disableOptions(options);
             });
         });
-
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);  // Ensure LaTeX math is rendered
     }
 
-    // Disable options after selection
-    function disableOptions(options) {
-        options.forEach(opt => opt.style.pointerEvents = 'none');
+    // Render LaTeX using MathJax
+    function renderMath(input) {
+        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+        });
     }
 
-    // Check and display the answer
+    // Check and display the correct answer
     function checkAnswer(questionId) {
-        // Get the selected option
         const selectedOption = document.querySelector('.options li.selected');
-
         if (!selectedOption) {
-            alert('Please select an option.');
+            alert("Please select an option.");
             return;
         }
 
-        const answer = selectedOption.dataset.option;
-        const correctAnswer = getCorrectAnswer(questionId); // Get correct answer logic
+        const correctAnswer = getCorrectAnswer(questionId);
+        const options = document.querySelectorAll('.options li');
 
-        selectedOption.classList.add(answer === correctAnswer ? 'correct' : 'incorrect');
+        options.forEach(option => {
+            option.classList.remove('correct', 'incorrect');
+            if (option.dataset.option === correctAnswer) {
+                option.classList.add('correct');
+            } else if (option === selectedOption) {
+                option.classList.add('incorrect');
+            }
+        });
+
         showExplanation(questionId);
     }
 
-    // Get the correct answer from the question
+    // Get correct answer based on the question ID (example logic)
     function getCorrectAnswer(questionId) {
         // Replace with actual logic to fetch the correct answer
-        return 'A';  // Just a placeholder for correct answer
+        return 'A'; // Placeholder for correct answer
     }
 
-    // Display explanation after checking answer
+    // Show explanation after checking answer
     function showExplanation(questionId) {
         const explanation = `
             <div class="explanation">
@@ -339,7 +343,6 @@
 
     // Load the question detail on page load
     window.onload = loadQuestionDetail;
-
 </script>
 
 </body>
