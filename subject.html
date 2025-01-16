@@ -4,65 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject - Questions</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 20px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .question-list {
-            margin: 20px;
+            line-height: 1.6;
         }
         .question {
-            background-color: #fff;
-            border: 1px solid #ddd;
+            border-bottom: 2px solid #ddd;
             padding: 15px;
-            margin: 10px 0;
-            cursor: pointer;
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
         }
-        .question:hover {
-            background-color: #f0f0f0;
+        .question a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        .question-number {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .question-content {
+            flex-grow: 1;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
-        </ul>
-    </nav>
-</header>
-
-<main>
-    <div class="question-list" id="question-list">
-        <!-- Question list will appear here -->
-    </div>
-</main>
+<div id="question-list">
+    <!-- Questions will appear here -->
+</div>
 
 <script>
     const metaIds = [
@@ -71,7 +47,6 @@
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
-    // Load questions dynamically based on chapter
     function loadQuestions() {
         const urlParams = new URLSearchParams(window.location.search);
         const subject = urlParams.get('subject') || 'biology';
@@ -79,7 +54,6 @@
         
         let allQuestions = [];
 
-        // Loop through all metaIds to fetch data for all of them
         const fetchPromises = metaIds.map(metaId => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
             return fetch(chaptersUrl)
@@ -93,24 +67,31 @@
                     } else if (subject === 'chemistry') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
-                    allQuestions = [...allQuestions, ...questions]; // Combine questions
+                    allQuestions = [...allQuestions, ...questions];
                 })
                 .catch(error => console.error('Error loading questions from metaId:', metaId, error));
         });
 
-        // After all fetches are done, display questions
         Promise.all(fetchPromises)
             .then(() => {
                 let questionListHTML = '';
-                allQuestions.forEach(q => {
+                allQuestions.forEach((q, index) => {
                     questionListHTML += `
                         <div class="question">
-                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                            <span class="question-number">${index + 1}.</span>
+                            <div class="question-content">
+                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                            </div>
                         </div>
                     `;
                 });
 
                 document.getElementById('question-list').innerHTML = questionListHTML;
+
+                // Render MathJax after content load
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
             })
             .catch(error => {
                 console.error('Error loading all questions:', error);
