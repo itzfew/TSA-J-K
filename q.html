@@ -256,9 +256,12 @@
             </ul>
             <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
         `;
+
         document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-        // Add event listeners to options
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+        // Attach event listeners to options
         const options = document.querySelectorAll('.options li');
         options.forEach(option => {
             option.addEventListener('click', function () {
@@ -266,12 +269,13 @@
                 option.classList.add('selected');
             });
         });
-    }
 
-    // Render LaTeX or Math content with MathJax
-    function renderMath(content) {
-        return content.replace(/\\\[([\s\S]*?)\\\]/g, '<div class="mathjax-inline">$1</div>')
-                      .replace(/\\\([^\)]*\)/g, '<span class="mathjax-inline">$&</span>');
+        
+    // Render LaTeX using MathJax
+    function renderMath(input) {
+        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+        });
     }
 
     // Check and display the correct answer
@@ -293,14 +297,7 @@
                 option.classList.add('incorrect');
             }
         });
-
-        // Show the explanation after checking the answer
-        showExplanation(questionId);
-    }
-
-    // Show explanation for the question
-    function showExplanation(questionId) {
-        const question = getQuestionById(questionId);
+// Render explanation if present
         if (question.explanation) {
             const explanationHTML = `
                 <div class="explanation">
@@ -312,17 +309,18 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
         }
     }
-
-    // Get question details based on the ID (Replace with actual logic to fetch the question data)
-    function getQuestionById(questionId) {
-        // Placeholder example - replace with actual data fetching
-        return {
-            explanation: "The correct answer is A because of [insert explanation here]."
-        };
+ 
+        showExplanation(questionId);
     }
 
-    // Initial call to load the question details
-    loadQuestionDetail();
+    // Get correct answer based on the question ID (example logic)
+    function getCorrectAnswer(questionId) {
+        // Replace with actual logic to fetch the correct answer
+        return 'A'; // Placeholder for correct answer
+    }
+
+    // Load the question detail on page load
+    window.onload = loadQuestionDetail;
 </script>
 
 </body>
