@@ -3,212 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
+    <title>Question Match</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 20px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .question-detail {
             margin: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .question-container {
+            background: #fff;
             padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .question-detail h3 {
-            margin-top: 0;
+        .question {
+            margin-bottom: 20px;
         }
         .options {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
         }
         .options li {
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
-        .options li:hover {
-            background-color: #f0f0f0;
-        }
-        .correct {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .incorrect {
-            background-color: #f44336;
-            color: white;
-        }
-        .hidden {
-            display: none;
+        .btn:hover {
+            background-color: #0056b3;
         }
         .result {
             margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
             font-weight: bold;
         }
-        .mathjax-inline {
-            white-space: nowrap;
-            display: inline-block;
-            font-size: 1.1em;
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
         }
-        .question-content span {
-            display: inline-block;
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
-
-    <script type="text/javascript" async 
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
 </head>
 <body>
-
-<header>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
-        </ul>
-    </nav>
-</header>
-
-<main>
-    <div class="question-detail" id="question-detail">
-        <!-- Question details will appear here -->
+    <div class="question-container">
+        <div id="question-content" class="question"></div>
+        <ul id="options" class="options"></ul>
+        <button class="btn" onclick="checkAnswer()">Check Answer</button>
+        <div id="result" class="result" style="display: none;"></div>
     </div>
-</main>
 
-<script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    <script>
+        const questionData = {
+            "question_id": "1lipxfxx3",
+            "content": "<p>Match List - I with List - II</p><table class='tg'>...</table><p>Choose the <b>correct</b> answer from the options given below :</p>",
+            "options": [
+                { "identifier": "A", "content": "(A)-(II), (B)-(I), (C)-(IV), (D)-(III)" },
+                { "identifier": "B", "content": "(A)-(IV), (B)-(III), (C)-(I), (D)-(II)" },
+                { "identifier": "C", "content": "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)" },
+                { "identifier": "D", "content": "(A)-(I), (B)-(IV), (C)-(III), (D)-(II)" }
+            ],
+            "correct_options": ["C"],
+            "explanation": "<p>The correct matchings are...</p>"
+        };
 
-    function loadQuestionDetail() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        function loadQuestion() {
+            const questionContent = document.getElementById('question-content');
+            const optionsContainer = document.getElementById('options');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                if (question) {
-                    let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
-
-                    let questionDetailHTML = `
-                        <h3>${questionContent}</h3>
-                        <ul class="options" id="options">
-                            ${question.options.map((opt, index) => `
-                                <li id="option-${index}" onclick="selectOption(${index})">${opt.label}: ${opt.content}</li>
-                            `).join('')}
-                        </ul>
-                        <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                        <div id="result" class="hidden">
-                            <p class="result" id="answer-result"></p>
-                            <p><strong>Explanation:</strong> ${question.explanation}</p>
-                        </div>
-                    `;
-
-                    document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-                } else {
-                    document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading question details:', error);
-                document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
+            questionContent.innerHTML = questionData.content;
+            questionData.options.forEach(option => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <label>
+                        <input type="radio" name="option" value="${option.identifier}">
+                        ${option.content}
+                    </label>
+                `;
+                optionsContainer.appendChild(listItem);
             });
-    }               
-
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
-    }
-
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
-            return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        function checkAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            const resultContainer = document.getElementById('result');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
+            if (!selectedOption) {
+                resultContainer.style.display = 'block';
+                resultContainer.className = 'result incorrect';
+                resultContainer.textContent = 'Please select an option!';
+                return;
+            }
 
-                const correctOptions = question.correct_options;
+            const isCorrect = questionData.correct_options.includes(selectedOption.value);
+            resultContainer.style.display = 'block';
+            resultContainer.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            resultContainer.innerHTML = isCorrect 
+                ? 'Correct! ' + questionData.explanation
+                : 'Incorrect. ' + questionData.explanation;
+        }
 
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (correctOptions.includes(idx)) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                const resultText = correctOptions.includes(selectedOptionIndex) ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
-    }
-
-    loadQuestionDetail();
-</script>
-
+        window.onload = loadQuestion;
+    </script>
 </body>
 </html>
