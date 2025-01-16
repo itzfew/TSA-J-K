@@ -328,17 +328,21 @@
 
     // Display explanation after checking answer
     function showExplanation(questionId) {
+        if (question.explanation) {
         const explanation = `
             <div class="explanation">
                 <h4>Explanation:</h4>
-                <p>Here's the explanation for the question.</p>
-            </div>
-        `;
-        document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanation);
-    }
+                <p>${renderMath(question.explanation)}</p>
+                </div>
+            `;
+            document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
+        }
+        }
 
     // Load the question detail on page load
     window.onload = loadQuestionDetail;
+    
 
 </script>
 
