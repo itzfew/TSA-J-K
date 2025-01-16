@@ -39,9 +39,9 @@
             color: #007bff;
         }
         .chapter-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #555;
         }
     </style>
 </head>
@@ -70,7 +70,6 @@
         const chapter = urlParams.get('chapter') || 'biomolecule';
         
         let allQuestions = [];
-        let chapterTitle = '';
 
         const fetchPromises = metaIds.map(meta => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${meta.id}.json`;
@@ -86,11 +85,8 @@
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
 
-                    // Set the chapter title from meta
-                    if (!chapterTitle) {
-                        chapterTitle = meta.title;
-                    }
-                    allQuestions = [...allQuestions, ...questions];
+                    // Add the title and questions to the array
+                    allQuestions.push({ title: meta.title, questions });
                 })
                 .catch(error => console.error('Error loading questions from metaId:', meta.id, error));
         });
@@ -98,21 +94,23 @@
         Promise.all(fetchPromises)
             .then(() => {
                 let questionListHTML = '';
-                questionListHTML += `<h2 class="chapter-title">${chapterTitle}</h2>`; // Add title of the chapter
 
-                allQuestions.forEach((q, index) => {
-                    const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                    });
+                allQuestions.forEach(meta => {
+                    meta.questions.forEach((q, index) => {
+                        const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                        });
 
-                    questionListHTML += `
-                        <div class="question">
-                            <span class="question-number">${index + 1}.</span>
-                            <div class="question-content">
-                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
+                        questionListHTML += `
+                            <div class="question">
+                                <div class="question-number">${index + 1}.</div>
+                                <div class="question-content">
+                                    <h3 class="chapter-title">${meta.title}</h3>
+                                    <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    });
                 });
 
                 document.getElementById('question-list').innerHTML = questionListHTML;
