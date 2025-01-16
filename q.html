@@ -314,6 +314,7 @@
         if (currentQuestionIndex > 0) {
             currentQuestionIndex--;
             renderQuestionDetail(questionList[currentQuestionIndex]);
+            updateURL();
         } else {
             alert("This is the first question.");
         }
@@ -324,9 +325,19 @@
         if (currentQuestionIndex < questionList.length - 1) {
             currentQuestionIndex++;
             renderQuestionDetail(questionList[currentQuestionIndex]);
+            updateURL();
         } else {
             alert("This is the last question.");
         }
+    }
+
+    // Update the URL with the new question ID
+    function updateURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter] = urlParams.get('id').split('/');
+        const nextQuestionId = questionList[currentQuestionIndex].question_id;
+        const newURL = `index.html?id=${subject}/${chapter}/${nextQuestionId}`;
+        window.history.pushState({}, '', newURL);
     }
 
     // Initial load when the page is ready
