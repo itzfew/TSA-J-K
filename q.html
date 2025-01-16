@@ -201,7 +201,7 @@
     // Load question details from all metaIds
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const questionId = urlParams.get('id').split('/')[2];
 
         // Fetch questions from all metaIds
         let questionFound = false;
@@ -216,11 +216,11 @@
 
                     let question = {};
 
-                    if (subject === 'biology') {
+                    if (urlParams.get('subject') === 'biology') {
                         question = data[0].questions.find(q => q.question_id === questionId);
-                    } else if (subject === 'chemistry') {
+                    } else if (urlParams.get('subject') === 'chemistry') {
                         question = data[1].questions.find(q => q.question_id === questionId);
-                    } else if (subject === 'physics') {
+                    } else if (urlParams.get('subject') === 'physics') {
                         question = data[2].questions.find(q => q.question_id === questionId);
                     }
 
@@ -269,8 +269,8 @@
                 option.classList.add('selected');
             });
         });
+    }
 
-        
     // Render LaTeX using MathJax
     function renderMath(input) {
         return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
@@ -297,7 +297,8 @@
                 option.classList.add('incorrect');
             }
         });
-// Render explanation if present
+
+        // Render explanation if present
         if (question.explanation) {
             const explanationHTML = `
                 <div class="explanation">
@@ -308,9 +309,6 @@
             document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
         }
-    }
- 
-        showExplanation(questionId);
     }
 
     // Get correct answer based on the question ID (example logic)
