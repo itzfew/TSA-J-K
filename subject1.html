@@ -76,6 +76,7 @@
         const chapter = urlParams.get('chapter') || 'biomolecule';
         
         let allQuestions = [];
+        let questionNumber = 1;  // Initialize question number globally
 
         const fetchPromises = metaIds.map(meta => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${meta.id}.json`;
@@ -102,14 +103,14 @@
                 let questionListHTML = '';
 
                 allQuestions.forEach(meta => {
-                    meta.questions.forEach((q, index) => {
+                    meta.questions.forEach((q) => {
                         const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
                             return `<span class="mathjax-inline">$$${p1}$$</span>`;
                         });
 
                         questionListHTML += `
                             <div class="question">
-                                <div class="question-number">${index + 1}.</div>
+                                <div class="question-number">${questionNumber++}.</div>  <!-- Increment question number -->
                                 <div class="question-content">
                                     <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
                                     <div class="source-label">example (source: ${meta.title})</div>
