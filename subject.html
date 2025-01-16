@@ -32,6 +32,12 @@
         .question-content {
             flex-grow: 1;
         }
+        .mathjax-inline {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 1.2em;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +70,7 @@
                         questions = data[0].questions.filter(q => q.chapter === chapter);
                     } else if (subject === 'chemistry') {
                         questions = data[1].questions.filter(q => q.chapter === chapter);
-                    } else if (subject === 'physica') {
+                    } else if (subject === 'physics') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
                     allQuestions = [...allQuestions, ...questions];
@@ -76,11 +82,15 @@
             .then(() => {
                 let questionListHTML = '';
                 allQuestions.forEach((q, index) => {
+                    const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
+
                     questionListHTML += `
                         <div class="question">
                             <span class="question-number">${index + 1}.</span>
                             <div class="question-content">
-                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
                             </div>
                         </div>
                     `;
