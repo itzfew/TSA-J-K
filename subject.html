@@ -77,24 +77,32 @@
         const subject = urlParams.get('subject') || 'biology';
         const chapter = urlParams.get('chapter') || 'biomolecule';
         
-        // Choose a metaId dynamically (you can change this logic if you want a specific rule)
-        const randomMetaId = metaIds[Math.floor(Math.random() * metaIds.length)];
-        const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${randomMetaId}.json`;
+        let allQuestions = [];
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let questions = [];
-                if (subject === 'biology') {
-                    questions = data[0].questions.filter(q => q.chapter === chapter);
-                } else if (subject === 'physics') {
-                    questions = data[1].questions.filter(q => q.chapter === chapter);
-                } else if (subject === 'chemistry') {
-                    questions = data[2].questions.filter(q => q.chapter === chapter);
-                }
+        // Loop through all metaIds to fetch data for all of them
+        const fetchPromises = metaIds.map(metaId => {
+            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+            return fetch(chaptersUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let questions = [];
+                    if (subject === 'biology') {
+                        questions = data[0].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'physics') {
+                        questions = data[1].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'chemistry') {
+                        questions = data[2].questions.filter(q => q.chapter === chapter);
+                    }
+                    allQuestions = [...allQuestions, ...questions]; // Combine questions
+                })
+                .catch(error => console.error('Error loading questions from metaId:', metaId, error));
+        });
 
+        // After all fetches are done, display questions
+        Promise.all(fetchPromises)
+            .then(() => {
                 let questionListHTML = '';
-                questions.forEach(q => {
+                allQuestions.forEach(q => {
                     questionListHTML += `
                         <div class="question">
                             <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
@@ -105,7 +113,7 @@
                 document.getElementById('question-list').innerHTML = questionListHTML;
             })
             .catch(error => {
-                console.error('Error loading questions:', error);
+                console.error('Error loading all questions:', error);
                 document.getElementById('question-list').innerHTML = '<p>Error loading questions. Please try again later.</p>';
             });
     }
