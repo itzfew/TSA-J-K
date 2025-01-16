@@ -201,7 +201,7 @@
     // Load question details from all metaIds
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
-        const questionId = urlParams.get('id').split('/')[2];
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
         // Fetch questions from all metaIds
         let questionFound = false;
@@ -216,11 +216,11 @@
 
                     let question = {};
 
-                    if (urlParams.get('subject') === 'biology') {
+                    if (subject === 'biology') {
                         question = data[0].questions.find(q => q.question_id === questionId);
-                    } else if (urlParams.get('subject') === 'chemistry') {
+                    } else if (subject === 'chemistry') {
                         question = data[1].questions.find(q => q.question_id === questionId);
-                    } else if (urlParams.get('subject') === 'physics') {
+                    } else if (subject === 'physics') {
                         question = data[2].questions.find(q => q.question_id === questionId);
                     }
 
@@ -269,6 +269,18 @@
                 option.classList.add('selected');
             });
         });
+
+        // Render explanation if present
+        if (question.explanation) {
+            const explanationHTML = `
+                <div class="explanation">
+                    <h4>Explanation:</h4>
+                    <p>${renderMath(question.explanation)}</p>
+                </div>
+            `;
+            document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
+        }
     }
 
     // Render LaTeX using MathJax
@@ -298,17 +310,7 @@
             }
         });
 
-        // Render explanation if present
-        if (question.explanation) {
-            const explanationHTML = `
-                <div class="explanation">
-                    <h4>Explanation:</h4>
-                    <p>${renderMath(question.explanation)}</p>
-                </div>
-            `;
-            document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
-        }
+        showExplanation(questionId);
     }
 
     // Get correct answer based on the question ID (example logic)
