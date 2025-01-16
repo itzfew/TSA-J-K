@@ -134,6 +134,7 @@
                 padding: 10px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -331,12 +332,13 @@
         }
     }
 
-    // Update the URL with the new question ID
+    // Update the URL with the new question ID, ensuring the same subject and chapter
     function updateURL() {
         const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter] = urlParams.get('id').split('/');
+        const subject = urlParams.get('subject');
+        const chapter = urlParams.get('chapter');
         const nextQuestionId = questionList[currentQuestionIndex].question_id;
-        const newURL = `index.html?id=${subject}/${chapter}/${nextQuestionId}`;
+        const newURL = `index.html?subject=${subject}&chapter=${chapter}&id=${subject}/${chapter}/${nextQuestionId}`;
         window.history.pushState({}, '', newURL);
     }
 
