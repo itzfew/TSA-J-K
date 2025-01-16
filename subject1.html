@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,6 @@
             margin: 0;
             display: flex;
             align-items: flex-start;
-            position: relative; /* For positioning the label at the bottom left */
         }
         .question a {
             text-decoration: none;
@@ -43,15 +43,6 @@
             font-size: 1.2em;
             margin-bottom: 5px;
             color: #555;
-        }
-        .source-label {
-            font-size: 0.9em;
-            color: #555;
-            font-style: italic;
-            position: absolute;
-            bottom: 5px;
-            left: 10px;
-            opacity: 0.7;
         }
     </style>
 </head>
@@ -117,7 +108,6 @@
                                 <div class="question-content">
                                     <h3 class="chapter-title">${meta.title}</h3>
                                     <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
-                                    <div class="source-label">example (source: ${meta.title})</div>
                                 </div>
                             </div>
                         `;
