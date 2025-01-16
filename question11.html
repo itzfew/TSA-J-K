@@ -156,24 +156,48 @@
 </main>
 
 <script>
-                        const metaIds = [
-    "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
-    "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
-    "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
-];
-let questionFound = false;
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
+    
+    const randomMetaId = metaIds[Math.floor(Math.random() * metaIds.length)];
+    const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${randomMetaId}.json`;
+    let timerInterval;
 
+    // Timer function
+    function startTimer() {
+        let timeLeft = 60; // 1 minute timer
+        timerInterval = setInterval(function () {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Please select an option.");
+                checkAnswer();  // Automatically check the answer when time runs out
+            }
+            timeLeft--;
+        }, 1000);
+    }
+
+let currentMetaIdIndex = 0;
+
+// Function to load question detail with a loop to try multiple metaIds
 function loadQuestionDetail() {
     const urlParams = new URLSearchParams(window.location.search);
     const [subject, chapter, questionId] = urlParams.get('id').split('/');
-
-    function fetchQuestion(metaId) {
-        const questionUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
-
-        fetch(questionUrl)
+    
+    function fetchQuestion() {
+        const metaId = metaIds[currentMetaIdIndex];
+        const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+        
+        fetch(chaptersUrl)
             .then(response => response.json())
             .then(data => {
                 let question = {};
+                // Loop through the subject options and find the question
                 if (subject === 'biology') {
                     question = data[0].questions.find(q => q.question_id === questionId);
                 } else if (subject === 'physics') {
@@ -183,27 +207,29 @@ function loadQuestionDetail() {
                 }
 
                 if (question) {
-                    questionFound = true;
-                    displayQuestion(question);
-                } else if (!questionFound) {
-                    const nextMetaId = metaIds.shift();
-                    if (nextMetaId) {
-                        fetchQuestion(nextMetaId);
+                    renderQuestion(question);
+                } else {
+                    // If no question found in this metaId, move to the next one
+                    currentMetaIdIndex++;
+                    if (currentMetaIdIndex < metaIds.length) {
+                        fetchQuestion();
                     } else {
-                        document.getElementById('question-detail').innerHTML = '<p>Question not found in any of the available resources. Please try again later.</p>';
+                        document.getElementById('question-detail').innerHTML = '<p>Question not found in any of the available datasets.</p>';
                     }
                 }
             })
             .catch(error => {
-                console.error('Error fetching question data:', error);
+                console.error('Error loading question details:', error);
                 document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
             });
     }
 
-    fetchQuestion(metaIds[0]);
+    // Start the question fetching process
+    fetchQuestion();
 }
 
-function displayQuestion(question) {
+// Function to render the question on the page
+function renderQuestion(question) {
     let questionDetailHTML = `
         <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
             return `<span class="mathjax-inline">$$${p1}$$</span>`;
@@ -212,7 +238,7 @@ function displayQuestion(question) {
             ${question.options.map((opt, index) => 
                 `<li data-option="${opt.identifier}" id="option${index}">
                     ${String.fromCharCode(65 + index)}. ${opt.content}
-                </li>`
+                 </li>`
             ).join('')}
         </ul>
         <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
@@ -234,13 +260,15 @@ function displayQuestion(question) {
     startTimer();
 }
 
+// Disable other options once one is selected
 function disableOptions(options) {
     options.forEach(option => {
         option.style.pointerEvents = 'none'; // Disable other options
     });
 }
 
-// Timer and other functions here...
+// Timer and other functions remain unchanged
+
 loadQuestionDetail();
 
 </script>
