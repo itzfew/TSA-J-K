@@ -11,43 +11,106 @@
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #333;
             color: #fff;
             padding: 10px 0;
             text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
         nav ul {
             list-style-type: none;
             padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
+
         nav ul li {
-            display: inline;
-            margin: 0 20px;
+            margin: 5px 15px;
         }
+
         nav ul li a {
             color: white;
             text-decoration: none;
             font-weight: bold;
+            font-size: 1rem;
+            padding: 5px 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
         }
+
+        nav ul li a:hover {
+            border-bottom: 2px solid #f4f4f9;
+        }
+
+        main {
+            padding: 20px;
+        }
+
         .chapter-list {
-            margin: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
+
         .chapter {
             background-color: #fff;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
             padding: 15px;
-            margin: 10px 0;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
+
         .chapter:hover {
             background-color: #f0f0f0;
+            border-color: #aaa;
         }
+
+        .chapter a {
+            color: black;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
         .subject-section {
             display: none;
         }
+
         .active {
             display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav ul li {
+                margin: 5px 10px;
+            }
+
+            nav ul li a {
+                font-size: 0.9rem;
+            }
+
+            .chapter-list {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav ul li a {
+                font-size: 0.8rem;
+                padding: 3px 7px;
+            }
         }
     </style>
 </head>
@@ -82,7 +145,6 @@
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
-    // Function to load chapters based on the metaId
     function loadChapters(subject, metaId) {
         const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
 
@@ -98,7 +160,6 @@
                     chapters = data[2].questions;
                 }
 
-                // Group questions by chapter
                 let chapterListHTML = '';
                 chapters.forEach(q => {
                     if (!chapterListHTML.includes(q.chapter)) {
@@ -118,24 +179,15 @@
             });
     }
 
-    // Function to show specific subject's chapters
     function showSubject(subject) {
         const subjects = ['biology', 'physics', 'chemistry'];
-
-        // Hide all subjects
         subjects.forEach(s => {
             document.getElementById(s).classList.remove('active');
         });
-
-        // Show the selected subject
         document.getElementById(subject).classList.add('active');
-
-        // Load chapters for the selected subject from one of the metaIds
-        // Example: You can choose any metaId, for this example we'll choose the first one in the array
-        loadChapters(subject, metaIds[0]); // You can change the index for other metaIds
+        loadChapters(subject, metaIds[0]);
     }
 
-    // Initially load biology chapters
     showSubject('biology');
 </script>
 
