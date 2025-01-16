@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject - Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .question-list {
+            margin: 20px;
+        }
+        .question {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .question:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="subject.html?subject=biology">Biology</a></li>
+            <li><a href="subject.html?subject=physics">Physics</a></li>
+            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="question-list" id="question-list">
+        <!-- Question list will appear here -->
+    </div>
+</main>
+
+<script>
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
+
+    // Load questions dynamically based on chapter
+    function loadQuestions() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject') || 'biology';
+        const chapter = urlParams.get('chapter') || 'biomolecule';
+        
+        let allQuestions = [];
+
+        // Loop through all metaIds to fetch data for all of them
+        const fetchPromises = metaIds.map(metaId => {
+            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+            return fetch(chaptersUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let questions = [];
+                    if (subject === 'biology') {
+                        questions = data[0].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'physics') {
+                        questions = data[1].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'chemistry') {
+                        questions = data[2].questions.filter(q => q.chapter === chapter);
+                    }
+                    allQuestions = [...allQuestions, ...questions]; // Combine questions
+                })
+                .catch(error => console.error('Error loading questions from metaId:', metaId, error));
+        });
+
+        // After all fetches are done, display questions
+        Promise.all(fetchPromises)
+            .then(() => {
+                let questionListHTML = '';
+                allQuestions.forEach(q => {
+                    questionListHTML += `
+                        <div class="question">
+                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('question-list').innerHTML = questionListHTML;
+            })
+            .catch(error => {
+                console.error('Error loading all questions:', error);
+                document.getElementById('question-list').innerHTML = '<p>Error loading questions. Please try again later.</p>';
+            });
+    }
+
+    loadQuestions();
+</script>
+
+</body>
+</html>
