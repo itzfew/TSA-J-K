@@ -4,217 +4,185 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
+        /* Add your styles here */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
         }
-        header {
+        header, .timer {
             background-color: #333;
             color: white;
-            padding: 10px 0;
             text-align: center;
+            padding: 10px;
         }
         nav ul {
-            list-style-type: none;
+            list-style: none;
+            margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
         }
         nav ul li {
-            display: inline;
-            margin: 0 20px;
+            margin: 0 15px;
         }
         nav ul li a {
-            color: white;
             text-decoration: none;
+            color: white;
             font-weight: bold;
+        }
+        main {
+            padding: 20px;
         }
         .question-detail {
-            margin: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .question-detail h3 {
-            margin-top: 0;
-        }
-        .options {
-            list-style-type: none;
-            padding: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .options li {
-            background-color: #f9f9f9;
+            cursor: pointer;
             padding: 10px;
-            margin: 5px 0;
+            margin: 10px 0;
+            background-color: #f9f9f9;
             border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .check-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
             cursor: pointer;
         }
-        .options li:hover {
-            background-color: #f0f0f0;
-        }
-        .correct {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .incorrect {
-            background-color: #f44336;
-            color: white;
-        }
-        .hidden {
-            display: none;
-        }
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-                /* Prevent mathjax line breaks and ensure inline equations are rendered smoothly */
-        .mathjax-inline {
-            white-space: nowrap;
-            display: inline-block;
-            font-size: 1.1em;
-        }
-
-        /* Ensuring that MathJax inline formulas don't break or overflow */
-        .question-content span {
-            display: inline-block;
-        }
-
     </style>
-
-    <!-- Include MathJax for equation rendering -->
-    <script type="text/javascript" async 
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
 </head>
 <body>
-
 <header>
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="subject.html?subject=biology">Biology</a></li>
-            <li><a href="subject.html?subject=physics">Physics</a></li>
-            <li><a href="subject.html?subject=chemistry">Chemistry</a></li>
+            <li><a href="index.html?subject=biology">Biology</a></li>
+            <li><a href="index.html?subject=physics">Physics</a></li>
+            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
         </ul>
     </nav>
 </header>
-
 <main>
-    <div class="question-detail" id="question-detail">
-        <!-- Question details will appear here -->
-    </div>
+    <div id="question-detail" class="question-detail"></div>
 </main>
-
+<div class="timer" id="timer">Time Elapsed: 0s</div>
 <script>
-    const chaptersUrl = 'https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/3c48616f-298a-5f69-91d2-bcd59444c455.json';
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17",
+        "8dd253c6-09a8-5875-b127-a0c00a165a1b", "c7fb1fc7-cb24-58d1-99f5-4ced0111082d",
+        "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a",
+        "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
 
-    function loadQuestionDetail() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const [subject, chapter, questionId] = urlParams.get('id').split('/');
+    let timerCount = 0;
+    let timerInterval;
 
-    fetch(chaptersUrl)
-        .then(response => response.json())
-        .then(data => {
-            let question = {};
-            if (subject === 'biology') {
-                question = data[0].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'physics') {
-                question = data[1].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'chemistry') {
-                question = data[2].questions.find(q => q.question_id === questionId);
-            }
-
-            if (question) {
-                // Wrap math in the mathjax-inline class
-                let questionContent = question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                    return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                });
-
-                let questionDetailHTML = `
-                    <h3>${questionContent}</h3>
-                    <ul class="options" id="options">
-                        ${question.options.map((opt, index) => `
-                            <li id="option-${index}" onclick="selectOption(${index})">${opt.content}</li>
-                        `).join('')}
-                    </ul>
-                    <button id="check-answer" onclick="checkAnswer()">Check Answer</button>
-                    <div id="result" class="hidden">
-                        <p class="result" id="answer-result"></p>
-                        <p><strong>Explanation:</strong> ${question.explanation}</p>
-                    </div>
-                `;
-
-                // Update the question content with MathJax rendering
-                document.getElementById('question-detail').innerHTML = questionDetailHTML;
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('question-detail')]);
-            } else {
-                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading question details:', error);
-            document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-        });
-}               
-    let selectedOptionIndex = null;
-
-    function selectOption(index) {
-        const options = document.querySelectorAll('.options li');
-        options.forEach((option, idx) => {
-            option.style.backgroundColor = ''; // Reset background color
-        });
-        selectedOptionIndex = index;
-        options[index].style.backgroundColor = '#e0e0e0'; // Highlight selected option
+    // Start timer
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timerCount++;
+            document.getElementById('timer').textContent = `Time Elapsed: ${timerCount}s`;
+        }, 1000);
     }
 
-    function checkAnswer() {
-        if (selectedOptionIndex === null) {
-            alert('Please select an option!');
+    // Fetch and load question from all metaId JSONs
+    async function loadQuestion() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionId = urlParams.get('id')?.split('/')[2];
+
+        for (const metaId of metaIds) {
+            const url = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                for (const subject of data) {
+                    const question = subject.questions.find(q => q.question_id === questionId);
+                    if (question) {
+                        renderQuestion(question);
+                        startTimer();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error(`Failed to fetch data from ${url}`, error);
+            }
+        }
+        document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+    }
+
+    // Render question and options
+    function renderQuestion(question) {
+        const questionHTML = `
+            <h3>${question.content}</h3>
+            <ul class="options">
+                ${question.options.map((opt, idx) => `
+                    <li data-id="${opt.identifier}" id="option-${idx}">
+                        ${String.fromCharCode(65 + idx)}. ${opt.content}
+                    </li>
+                `).join('')}
+            </ul>
+            <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
+        `;
+        document.getElementById('question-detail').innerHTML = questionHTML;
+
+        const options = document.querySelectorAll('.options li');
+        options.forEach(option => option.addEventListener('click', () => {
+            options.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+        }));
+    }
+
+    // Check selected answer
+    function checkAnswer(questionId) {
+        const selectedOption = document.querySelector('.options li.selected');
+        if (!selectedOption) {
+            alert('Please select an option.');
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+        const selectedId = selectedOption.getAttribute('data-id');
 
-        fetch(chaptersUrl)
-            .then(response => response.json())
-            .then(data => {
-                let question = {};
-                if (subject === 'biology') {
-                    question = data[0].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'physics') {
-                    question = data[1].questions.find(q => q.question_id === questionId);
-                } else if (subject === 'chemistry') {
-                    question = data[2].questions.find(q => q.question_id === questionId);
-                }
-
-                const correctAnswerIndex = question.correct_option_index;
-
-                const options = document.querySelectorAll('.options li');
-                options.forEach((option, idx) => {
-                    if (idx === correctAnswerIndex) {
-                        option.classList.add('correct');
-                    } else {
-                        option.classList.add('incorrect');
+        for (const metaId of metaIds) {
+            const url = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    for (const subject of data) {
+                        const question = subject.questions.find(q => q.question_id === questionId);
+                        if (question) {
+                            const correctOptions = question.correct_options;
+                            if (correctOptions.includes(selectedId)) {
+                                selectedOption.classList.add('correct');
+                                alert('Correct!');
+                            } else {
+                                selectedOption.classList.add('incorrect');
+                                alert('Incorrect!');
+                            }
+                            clearInterval(timerInterval); // Stop timer
+                        }
                     }
-                });
-
-                const resultText = selectedOptionIndex === correctAnswerIndex ? 'Correct!' : 'Incorrect.';
-                document.getElementById('answer-result').innerText = resultText;
-
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('check-answer').classList.add('hidden'); // Hide the check button
-            })
-            .catch(error => {
-                console.error('Error checking the answer:', error);
-                alert('Error checking the answer.');
-            });
+                })
+                .catch(error => console.error(`Failed to check answer from ${url}`, error));
+        }
     }
 
-    loadQuestionDetail();
+    // Initialize
+    loadQuestion();
 </script>
-
 </body>
 </html>
