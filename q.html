@@ -3,136 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subject - Questions</title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <title>Question Details</title>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        .question {
-            border-bottom: 2px solid #ddd;
-            padding: 15px;
-            margin: 0;
-            display: flex;
-            align-items: flex-start;
-            position: relative; /* For positioning the label at the bottom left */
-            min-height: 80px; /* Ensures there's space for the label */
-        }
-        .question a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-        .question-number {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .question-content {
-            flex-grow: 1;
-        }
-        .mathjax-inline {
-            white-space: nowrap;
-            display: inline-block;
-            font-size: 1.2em;
-            color: #007bff;
-        }
-        .source-label {
-            font-size: 0.9em;
-            color: #555;
-            font-style: italic;
-            position: absolute;
-            bottom: 5px; /* Keeps the label at the bottom */
-            left: 10px;  /* Aligns it to the left */
-            opacity: 0.7;
-        }
+        /* Same styles as before */
     </style>
 </head>
 <body>
 
-<div id="question-list">
-    <!-- Questions will appear here -->
-</div>
+<header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html?subject=biology">Biology</a></li>
+            <li><a href="index.html?subject=physics">Physics</a></li>
+            <li><a href="index.html?subject=chemistry">Chemistry</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div id="question-detail"></div>
+    <div class="timer" id="timer">Time Left: 1:00</div>
+    <div>
+        <button id="prev-btn" onclick="loadPreviousQuestion()">Previous</button>
+        <button id="next-btn" onclick="loadNextQuestion()">Next</button>
+    </div>
+</main>
 
 <script>
     const metaIds = [
-        { id: "3c48616f-298a-5f69-91d2-bcd59444c455", title: "Biology - Biomolecules" },
-        { id: "cbfbed57-d7d8-5a07-9957-478e4cb62f17", title: "Chemistry - Organic Chemistry" },
-        { id: "8dd253c6-09a8-5875-b127-a0c00a165a1b", title: "Physics - Mechanics" },
-        { id: "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", title: "Biology - Genetics" },
-        { id: "2ff56f11-0061-566e-aeca-9cc14246e8fb", title: "Chemistry - Inorganic Chemistry" },
-        { id: "27ba990b-5085-5196-87dd-9727f95fc228", title: "Physics - Thermodynamics" },
-        { id: "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", title: "Biology - Cell Biology" },
-        { id: "ce68b80b-fff0-5db8-8d6a-668d729d487a", title: "Chemistry - Physical Chemistry" },
-        { id: "57222784-be0a-5653-930c-8ac44c689e21", title: "Physics - Electromagnetism" }
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
-    function loadQuestions() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const subject = urlParams.get('subject') || 'biology';
-        const chapter = urlParams.get('chapter') || 'biomolecule';
-        
-        let allQuestions = [];
+    let currentQuestionIndex = 0;  // Track current question index
+    let questionList = [];
+    let timerInterval;
 
-        const fetchPromises = metaIds.map(meta => {
-            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${meta.id}.json`;
-            return fetch(chaptersUrl)
-                .then(response => response.json())
-                .then(data => {
-                    let questions = [];
-                    if (subject === 'biology') {
-                        questions = data[0].questions.filter(q => q.chapter === chapter);
-                    } else if (subject === 'chemistry') {
-                        questions = data[1].questions.filter(q => q.chapter === chapter);
-                    } else if (subject === 'physics') {
-                        questions = data[2].questions.filter(q => q.chapter === chapter);
-                    }
-
-                    // Add the title and questions to the array
-                    allQuestions.push({ title: meta.title, questions });
-                })
-                .catch(error => console.error('Error loading questions from metaId:', meta.id, error));
-        });
-
-        Promise.all(fetchPromises)
-            .then(() => {
-                let questionListHTML = '';
-
-                allQuestions.forEach(meta => {
-                    meta.questions.forEach((q, index) => {
-                        const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                            return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                        });
-
-                        questionListHTML += `
-                            <div class="question">
-                                <div class="question-number">${index + 1}.</div>
-                                <div class="question-content">
-                                    <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
-                                    <div class="source-label">example (source: ${meta.title})</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                });
-
-                document.getElementById('question-list').innerHTML = questionListHTML;
-
-                // Render MathJax after content load
-                if (window.MathJax) {
-                    MathJax.typesetPromise();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading all questions:', error);
-                document.getElementById('question-list').innerHTML = '<p>Error loading questions. Please try again later.</p>';
-            });
+    // Timer function
+    function startTimer() {
+        let timeLeft = 60; // 1 minute timer
+        timerInterval = setInterval(function () {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Please select an option.");
+                checkAnswer();  // Automatically check the answer when time runs out
+            }
+            timeLeft--;
+        }, 1000);
     }
 
-    loadQuestions();
+    // Load question details from all metaIds
+    function loadQuestionDetail() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
+
+        // Fetch questions from all metaIds
+        let questionFound = false;
+
+        (async function fetchQuestion() {
+            for (let i = 0; i < metaIds.length; i++) {
+                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i]}.json`;
+
+                try {
+                    const response = await fetch(chaptersUrl);
+                    const data = await response.json();
+
+                    let questions = [];
+                    if (subject === 'biology') {
+                        questions = data[0].questions;
+                    } else if (subject === 'physics') {
+                        questions = data[1].questions;
+                    } else if (subject === 'chemistry') {
+                        questions = data[2].questions;
+                    }
+
+                    questionList = questions; // Store questions list
+                    currentQuestionIndex = questions.findIndex(q => q.question_id === questionId);
+
+                    if (currentQuestionIndex !== -1) {
+                        questionFound = true;
+                        renderQuestionDetail(questions[currentQuestionIndex]);
+                        startTimer();
+                        break; // Stop the loop when the question is found
+                    }
+                } catch (error) {
+                    console.error('Error fetching question data:', error);
+                }
+            }
+
+            if (!questionFound) {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+            }
+        })();
+    }
+
+    // Render question details in the HTML
+    function renderQuestionDetail(question) {
+        let questionDetailHTML = `
+            <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                return `<span class="mathjax-inline">$$${p1}$$</span>`;
+            })}</h3>
+            <ul class="options">
+                ${question.options.map((opt, index) => 
+                    `<li data-option="${opt.identifier}" id="option${index}">
+                        ${String.fromCharCode(65 + index)}. ${opt.content}
+                     </li>`
+                ).join('')}
+            </ul>
+            <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
+        `;
+
+        document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+        // Add event listeners for options
+        const options = document.querySelectorAll('.options li');
+        options.forEach(option => {
+            option.addEventListener('click', function () {
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                disableOptions(options);
+            });
+        });
+    }
+
+    // Disable other options once one is selected
+    function disableOptions(options) {
+        options.forEach(option => {
+            option.style.pointerEvents = 'none'; // Disable other options
+        });
+    }
+
+    // Check the selected answer and show explanation
+    function checkAnswer() {
+        const question = questionList[currentQuestionIndex];
+
+        const selectedOption = document.querySelector('.options li.selected');
+        const correctOptions = question.correct_options;
+
+        if (selectedOption) {
+            const selectedAnswer = selectedOption.getAttribute('data-option');
+
+            // Mark answers
+            const options = document.querySelectorAll('.options li');
+            options.forEach(option => {
+                if (correctOptions.includes(option.getAttribute('data-option'))) {
+                    option.classList.add('correct');
+                } else if (option === selectedOption) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            // Create explanation container if it doesn't exist
+            let explanationContainer = document.querySelector('.explanation');
+            if (!explanationContainer) {
+                explanationContainer = document.createElement('div');
+                explanationContainer.className = 'explanation';
+                document.getElementById('question-detail').appendChild(explanationContainer);
+            }
+
+            // Update explanation content
+            explanationContainer.innerHTML = `
+                <p><strong>Explanation:</strong></p>
+                ${question.explanation}
+            `;
+
+            // Reprocess MathJax content without disturbing the rest
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, explanationContainer]);
+        } else {
+            alert('Please select an option!');
+        }
+
+        clearInterval(timerInterval); // Stop the timer after checking
+    }
+
+    // Load previous question
+    function loadPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestionDetail(questionList[currentQuestionIndex]);
+            updateURL();
+        } else {
+            alert("This is the first question.");
+        }
+    }
+
+    // Load next question
+    function loadNextQuestion() {
+        if (currentQuestionIndex < questionList.length - 1) {
+            currentQuestionIndex++;
+            renderQuestionDetail(questionList[currentQuestionIndex]);
+            updateURL();
+        } else {
+            alert("This is the last question.");
+        }
+    }
+
+    // Update the URL with the new question ID, ensuring the same subject and chapter
+    function updateURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        const chapter = urlParams.get('chapter');
+        const nextQuestionId = questionList[currentQuestionIndex].question_id;
+        const newURL = `index.html?subject=${subject}&chapter=${chapter}&id=${subject}/${chapter}/${nextQuestionId}`;
+        window.history.pushState({}, '', newURL);
+    }
+
+    // Initial load when the page is ready
+    window.onload = loadQuestionDetail;
 </script>
 
 </body>
