@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject - Questions</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
         .question {
             border-bottom: 2px solid #ddd;
             padding: 15px;
             margin: 0;
+            display: flex;
+            align-items: flex-start;
         }
         .question a {
             text-decoration: none;
@@ -24,6 +28,15 @@
         .question-number {
             font-weight: bold;
             margin-right: 10px;
+        }
+        .question-content {
+            flex-grow: 1;
+        }
+        .mathjax-inline {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 1.2em;
+            color: #007bff;
         }
     </style>
 </head>
@@ -55,9 +68,9 @@
                     let questions = [];
                     if (subject === 'biology') {
                         questions = data[0].questions.filter(q => q.chapter === chapter);
-                    } else if (subject === 'physics') {
-                        questions = data[1].questions.filter(q => q.chapter === chapter);
                     } else if (subject === 'chemistry') {
+                        questions = data[1].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'physica') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
                     allQuestions = [...allQuestions, ...questions];
@@ -69,15 +82,26 @@
             .then(() => {
                 let questionListHTML = '';
                 allQuestions.forEach((q, index) => {
+                    const formattedContent = q.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                        return `<span class="mathjax-inline">$$${p1}$$</span>`;
+                    });
+
                     questionListHTML += `
                         <div class="question">
                             <span class="question-number">${index + 1}.</span>
-                            <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
+                            <div class="question-content">
+                                <a href="question.html?id=${subject}/${chapter}/${q.question_id}"><h3>${formattedContent}</h3></a>
+                            </div>
                         </div>
                     `;
                 });
 
                 document.getElementById('question-list').innerHTML = questionListHTML;
+
+                // Render MathJax after content load
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
             })
             .catch(error => {
                 console.error('Error loading all questions:', error);
