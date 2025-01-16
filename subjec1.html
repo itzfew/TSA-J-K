@@ -11,33 +11,27 @@
             margin: 0;
             padding: 0;
         }
-        .question-list {
-            margin: 20px;
-        }
         .question {
-            background-color: #fff;
             border-bottom: 2px solid #ddd;
             padding: 15px;
             margin: 0;
-            cursor: pointer;
         }
-        .question:hover {
-            background-color: #f0f0f0;
-        }
-        a {
+        .question a {
             text-decoration: none;
             color: #333;
             font-weight: bold;
+        }
+        .question-number {
+            font-weight: bold;
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
 
-<main>
-    <div class="question-list" id="question-list">
-        <!-- Question list will appear here -->
-    </div>
-</main>
+<div id="question-list">
+    <!-- Questions will appear here -->
+</div>
 
 <script>
     const metaIds = [
@@ -46,7 +40,6 @@
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
 
-    // Load questions dynamically based on chapter
     function loadQuestions() {
         const urlParams = new URLSearchParams(window.location.search);
         const subject = urlParams.get('subject') || 'biology';
@@ -54,7 +47,6 @@
         
         let allQuestions = [];
 
-        // Loop through all metaIds to fetch data for all of them
         const fetchPromises = metaIds.map(metaId => {
             const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
             return fetch(chaptersUrl)
@@ -68,18 +60,18 @@
                     } else if (subject === 'chemistry') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
-                    allQuestions = [...allQuestions, ...questions]; // Combine questions
+                    allQuestions = [...allQuestions, ...questions];
                 })
                 .catch(error => console.error('Error loading questions from metaId:', metaId, error));
         });
 
-        // After all fetches are done, display questions
         Promise.all(fetchPromises)
             .then(() => {
                 let questionListHTML = '';
-                allQuestions.forEach(q => {
+                allQuestions.forEach((q, index) => {
                     questionListHTML += `
                         <div class="question">
+                            <span class="question-number">${index + 1}.</span>
                             <a href="question.html?id=${subject}/${chapter}/${q.question_id}">${q.content}</a>
                         </div>
                     `;
