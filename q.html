@@ -201,7 +201,7 @@
     // Load question details from all metaIds
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
-        const questionId = urlParams.get('id').split('/')[2];
+        const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
         // Fetch questions from all metaIds
         let questionFound = false;
@@ -216,11 +216,11 @@
 
                     let question = {};
 
-                    if (urlParams.get('subject') === 'biology') {
+                    if (subject === 'biology') {
                         question = data[0].questions.find(q => q.question_id === questionId);
-                    } else if (urlParams.get('subject') === 'chemistry') {
+                    } else if (subject === 'chemistry') {
                         question = data[1].questions.find(q => q.question_id === questionId);
-                    } else if (urlParams.get('subject') === 'physics') {
+                    } else if (subject === 'physics') {
                         question = data[2].questions.find(q => q.question_id === questionId);
                     }
 
@@ -269,34 +269,6 @@
                 option.classList.add('selected');
             });
         });
-    }
-
-    // Render LaTeX using MathJax
-    function renderMath(input) {
-        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-            return `<span class="mathjax-inline">$$${p1}$$</span>`;
-        });
-    }
-
-    // Check and display the correct answer
-    function checkAnswer(questionId) {
-        const selectedOption = document.querySelector('.options li.selected');
-        if (!selectedOption) {
-            alert("Please select an option.");
-            return;
-        }
-
-        const correctAnswer = getCorrectAnswer(questionId);
-        const options = document.querySelectorAll('.options li');
-
-        options.forEach(option => {
-            option.classList.remove('correct', 'incorrect');
-            if (option.dataset.option === correctAnswer) {
-                option.classList.add('correct');
-            } else if (option === selectedOption) {
-                option.classList.add('incorrect');
-            }
-        });
 
         // Render explanation if present
         if (question.explanation) {
@@ -311,11 +283,54 @@
         }
     }
 
-    // Get correct answer based on the question ID (example logic)
-    function getCorrectAnswer(questionId) {
-        // Replace with actual logic to fetch the correct answer
-        return 'A'; // Placeholder for correct answer
+    // Render LaTeX using MathJax
+    function renderMath(input) {
+        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+        });
     }
+function checkAnswer(questionId) {
+    const selectedOption = document.querySelector('.options li.selected');
+    if (!selectedOption) {
+        alert("Please select an option.");
+        return;
+    }
+
+    const correctAnswer = getCorrectAnswer(questionId);
+    const options = document.querySelectorAll('.options li');
+
+    options.forEach(option => {
+        option.classList.remove('correct', 'incorrect');
+        if (option.dataset.option === correctAnswer) {
+            option.classList.add('correct');
+        } else if (option === selectedOption) {
+            option.classList.add('incorrect');
+        }
+    });
+
+    showExplanation(questionId);  // Show the explanation after answer check
+}
+
+function showExplanation(questionId) {
+    const explanation = getExplanation(questionId); // Replace with actual logic to fetch explanation
+
+    if (explanation) {
+        const explanationHTML = `
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>${renderMath(explanation)}</p>
+            </div>
+        `;
+        document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
+    }
+}
+
+function getExplanation(questionId) {
+    // Example logic to fetch the explanation based on question ID
+    return "This is the explanation for the question."; // Replace with actual explanation
+}
+
 
     // Load the question detail on page load
     window.onload = loadQuestionDetail;
