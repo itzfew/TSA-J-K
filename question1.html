@@ -147,41 +147,73 @@
         }));
     }
 
-    // Check selected answer
     function checkAnswer(questionId) {
-        const selectedOption = document.querySelector('.options li.selected');
-        if (!selectedOption) {
-            alert('Please select an option.');
-            return;
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const [subject, chapter] = urlParams.get('id').split('/');
+    
+    // List of meta IDs
+    const metaIds = [
+        "3c48616f-298a-5f69-91d2-bcd59444c455", "cbfbed57-d7d8-5a07-9957-478e4cb62f17", "8dd253c6-09a8-5875-b127-a0c00a165a1b",
+        "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
+        "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
+    ];
 
-        const selectedId = selectedOption.getAttribute('data-id');
+    // Get the corresponding metaId for the subject and chapter
+    const metaId = metaIds.find(id => id.includes(chapter));
+    const questionUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
 
-        for (const metaId of metaIds) {
-            const url = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaId}.json`;
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    for (const subject of data) {
-                        const question = subject.questions.find(q => q.question_id === questionId);
-                        if (question) {
-                            const correctOptions = question.correct_options;
-                            if (correctOptions.includes(selectedId)) {
-                                selectedOption.classList.add('correct');
-                                alert('Correct!');
-                            } else {
-                                selectedOption.classList.add('incorrect');
-                                alert('Incorrect!');
-                            }
-                            clearInterval(timerInterval); // Stop timer
+    fetch(questionUrl)
+        .then(response => response.json())
+        .then(data => {
+            let question = data.questions.find(q => q.question_id === questionId);
+
+            if (question) {
+                const selectedOption = document.querySelector('.options li.selected');
+                const correctOptions = question.correct_options;
+
+                if (selectedOption) {
+                    const selectedAnswer = selectedOption.getAttribute('data-option');
+                    
+                    // Mark answers
+                    const options = document.querySelectorAll('.options li');
+                    options.forEach(option => {
+                        if (correctOptions.includes(option.getAttribute('data-option'))) {
+                            option.classList.add('correct');
+                        } else if (option === selectedOption) {
+                            option.classList.add('incorrect');
                         }
-                    }
-                })
-                .catch(error => console.error(`Failed to check answer from ${url}`, error));
-        }
-    }
+                    });
 
-    // Initialize
+                    // Create explanation container if it doesn't exist
+                    let explanationContainer = document.querySelector('.explanation');
+                    if (!explanationContainer) {
+                        explanationContainer = document.createElement('div');
+                        explanationContainer.className = 'explanation';
+                        document.getElementById('question-detail').appendChild(explanationContainer);
+                    }
+
+                    // Update explanation content
+                    explanationContainer.innerHTML = `
+                        <p><strong>Explanation:</strong></p>
+                        ${question.explanation}
+                    `;
+
+                    // Reprocess MathJax content without disturbing the rest
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, explanationContainer]);
+                } else {
+                    alert('Please select an option!');
+                }
+
+                clearInterval(timerInterval); // Stop the timer after checking
+            } else {
+                console.error('Question not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error checking answer:', error);
+        });
+}
+
     loadQuestion();
 </script>
 </body>
