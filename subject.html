@@ -62,9 +62,9 @@
                     let questions = [];
                     if (subject === 'biology') {
                         questions = data[0].questions.filter(q => q.chapter === chapter);
-                    } else if (subject === 'physics') {
-                        questions = data[1].questions.filter(q => q.chapter === chapter);
                     } else if (subject === 'chemistry') {
+                        questions = data[1].questions.filter(q => q.chapter === chapter);
+                    } else if (subject === 'physica') {
                         questions = data[2].questions.filter(q => q.chapter === chapter);
                     }
                     allQuestions = [...allQuestions, ...questions];
