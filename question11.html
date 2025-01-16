@@ -6,7 +6,7 @@
     <title>Question Details</title>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
-        /* Add your existing CSS here */
+        /* Your existing styles remain unchanged */
     </style>
 </head>
 <body>
@@ -33,6 +33,7 @@
         "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", "2ff56f11-0061-566e-aeca-9cc14246e8fb", "27ba990b-5085-5196-87dd-9727f95fc228",
         "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", "ce68b80b-fff0-5db8-8d6a-668d729d487a", "57222784-be0a-5653-930c-8ac44c689e21"
     ];
+
     let timerInterval;
 
     // Timer function
@@ -51,25 +52,24 @@
         }, 1000);
     }
 
-    // Load a specific question detail based on the question ID
+    // Load question details from all metaIds
     function loadQuestionDetail() {
         const urlParams = new URLSearchParams(window.location.search);
         const [subject, chapter, questionId] = urlParams.get('id').split('/');
 
-        let currentMetaIndex = 0;
+        // Fetch questions from all metaIds
+        let questionFound = false;
 
-        function tryFetchQuestion() {
-            if (currentMetaIndex >= metaIds.length) {
-                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
-                return;
-            }
+        (async function fetchQuestion() {
+            for (let i = 0; i < metaIds.length; i++) {
+                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i]}.json`;
 
-            const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[currentMetaIndex]}.json`;
+                try {
+                    const response = await fetch(chaptersUrl);
+                    const data = await response.json();
 
-            fetch(chaptersUrl)
-                .then(response => response.json())
-                .then(data => {
                     let question = {};
+
                     if (subject === 'biology') {
                         question = data[0].questions.find(q => q.question_id === questionId);
                     } else if (subject === 'physics') {
@@ -79,116 +79,136 @@
                     }
 
                     if (question) {
-                        displayQuestion(question);
-                    } else {
-                        currentMetaIndex++;  // Try the next metaId if question not found
-                        tryFetchQuestion();
+                        questionFound = true;
+                        renderQuestionDetail(question);
+                        startTimer();
+                        break; // Stop the loop when the question is found
                     }
-                })
-                .catch(error => {
-                    console.error('Error loading question details:', error);
-                    document.getElementById('question-detail').innerHTML = '<p>Error loading question details. Please try again later.</p>';
-                });
-        }
-
-        function displayQuestion(question) {
-            let questionDetailHTML = `
-                <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                    return `<span class="mathjax-inline">$$${p1}$$</span>`;
-                })}</h3>
-                <ul class="options">
-                    ${question.options.map((opt, index) => 
-                        `<li data-option="${opt.identifier}" id="option${index}">
-                            ${String.fromCharCode(65 + index)}. ${opt.content}
-                         </li>`
-                    ).join('')}
-                </ul>
-                <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
-            `;
-            document.getElementById('question-detail').innerHTML = questionDetailHTML;
-
-            // Add event listeners for options
-            const options = document.querySelectorAll('.options li');
-            options.forEach(option => {
-                option.addEventListener('click', function () {
-                    options.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    disableOptions(options);
-                });
-            });
-
-            // Start the timer
-            startTimer();
-        }
-
-        // Disable other options once one is selected
-        function disableOptions(options) {
-            options.forEach(option => {
-                option.style.pointerEvents = 'none'; // Disable other options
-            });
-        }
-
-             // Check the selected answer and show explanation
-    function checkAnswer(questionId) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const [subject, chapter] = urlParams.get('id').split('/');
-
-    fetch(chaptersUrl)
-        .then(response => response.json())
-        .then(data => {
-            let question = {};
-            if (subject === 'biology') {
-                question = data[0].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'physics') {
-                question = data[1].questions.find(q => q.question_id === questionId);
-            } else if (subject === 'chemistry') {
-                question = data[2].questions.find(q => q.question_id === questionId);
-            }
-
-            const selectedOption = document.querySelector('.options li.selected');
-            const correctOptions = question.correct_options;
-
-            if (selectedOption) {
-                const selectedAnswer = selectedOption.getAttribute('data-option');
-                
-                // Mark answers
-                const options = document.querySelectorAll('.options li');
-                options.forEach(option => {
-                    if (correctOptions.includes(option.getAttribute('data-option'))) {
-                        option.classList.add('correct');
-                    } else if (option === selectedOption) {
-                        option.classList.add('incorrect');
-                    }
-                });
-
-                // Create explanation container if it doesn't exist
-                let explanationContainer = document.querySelector('.explanation');
-                if (!explanationContainer) {
-                    explanationContainer = document.createElement('div');
-                    explanationContainer.className = 'explanation';
-                    document.getElementById('question-detail').appendChild(explanationContainer);
+                } catch (error) {
+                    console.error('Error fetching question data:', error);
                 }
-
-                // Update explanation content
-                explanationContainer.innerHTML = `
-                    <p><strong>Explanation:</strong></p>
-                    ${question.explanation}
-                `;
-
-                // Reprocess MathJax content without disturbing the rest
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, explanationContainer]);
-            } else {
-                alert('Please select an option!');
             }
 
-            clearInterval(timerInterval); // Stop the timer after checking
-        })
-        .catch(error => {
-            console.error('Error checking answer:', error);
-        });
-}
+            if (!questionFound) {
+                document.getElementById('question-detail').innerHTML = '<p>Question not found.</p>';
+            }
+        })();
+    }
 
-    loadQuestionDetail(); 
+    // Render question details in the HTML
+    function renderQuestionDetail(question) {
+        let questionDetailHTML = `
+            <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+                return `<span class="mathjax-inline">$$${p1}$$</span>`;
+            })}</h3>
+            <ul class="options">
+                ${question.options.map((opt, index) => 
+                    `<li data-option="${opt.identifier}" id="option${index}">
+                        ${String.fromCharCode(65 + index)}. ${opt.content}
+                     </li>`
+                ).join('')}
+            </ul>
+            <button class="check-btn" onclick="checkAnswer('${question.question_id}')">Check Answer</button>
+        `;
+
+        document.getElementById('question-detail').innerHTML = questionDetailHTML;
+
+        // Add event listeners for options
+        const options = document.querySelectorAll('.options li');
+        options.forEach(option => {
+            option.addEventListener('click', function () {
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                disableOptions(options);
+            });
+        });
+    }
+
+    // Disable other options once one is selected
+    function disableOptions(options) {
+        options.forEach(option => {
+            option.style.pointerEvents = 'none'; // Disable other options
+        });
+    }
+
+    // Check the selected answer and show explanation
+    function checkAnswer(questionId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const [subject, chapter] = urlParams.get('id').split('/');
+
+        let questionFound = false;
+
+        (async function fetchQuestion() {
+            for (let i = 0; i < metaIds.length; i++) {
+                const chaptersUrl = `https://raw.githubusercontent.com/itzfew/Quizes/refs/heads/main/pyq/${metaIds[i]}.json`;
+
+                try {
+                    const response = await fetch(chaptersUrl);
+                    const data = await response.json();
+
+                    let question = {};
+
+                    if (subject === 'biology') {
+                        question = data[0].questions.find(q => q.question_id === questionId);
+                    } else if (subject === 'physics') {
+                        question = data[1].questions.find(q => q.question_id === questionId);
+                    } else if (subject === 'chemistry') {
+                        question = data[2].questions.find(q => q.question_id === questionId);
+                    }
+
+                    if (question) {
+                        questionFound = true;
+                        const selectedOption = document.querySelector('.options li.selected');
+                        const correctOptions = question.correct_options;
+
+                        if (selectedOption) {
+                            const selectedAnswer = selectedOption.getAttribute('data-option');
+
+                            // Mark answers
+                            const options = document.querySelectorAll('.options li');
+                            options.forEach(option => {
+                                if (correctOptions.includes(option.getAttribute('data-option'))) {
+                                    option.classList.add('correct');
+                                } else if (option === selectedOption) {
+                                    option.classList.add('incorrect');
+                                }
+                            });
+
+                            // Create explanation container if it doesn't exist
+                            let explanationContainer = document.querySelector('.explanation');
+                            if (!explanationContainer) {
+                                explanationContainer = document.createElement('div');
+                                explanationContainer.className = 'explanation';
+                                document.getElementById('question-detail').appendChild(explanationContainer);
+                            }
+
+                            // Update explanation content
+                            explanationContainer.innerHTML = `
+                                <p><strong>Explanation:</strong></p>
+                                ${question.explanation}
+                            `;
+
+                            // Reprocess MathJax content without disturbing the rest
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, explanationContainer]);
+                        } else {
+                            alert('Please select an option!');
+                        }
+
+                        clearInterval(timerInterval); // Stop the timer after checking
+                        break; // Stop the loop when the question is found
+                    }
+                } catch (error) {
+                    console.error('Error checking answer:', error);
+                }
+            }
+
+            if (!questionFound) {
+                alert('Question not found!');
+            }
+        })();
+    }
+
+    loadQuestionDetail();
 </script>
 
 </body>
