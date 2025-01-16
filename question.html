@@ -169,40 +169,16 @@
 
 <script>
     const metaIds = [
-    { id: "3c48616f-298a-5f69-91d2-bcd59444c455", title: "NEET 2023 Manipur" },
-    { id: "cbfbed57-d7d8-5a07-9957-478e4cb62f17", title: "NEET 2023" },
-    { id: "8dd253c6-09a8-5875-b127-a0c00a165a1b", title: "NEET 2022 Phase 2" },
-    { id: "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", title: "NEET 2022 Phase 1" },
-    { id: "2ff56f11-0061-566e-aeca-9cc14246e8fb", title: "NEET 2021" },
-    { id: "27ba990b-5085-5196-87dd-9727f95fc228", title: "NEET 2020 Phase 1" },
-    { id: "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", title: "NEET 2019" },
-    { id: "ce68b80b-fff0-5db8-8d6a-668d729d487a", title: "NEET 2018" },
-    { id: "57222784-be0a-5653-930c-8ac44c689e21", title: "NEET 2017" },
-    { id: "80eef6f1-3522-515e-b73d-339d85018141", title: "NEET 2016 Phase 2" },
-    { id: "938f3847-eb62-525b-b1b0-02ee459e81f8", title: "NEET 2016 Phase 1" },
-    { id: "47778809-6194-57b2-868a-e4fedb6e9f3a", title: "AIPMT 2015" },
-    { id: "8713af28-1c8f-53cc-9230-bcc6ea3843c9", title: "AIPMT 2015 Cancelled Paper" },
-    { id: "8756d5f2-5c2a-506e-af0c-0198c9fc2187", title: "AIPMT 2014" },
-    { id: "1c4dc710-3261-5cd5-bb3e-ee281740f624", title: "NEET 2013 (Karnataka)" },
-    { id: "48007b77-2c75-5367-9ca7-98b53cceaca8", title: "NEET 2013" },
-    { id: "068d67b3-bca5-5dc4-af63-9dbf0f7ce7be", title: "AIPMT 2012 Mains" },
-    { id: "9bdb3f61-14cf-57d2-9324-5465da11de4d", title: "AIPMT 2012 Prelims" },
-    { id: "a3afa98f-582a-5a4c-ada4-d17ad73090be", title: "AIPMT 2011 Mains" },
-    { id: "dfc116dc-cf26-5489-aa89-99266a7512a9", title: "AIPMT 2011 Prelims" },
-    { id: "da3ac707-aeab-5c4d-807e-6a0705098929", title: "AIPMT 2010 Mains" },
-    { id: "b91bcb0a-a1ae-550b-a078-b25fcbd422ee", title: "AIPMT 2010 Prelims" },
-    { id: "b0e9a6d4-f603-58b1-9723-66c27d5c959b", title: "AIPMT 2009" },
-    { id: "4432d9cf-5356-5982-b930-2f9d9d752fef", title: "AIPMT 2008" },
-    { id: "4076c9ee-750f-5bd9-a821-c59bed8ab4fd", title: "AIPMT 2007" },
-    { id: "084ad628-cb2a-5390-80d1-ccc658633f19", title: "AIPMT 2006" },
-    { id: "6c2de931-ef9f-52bc-af22-bebe0c0ff520", title: "AIPMT 2005" },
-    { id: "e537df27-eaab-55a1-9a01-c84409f04935", title: "AIPMT 2004" },
-    { id: "9f3fa1a4-1199-5b24-b381-d7df26102489", title: "AIPMT 2003" },
-    { id: "3dbc2670-9688-5143-ae78-7fb777e3eaf6", title: "AIPMT 2002" },
-    { id: "762be6c6-de8f-548d-859d-3a2343237947", title: "AIPMT 2001" },
-    { id: "d594604a-f9e6-5929-b3bf-b720a34fabe3", title: "AIPMT 2000" }
-];
-
+        { id: "3c48616f-298a-5f69-91d2-bcd59444c455", title: "Biology - Biomolecules" },
+        { id: "cbfbed57-d7d8-5a07-9957-478e4cb62f17", title: "Chemistry - Organic Chemistry" },
+        { id: "8dd253c6-09a8-5875-b127-a0c00a165a1b", title: "Physics - Mechanics" },
+        { id: "c7fb1fc7-cb24-58d1-99f5-4ced0111082d", title: "Biology - Genetics" },
+        { id: "2ff56f11-0061-566e-aeca-9cc14246e8fb", title: "Chemistry - Inorganic Chemistry" },
+        { id: "27ba990b-5085-5196-87dd-9727f95fc228", title: "Physics - Thermodynamics" },
+        { id: "c3ae87e9-4094-514a-b2a4-b6e98b1d7ec3", title: "Biology - Cell Biology" },
+        { id: "ce68b80b-fff0-5db8-8d6a-668d729d487a", title: "Chemistry - Physical Chemistry" },
+        { id: "57222784-be0a-5653-930c-8ac44c689e21", title: "Physics - Electromagnetism" }
+    ];
 
     let timerInterval;
 
@@ -270,13 +246,11 @@
     // Render question details in the HTML
     function renderQuestionDetail(question) {
         let questionDetailHTML = `
-            <h3>${question.content.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
-                return `<span class="mathjax-inline">$$${p1}$$</span>`;
-            })}</h3>
+            <h3>${renderMath(question.content)}</h3>
             <ul class="options">
                 ${question.options.map((opt, index) => 
                     `<li data-option="${opt.identifier}" id="option${index}">
-                        ${String.fromCharCode(65 + index)}. ${opt.content}
+                        ${String.fromCharCode(65 + index)}. ${renderMath(opt.content)}
                      </li>`
                 ).join('')}
             </ul>
@@ -285,65 +259,68 @@
 
         document.getElementById('question-detail').innerHTML = questionDetailHTML;
 
-        // Add event listeners for options
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+        // Attach event listeners to options
         const options = document.querySelectorAll('.options li');
         options.forEach(option => {
             option.addEventListener('click', function () {
                 options.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
-                disableOptions(options);
             });
         });
 
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);  // Ensure LaTeX math is rendered
-    }
-
-    // Disable options after selection
-    function disableOptions(options) {
-        options.forEach(opt => opt.style.pointerEvents = 'none');
-    }
-
-    // Check and display the answer
-    function checkAnswer(questionId) {
-        // Get the selected option
-        const selectedOption = document.querySelector('.options li.selected');
-
-        if (!selectedOption) {
-            alert('Please select an option.');
-            return;
-        }
-
-        const answer = selectedOption.dataset.option;
-        const correctAnswer = getCorrectAnswer(questionId); // Get correct answer logic
-
-        selectedOption.classList.add(answer === correctAnswer ? 'correct' : 'incorrect');
-        showExplanation(questionId);
-    }
-
-    // Get the correct answer from the question
-    function getCorrectAnswer(questionId) {
-        // Replace with actual logic to fetch the correct answer
-        return 'A';  // Just a placeholder for correct answer
-    }
-
-    // Display explanation after checking answer
-    function showExplanation(questionId) {
+        // Render explanation if present
         if (question.explanation) {
-        const explanation = `
-            <div class="explanation">
-                <h4>Explanation:</h4>
-                <p>${renderMath(question.explanation)}</p>
+            const explanationHTML = `
+                <div class="explanation">
+                    <h4>Explanation:</h4>
+                    <p>${renderMath(question.explanation)}</p>
                 </div>
             `;
             document.getElementById('question-detail').insertAdjacentHTML('beforeend', explanationHTML);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]); // Re-render MathJax in the explanation
         }
+    }
+
+    // Render LaTeX using MathJax
+    function renderMath(input) {
+        return input.replace(/\$\$(.*?)\$\$/g, (match, p1) => {
+            return `<span class="mathjax-inline">$$${p1}$$</span>`;
+        });
+    }
+
+    // Check and display the correct answer
+    function checkAnswer(questionId) {
+        const selectedOption = document.querySelector('.options li.selected');
+        if (!selectedOption) {
+            alert("Please select an option.");
+            return;
         }
+
+        const correctAnswer = getCorrectAnswer(questionId);
+        const options = document.querySelectorAll('.options li');
+
+        options.forEach(option => {
+            option.classList.remove('correct', 'incorrect');
+            if (option.dataset.option === correctAnswer) {
+                option.classList.add('correct');
+            } else if (option === selectedOption) {
+                option.classList.add('incorrect');
+            }
+        });
+
+        showExplanation(questionId);
+    }
+
+    // Get correct answer based on the question ID (example logic)
+    function getCorrectAnswer(questionId) {
+        // Replace with actual logic to fetch the correct answer
+        return 'A'; // Placeholder for correct answer
+    }
 
     // Load the question detail on page load
     window.onload = loadQuestionDetail;
-    
-
 </script>
 
 </body>
