@@ -5,21 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Multi-Language Quran Viewer</title>
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- Link to Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
   <header>Multi-Language Quran Viewer</header>
   
   <!-- Settings Icon -->
-  <i id="settings-icon">⚙️</i>
+  <i id="settings-icon" class="fas fa-cogs"></i> <!-- Font Awesome settings icon -->
 
   <!-- Settings Panel -->
   <div class="settings-panel" id="settings-panel">
-    <i id="close-settings">❌</i>
+    <i id="close-settings" class="fas fa-times"></i> <!-- Font Awesome close icon -->
     <label for="language-select">Select Languages:</label>
     <select id="language-select" multiple>
       <!-- Languages dynamically populated -->
     </select>
-
+    
     <label for="translation-select">Select Translations for Selected Languages:</label>
     <select id="translation-select" multiple disabled>
       <!-- Translations dynamically populated -->
@@ -35,4 +38,4 @@
 
   <script src="script.js"></script>
 </body>
-</html> 
+</html>
