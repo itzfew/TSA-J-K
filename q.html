@@ -3,39 +3,283 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Language Quran Viewer</title>
-  <link rel="stylesheet" href="styles.css">
-  
-  <!-- Link to Font Awesome -->
+  <title>Quran Viewer</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #fff;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+#ayahs {
+  padding: 20px;
+}
+
+.ayah-container {
+  margin-bottom: 15px;
+}
+
+.ayah-container div {
+  margin-bottom: 5px;
+}
+
+.ayah-container p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ayah-container hr {
+  border: 1px solid black;
+  margin: 10px 0;
+}
+
+.navigation {
+  text-align: center;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Fixed Settings Container for slide effect */
+.settings-container {
+  position: fixed;
+  top: 0;
+  right: -100%; /* Initially hidden on the right */
+  width: 300px;
+  height: 100%;
+  background-color: #f9f9f9;
+  box-shadow: -4px 0 6px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  transition: right 0.3s ease;
+  z-index: 1000;
+}
+
+.settings-container.show {
+  right: 0; /* Slide in */
+}
+
+label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.select-container {
+  width: 100%;
+  margin: 10px 0;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.settings button {
+  margin-top: 10px;
+  background-color: #007BFF;
+}
+
+.settings button:hover {
+  background-color: #0056b3;
+}
+
+.settings-button {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #007BFF;
+  padding: 10px 15px;
+  border-radius: 50%;
+  color: white;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.settings-button:hover {
+  background-color: #0056b3;
+}
+
+.settings-button i {
+  font-size: 20px;
+}
+
+
+  </style>
 </head>
 <body>
-  <header>Multi-Language Quran Viewer</header>
-  
-  <!-- Settings Icon -->
-  <i id="settings-icon" class="fas fa-cogs"></i> <!-- Font Awesome settings icon -->
 
-  <!-- Settings Panel -->
-  <div class="settings-panel" id="settings-panel">
-    <i id="close-settings" class="fas fa-times"></i> <!-- Font Awesome close icon -->
-    <label for="language-select">Select Languages:</label>
-    <select id="language-select" multiple>
-      <!-- Languages dynamically populated -->
-    </select>
-    
-    <label for="translation-select">Select Translations for Selected Languages:</label>
-    <select id="translation-select" multiple disabled>
-      <!-- Translations dynamically populated -->
-    </select>
+  <h1>Quran Page Viewer</h1>
 
-    <button id="apply" disabled>Apply</button>
+  <div id="ayahs">
+    <!-- Ayah content will be displayed here -->
   </div>
 
-  <!-- Content Section -->
-  <div class="content" id="content">
-    <!-- Quranic verses displayed here -->
+  <div class="navigation">
+    <button onclick="changePage('prev')">Previous</button>
+    <button onclick="changePage('next')">Next</button>
   </div>
 
-  <script src="script.js"></script>
+  <button class="settings-button" onclick="toggleSettings()">
+    <i class="fa fa-cog"></i>
+  </button>
+
+  <div class="settings-container" id="settingsContainer">
+    <button onclick="toggleSettings()" class="close-btn">
+      <i class="fa fa-times"></i>
+    </button>
+    <h2>Settings</h2>
+
+    <label for="languageSelect">Select Languages:</label>
+    <div class="select-container">
+      <select id="languageSelect" multiple onchange="updateIdentifiers()">
+        <!-- Languages will be dynamically added here -->
+      </select>
+    </div>
+
+    <label for="identifierSelect">Select Identifiers:</label>
+    <div class="select-container">
+      <select id="identifierSelect" multiple>
+        <!-- Identifiers will be dynamically added here -->
+      </select>
+    </div>
+
+    <button onclick="applySettings()">Apply</button>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    let selectedLanguages = ["ar", "en", "ur"]; // Default languages
+    let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"]; // Default identifiers
+
+    // Fetch data from API
+    async function fetchData(page, identifiers) {
+      const promises = identifiers.map(identifier =>
+        fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
+      );
+      const results = await Promise.all(promises);
+      return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
+    }
+
+    // Display Ayahs in the page
+    function displayAyahs(data) {
+      const ayahContainer = document.getElementById('ayahs');
+      ayahContainer.innerHTML = ''; // Clear previous content
+
+      const ayahCount = data[0].ayahs.length;
+      for (let i = 0; i < ayahCount; i++) {
+        const ayahElement = document.createElement('div');
+        ayahElement.classList.add('ayah-container');
+
+        data.forEach(translationData => {
+          const ayah = translationData.ayahs[i];
+          ayahElement.innerHTML += `
+            <div>
+              <p>${ayah.text}</p>
+            </div>
+          `;
+        });
+
+        ayahElement.innerHTML += '<hr />';
+        ayahContainer.appendChild(ayahElement);
+      }
+    }
+
+    // Load Page
+    async function loadPage(page) {
+      const data = await fetchData(page, selectedIdentifiers);
+      displayAyahs(data);
+    }
+
+    // Page change function
+    function changePage(direction) {
+      if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+      } else if (direction === 'next') {
+        currentPage++;
+      }
+      loadPage(currentPage);
+    }
+
+    // Toggle settings container (slide menu)
+function toggleSettings() {
+  const settingsContainer = document.getElementById('settingsContainer');
+  settingsContainer.classList.toggle('show');
+}
+
+async function fetchLanguages() {
+  const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
+  const languagesData = await languagesResponse.json();
+
+  const languageSelect = document.getElementById('languageSelect');
+  languageSelect.innerHTML = languagesData.data.map(lang => `
+    <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
+  `).join('');
+
+  updateIdentifiers(); // Initial fetch of identifiers
+}
+
+async function updateIdentifiers() {
+  const languageSelect = document.getElementById('languageSelect');
+  selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
+
+  const promises = selectedLanguages.map(language =>
+    fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
+  );
+  const results = await Promise.all(promises);
+
+  const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
+    identifier: trans.identifier,
+    name: `${trans.englishName} (${trans.language})`
+  })));
+
+  const identifierSelect = document.getElementById('identifierSelect');
+  identifierSelect.innerHTML = identifiers.map(identifier => `
+    <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
+      ${identifier.name}
+    </option>
+  `).join('');
+}
+
+function applySettings() {
+  const identifierSelect = document.getElementById('identifierSelect');
+  selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
+  toggleSettings(); // Close settings after applying
+  loadPage(currentPage); // Reload current page with updated settings
+}
+
+// Initialize
+fetchLanguages();
+loadPage(currentPage);
+
+  </script>
 </body>
 </html>
