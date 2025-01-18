@@ -6,133 +6,146 @@
   <title>Quran Viewer</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background-color: #fff;
-  padding: 0;
-}
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background-color: #fff;
+      padding: 0;
+      direction: ltr;
+    }
 
-h1 {
-  text-align: center;
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-family: 'Arial', sans-serif;
+    }
 
-#ayahs {
-  padding: 20px;
-}
+    #ayahs {
+      padding: 20px;
+    }
 
-.ayah-container {
-  margin-bottom: 15px;
-}
+    .ayah-container {
+      margin-bottom: 25px;
+    }
 
-.ayah-container div {
-  margin-bottom: 5px;
-}
+    .ayah-container div {
+      margin-bottom: 5px;
+    }
 
-.ayah-container p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 0;
-}
+    .ayah-container p {
+      font-size: 20px;
+      line-height: 1.6;
+      margin: 0;
+      font-family: 'Traditional Arabic', serif;
+    }
 
-.ayah-container hr {
-  border: 1px solid black;
-  margin: 10px 0;
-}
+    .ayah-container p.arabic {
+      font-size: 39px;
+      font-family: 'Amiri', serif;p
+      direction: rtl;
+    }
 
-.navigation {
-  text-align: center;
-  margin-top: 20px;
-}
+    .ayah-container p.english,
+    .ayah-container p.urdu {
+      font-size: 13px;
+      font-family: 'Tahoma', sans-serif;
+      color: #555;
+    }
 
-button {
-  padding: 10px 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
+    .ayah-container hr {
+      border: 1px solid #ccc;
+      margin: 10px 0;
+    }
 
-button:hover {
-  background-color: #45a049;
-}
+    .navigation {
+      text-align: center;
+      margin-top: 20px;
+    }
 
-/* Fixed Settings Container for slide effect */
-.settings-container {
-  position: fixed;
-  top: 0;
-  right: -100%; /* Initially hidden on the right */
-  width: 300px;
-  height: 100%;
-  background-color: #f9f9f9;
-  box-shadow: -4px 0 6px rgba(0, 0, 0, 0.3);
-  padding: 20px;
-  transition: right 0.3s ease;
-  z-index: 1000;
-}
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-.settings-container.show {
-  right: 0; /* Slide in */
-}
+    button:hover {
+      background-color: #45a049;
+    }
 
-label {
-  display: block;
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #333;
-}
+    .settings-container {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 300px;
+      height: 100%;
+      background-color: #f9f9f9;
+      box-shadow: -4px 0 6px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      transition: right 0.3s ease;
+      z-index: 1000;
+    }
 
-.select-container {
-  width: 100%;
-  margin: 10px 0;
-}
+    .settings-container.show {
+      right: 0;
+    }
 
-select {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
-  cursor: pointer;
-}
+    label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #333;
+    }
 
-.settings button {
-  margin-top: 10px;
-  background-color: #007BFF;
-}
+    .select-container {
+      width: 100%;
+      margin: 10px 0;
+    }
 
-.settings button:hover {
-  background-color: #0056b3;
-}
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
 
-.settings-button {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background-color: #007BFF;
-  padding: 10px 15px;
-  border-radius: 50%;
-  color: white;
-  border: none;
-  cursor: pointer;
-  z-index: 1001;
-}
+    .settings button {
+      margin-top: 10px;
+      background-color: #007BFF;
+    }
 
-.settings-button:hover {
-  background-color: #0056b3;
-}
+    .settings button:hover {
+      background-color: #0056b3;
+    }
 
-.settings-button i {
-  font-size: 20px;
-}
+    .settings-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #007BFF;
+      padding: 10px 15px;
+      border-radius: 50%;
+      color: white;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+    }
 
+    .settings-button:hover {
+      background-color: #0056b3;
+    }
 
+    .settings-button i {
+      font-size: 20px;
+    }
   </style>
 </head>
 <body>
@@ -180,7 +193,6 @@ select {
     let selectedLanguages = ["ar", "en", "ur"]; // Default languages
     let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"]; // Default identifiers
 
-    // Fetch data from API
     async function fetchData(page, identifiers) {
       const promises = identifiers.map(identifier =>
         fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
@@ -189,10 +201,9 @@ select {
       return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
     }
 
-    // Display Ayahs in the page
     function displayAyahs(data) {
       const ayahContainer = document.getElementById('ayahs');
-      ayahContainer.innerHTML = ''; // Clear previous content
+      ayahContainer.innerHTML = '';
 
       const ayahCount = data[0].ayahs.length;
       for (let i = 0; i < ayahCount; i++) {
@@ -201,9 +212,17 @@ select {
 
         data.forEach(translationData => {
           const ayah = translationData.ayahs[i];
+          let langClass = '';
+          if (translationData.translation === 'ar.quran-uthmani') {
+            langClass = 'arabic';
+          } else if (translationData.translation === 'en.ahmedraza') {
+            langClass = 'english';
+          } else if (translationData.translation === 'ur.qadri') {
+            langClass = 'urdu';
+          }
           ayahElement.innerHTML += `
             <div>
-              <p>${ayah.text}</p>
+              <p class="${langClass}">${ayah.text}</p>
             </div>
           `;
         });
@@ -213,13 +232,11 @@ select {
       }
     }
 
-    // Load Page
     async function loadPage(page) {
       const data = await fetchData(page, selectedIdentifiers);
       displayAyahs(data);
     }
 
-    // Page change function
     function changePage(direction) {
       if (direction === 'prev' && currentPage > 1) {
         currentPage--;
@@ -229,56 +246,54 @@ select {
       loadPage(currentPage);
     }
 
-    // Toggle settings container (slide menu)
-function toggleSettings() {
-  const settingsContainer = document.getElementById('settingsContainer');
-  settingsContainer.classList.toggle('show');
-}
+    function toggleSettings() {
+      const settingsContainer = document.getElementById('settingsContainer');
+      settingsContainer.classList.toggle('show');
+    }
 
-async function fetchLanguages() {
-  const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
-  const languagesData = await languagesResponse.json();
+    async function fetchLanguages() {
+      const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
+      const languagesData = await languagesResponse.json();
 
-  const languageSelect = document.getElementById('languageSelect');
-  languageSelect.innerHTML = languagesData.data.map(lang => `
-    <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
-  `).join('');
+      const languageSelect = document.getElementById('languageSelect');
+      languageSelect.innerHTML = languagesData.data.map(lang => `
+        <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
+      `).join('');
 
-  updateIdentifiers(); // Initial fetch of identifiers
-}
+      updateIdentifiers();
+    }
 
-async function updateIdentifiers() {
-  const languageSelect = document.getElementById('languageSelect');
-  selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
+    async function updateIdentifiers() {
+      const languageSelect = document.getElementById('languageSelect');
+      selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
 
-  const promises = selectedLanguages.map(language =>
-    fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
-  );
-  const results = await Promise.all(promises);
+      const promises = selectedLanguages.map(language =>
+        fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
+      );
+      const results = await Promise.all(promises);
 
-  const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
-    identifier: trans.identifier,
-    name: `${trans.englishName} (${trans.language})`
-  })));
+      const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
+        identifier: trans.identifier,
+        name: `${trans.englishName} (${trans.language})`
+      })));
 
-  const identifierSelect = document.getElementById('identifierSelect');
-  identifierSelect.innerHTML = identifiers.map(identifier => `
-    <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
-      ${identifier.name}
-    </option>
-  `).join('');
-}
+      const identifierSelect = document.getElementById('identifierSelect');
+      identifierSelect.innerHTML = identifiers.map(identifier => `
+        <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
+          ${identifier.name}
+        </option>
+      `).join('');
+    }
 
-function applySettings() {
-  const identifierSelect = document.getElementById('identifierSelect');
-  selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
-  toggleSettings(); // Close settings after applying
-  loadPage(currentPage); // Reload current page with updated settings
-}
+    function applySettings() {
+      const identifierSelect = document.getElementById('identifierSelect');
+      selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
+      toggleSettings();
+      loadPage(currentPage);
+    }
 
-// Initialize
-fetchLanguages();
-loadPage(currentPage);
+    fetchLanguages();
+    loadPage(currentPage);
 
   </script>
 </body>
