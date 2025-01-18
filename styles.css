@@ -1,0 +1,136 @@
+/* General reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+/* Header */
+header {
+  background-color: #2a9d8f;
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Settings Icon */
+#settings-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+/* Settings Panel */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -300px; /* Hidden initially */
+  width: 300px;
+  height: 100%;
+  background-color: #fff;
+  border-left: 3px solid #2a9d8f;
+  box-shadow: -3px 0 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: right 0.3s ease;
+}
+
+.settings-panel.open {
+  right: 0; /* Show the panel */
+}
+
+#close-settings {
+  align-self: flex-end;
+  font-size: 25px;
+  cursor: pointer;
+  color: #2a9d8f;
+}
+
+select {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+select:disabled {
+  background-color: #f4f4f4;
+}
+
+button {
+  background-color: #2a9d8f;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+/* Content Section */
+.content {
+  padding: 30px;
+  max-width: 900px;
+  margin: 50px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  min-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Quranic Verse Styling */
+.ayah-container {
+  padding: 20px;
+  border-bottom: 2px solid #000; /* Solid line between verses */
+  margin-bottom: 30px;
+}
+
+.text {
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: justify;
+  margin-bottom: 10px;
+}
+
+/* Remove line between translations */
+.language {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.language .language {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  header {
+    font-size: 20px;
+  }
+
+  #settings-icon {
+    font-size: 25px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+}
