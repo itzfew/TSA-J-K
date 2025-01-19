@@ -3,320 +3,295 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Language Quran Viewer</title>
+  <title>Quran Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      color: #333;
-    }
-
-    header {
-      font-size: 2em;
-      font-weight: bold;
-      margin-top: 20px;
-      color: #4CAF50;
-    }
-
-    .settings-panel {
-      position: fixed;
-      top: 0;
-      right: -300px;
-      width: 300px;
-      height: 100%;
       background-color: #fff;
-      box-shadow: -3px 0 10px rgba(0, 0, 0, 0.2);
-      transition: right 0.3s;
+      padding: 0;
+      direction: ltr;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    #ayahs {
       padding: 20px;
-      overflow-y: auto;
-    }
-
-    .settings-panel.open {
-      right: 0;
-    }
-
-    .settings-panel label {
-      font-size: 1.2em;
-      margin-top: 10px;
-    }
-
-    .settings-panel select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      font-size: 1em;
-    }
-
-    .settings-panel button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-      width: 100%;
-    }
-
-    .settings-panel button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    .settings-panel i {
-      font-size: 1.5em;
-      cursor: pointer;
-    }
-
-    .content {
-      padding: 20px;
-      width: 100%;
-      max-width: 800px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      margin: 20px;
-      overflow-y: auto;
-      flex-grow: 1;
     }
 
     .ayah-container {
-      background-color: #f9f9f9;
-      margin: 15px 0;
-      padding: 15px;
-      border-radius: 8px;
+      margin-bottom: 25px;
     }
 
-    .ayah-container .text {
-      font-size: 1.5em;
+    .ayah-container div {
+      margin-bottom: 5px;
+    }
+
+    .ayah-container p {
+      font-size: 20px;
+      line-height: 1.6;
+      margin: 0;
+      font-family: 'Traditional Arabic', serif;
+    }
+
+    .ayah-container p.arabic {
+      font-size: 39px;
+      font-family: 'Amiri', serif;
+      direction: rtl;
+    }
+
+    .ayah-container p.english,
+    .ayah-container p.urdu {
+      font-size: 13px;
+      font-family: 'Tahoma', sans-serif;
+      color: #555;
+    }
+
+    .ayah-container hr {
+      border: 1px solid #ccc;
+      margin: 10px 0;
+    }
+
+    .navigation {
       text-align: center;
-      line-height: 1.8em;
+      margin-top: 20px;
     }
 
-    .language {
-      margin-top: 10px;
-      font-size: 1.2em;
-      font-style: italic;
-    }
-
-    .language .text {
-      font-size: 1.3em;
-      text-align: center;
-      margin-top: 5px;
-    }
-
-    #settings-icon {
-      font-size: 2em;
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .settings-container {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      color: #4CAF50;
+      top: 0;
+      right: -100%;
+      width: 300px;
+      height: 100%;
+      background-color: #f9f9f9;
+      box-shadow: -4px 0 6px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      transition: right 0.3s ease;
+      z-index: 1000;
+    }
+
+    .settings-container.show {
+      right: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .select-container {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+
+    .settings button {
+      margin-top: 10px;
+      background-color: #007BFF;
+    }
+
+    .settings button:hover {
+      background-color: #0056b3;
+    }
+
+    .settings-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #007BFF;
+      padding: 10px 15px;
+      border-radius: 50%;
+      color: white;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .settings-button:hover {
+      background-color: #0056b3;
+    }
+
+    .settings-button i {
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
-  <header>Multi-Language Quran Viewer</header>
-  
-  <!-- Settings Icon -->
-  <i id="settings-icon">⚙️</i>
 
-  <!-- Settings Panel -->
-  <div class="settings-panel" id="settings-panel">
-    <i id="close-settings">❌</i>
-    <label for="language-select">Select Languages:</label>
-    <select id="language-select" multiple>
-      <!-- Languages dynamically populated -->
-    </select>
+  <h1>Quran Page Viewer</h1>
 
-    <label for="translation-select">Select Translations for Selected Languages:</label>
-    <select id="translation-select" multiple disabled>
-      <!-- Translations dynamically populated -->
-    </select>
-
-    <button id="apply" disabled>Apply</button>
+  <div id="ayahs">
+    <!-- Ayah content will be displayed here -->
   </div>
 
-  <!-- Content Section -->
-  <div class="content" id="content">
-    <!-- Quranic verses displayed here -->
+  <div class="navigation">
+    <button onclick="navigateToPage('prev')">Previous</button>
+    <button onclick="navigateToPage('next')">Next</button>
+  </div>
+
+  <button class="settings-button" onclick="toggleSettings()">
+    <i class="fa fa-cog"></i>
+  </button>
+
+  <div class="settings-container" id="settingsContainer">
+    <button onclick="toggleSettings()" class="close-btn">
+      <i class="fa fa-times"></i>
+    </button>
+    <h2>Settings</h2>
+
+    <label for="languageSelect">Select Languages:</label>
+    <div class="select-container">
+      <select id="languageSelect" multiple onchange="updateIdentifiers()">
+        <!-- Languages will be dynamically added here -->
+      </select>
+    </div>
+
+    <label for="identifierSelect">Select Identifiers:</label>
+    <div class="select-container">
+      <select id="identifierSelect" multiple>
+        <!-- Identifiers will be dynamically added here -->
+      </select>
+    </div>
+
+    <button onclick="applySettings()">Apply</button>
   </div>
 
   <script>
-    const languageSelect = document.getElementById("language-select");
-    const translationSelect = document.getElementById("translation-select");
-    const applyButton = document.getElementById("apply");
-    const contentDiv = document.getElementById("content");
-    const selectedTranslations = new Map(); // Track selected translations per language
-    const settingsIcon = document.getElementById("settings-icon");
-    const settingsPanel = document.getElementById("settings-panel");
-    const closeSettings = document.getElementById("close-settings");
+    let selectedLanguages = ["ar", "en", "ur"];
+    let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"];
 
-    // Toggle the settings panel visibility
-    settingsIcon.addEventListener("click", () => {
-      settingsPanel.classList.toggle("open");
-      contentDiv.style.marginRight = settingsPanel.classList.contains("open") ? "100%" : "0";
-    });
+    function getPageFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return parseInt(params.get('index'), 10) || 1;
+    }
 
-    // Close settings panel
-    closeSettings.addEventListener("click", () => {
-      settingsPanel.classList.remove("open");
-      contentDiv.style.marginRight = "0";
-    });
+    function updateUrl(index) {
+      const newUrl = `${window.location.origin}${window.location.pathname}?index=${index}`;
+      history.pushState({}, '', newUrl);
+    }
+
+    async function fetchData(page, identifiers) {
+      const promises = identifiers.map(identifier =>
+        fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
+      );
+      const results = await Promise.all(promises);
+      return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
+    }
+
+    function displayAyahs(data) {
+      const ayahContainer = document.getElementById('ayahs');
+      ayahContainer.innerHTML = '';
+      const ayahCount = data[0].ayahs.length;
+
+      for (let i = 0; i < ayahCount; i++) {
+        const ayahElement = document.createElement('div');
+        ayahElement.classList.add('ayah-container');
+
+        data.forEach(translationData => {
+          const ayah = translationData.ayahs[i];
+          let langClass = translationData.translation === 'ar.quran-uthmani' ? 'arabic' : 
+                          translationData.translation === 'en.ahmedraza' ? 'english' : 'urdu';
+          ayahElement.innerHTML += `<div><p class="${langClass}">${ayah.text}</p></div>`;
+        });
+
+        ayahElement.innerHTML += '<hr />';
+        ayahContainer.appendChild(ayahElement);
+      }
+    }
+
+    async function loadPage(page) {
+      const data = await fetchData(page, selectedIdentifiers);
+      displayAyahs(data);
+    }
+
+    function navigateToPage(direction) {
+      let currentPage = getPageFromUrl();
+      if (direction === 'prev' && currentPage > 1) currentPage--;
+      if (direction === 'next') currentPage++;
+      updateUrl(currentPage);
+      loadPage(currentPage);
+    }
+
+    function toggleSettings() {
+      document.getElementById('settingsContainer').classList.toggle('show');
+    }
 
     async function fetchLanguages() {
-      try {
-        const res = await fetch("https://api.alquran.cloud/v1/edition/language");
-        const data = await res.json();
-        if (data.data && data.data.length > 0) {
-          populateLanguageDropdown(data.data);
-        } else {
-          console.error("No languages found.");
-        }
-      } catch (error) {
-        console.error("Error fetching languages:", error);
-      }
+      const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
+      const languagesData = await languagesResponse.json();
+
+      const languageSelect = document.getElementById('languageSelect');
+      languageSelect.innerHTML = languagesData.data.map(lang => `
+        <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
+      `).join('');
+
+      updateIdentifiers();
     }
 
-    function populateLanguageDropdown(languages) {
-      languages.forEach(lang => {
-        const option = document.createElement("option");
-        option.value = lang;
-        option.textContent = lang.toUpperCase();
-        languageSelect.appendChild(option);
-      });
+    async function updateIdentifiers() {
+      const languageSelect = document.getElementById('languageSelect');
+      selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
 
-      // Set default selection for English (en) and Urdu (ur)
-      languageSelect.querySelectorAll('option').forEach(option => {
-        if (option.value === 'en' || option.value === 'ur') {
-          option.selected = true;
-        }
-      });
+      const promises = selectedLanguages.map(language =>
+        fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
+      );
+      const results = await Promise.all(promises);
 
-      // Trigger change event to populate translation dropdown
-      languageSelect.dispatchEvent(new Event('change'));
+      const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
+        identifier: trans.identifier,
+        name: `${trans.englishName} (${trans.language})`
+      })));
+
+      const identifierSelect = document.getElementById('identifierSelect');
+      identifierSelect.innerHTML = identifiers.map(identifier => `
+        <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
+          ${identifier.name}
+        </option>
+      `).join('');
     }
 
-    languageSelect.addEventListener("change", async () => {
-      const selectedLanguages = Array.from(languageSelect.selectedOptions).map(opt => opt.value);
-      translationSelect.disabled = selectedLanguages.length === 0;
-      translationSelect.innerHTML = ''; // Clear existing options
-
-      for (const language of selectedLanguages) {
-        await fetchTranslations(language);
-      }
-
-      // Enable Apply button if translations are available
-      applyButton.disabled = translationSelect.options.length === 0;
-
-      // Set default translation for Urdu and English
-      if (selectedLanguages.includes('ur')) {
-        const urduDefaultTranslation = document.createElement("option");
-        urduDefaultTranslation.value = JSON.stringify({
-          language: 'ur',
-          identifier: 'ur.kanzuliman'
-        });
-        urduDefaultTranslation.textContent = "Ahmed Raza Khan (احمد رضا خان) - [Urdu]";
-        translationSelect.appendChild(urduDefaultTranslation);
-        urduDefaultTranslation.selected = true;
-      }
-
-      if (selectedLanguages.includes('en')) {
-        const englishDefaultTranslation = document.createElement("option");
-        englishDefaultTranslation.value = JSON.stringify({
-          language: 'en',
-          identifier: 'en.ahmedraza'
-        });
-        englishDefaultTranslation.textContent = "Ahmed Raza Khan (Ahmed Raza Khan) - [English]";
-        translationSelect.appendChild(englishDefaultTranslation);
-        englishDefaultTranslation.selected = true;
-      }
-
-      // Trigger the Apply button click programmatically after loading languages
-      applyButton.click();
-    });
-
-    async function fetchTranslations(language) {
-      try {
-        const res = await fetch(`https://api.alquran.cloud/v1/edition/language/${language}`);
-        const data = await res.json();
-
-        if (data.data && data.data.length > 0) {
-          data.data.forEach(translation => {
-            const option = document.createElement("option");
-            option.value = JSON.stringify({ language, identifier: translation.identifier });
-            option.textContent = `${translation.englishName} (${translation.name}) - [${language}]`;
-            translationSelect.appendChild(option);
-          });
-        } else {
-          console.error(`No translations found for ${language}`);
-        }
-      } catch (error) {
-        console.error(`Error fetching translations for language ${language}:`, error);
-      }
+    function applySettings() {
+      const identifierSelect = document.getElementById('identifierSelect');
+      selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
+      toggleSettings();
+      loadPage(getPageFromUrl());
     }
 
-    applyButton.addEventListener("click", () => {
-      selectedTranslations.clear();
-      Array.from(translationSelect.selectedOptions).forEach(option => {
-        const { language, identifier } = JSON.parse(option.value);
-        selectedTranslations.set(language, identifier);
-      });
-
-      fetchVerses();
-    });
-
-    async function fetchVerses() {
-      contentDiv.innerHTML = ''; // Clear existing verses
-
-      // Example: Load Surah 1 (Al-Fatiha) with 7 verses
-      const surahNumber = 1; // Change this to dynamically select surah
-      const surahRes = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
-      const surahData = await surahRes.json();
-
-      const verseCount = surahData.data.ayahs.length;
-
-      // Loop through all verses in the selected Surah
-      for (let verseNumber = 1; verseNumber <= verseCount; verseNumber++) {
-        const verseContainer = document.createElement("div");
-        verseContainer.className = "ayah-container";
-
-        const verseRes = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNumber}:${verseNumber}/ar`);
-        const verseData = await verseRes.json();
-        const verseText = verseData.data.text;
-
-        verseContainer.innerHTML = `<div class="text">${verseText}</div>`;
-
-        // Fetch translations for this specific verse
-        for (const [language, identifier] of selectedTranslations.entries()) {
-          const translationRes = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNumber}:${verseNumber}/${identifier}`);
-          const translationData = await translationRes.json();
-          const translationText = translationData.data.text;
-
-          const languageCode = language.slice(0, 2).toUpperCase();
-
-          const translationDiv = document.createElement("div");
-          translationDiv.className = "language";
-          translationDiv.innerHTML = `
-            <div class="language">${languageCode}</div>
-            <div class="text">${translationText}</div>
-          `;
-
-          verseContainer.appendChild(translationDiv);
-        }
-
-        contentDiv.appendChild(verseContainer);
-      }
-    }
-
-    // Initialize the language fetch process
-    fetchLanguages();
+    window.onload = () => {
+      fetchLanguages();
+      loadPage(getPageFromUrl());
+    };
   </script>
 </body>
 </html>
