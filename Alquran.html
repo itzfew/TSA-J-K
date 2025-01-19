@@ -6,13 +6,14 @@
   <title>Quran Viewer</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 
   <h1>Quran Page Viewer</h1>
 
   <div id="ayahs">
-    <!-- Ayah content will be displayed here -->
+    <!-- Ayah content will be dynamically added here -->
   </div>
 
   <div class="navigation">
@@ -20,35 +21,7 @@
     <button onclick="navigateToPage('next')">Next</button>
   </div>
 
-  <button class="settings-button" onclick="toggleSettings()">
-    <i class="fa fa-cog"></i>
-  </button>
-
-  <div class="settings-container" id="settingsContainer">
-    <button onclick="toggleSettings()" class="close-btn">
-      <i class="fa fa-times"></i>
-    </button>
-    <h2>Settings</h2>
-
-    <label for="languageSelect">Select Languages:</label>
-    <div class="select-container">
-      <select id="languageSelect" multiple onchange="updateIdentifiers()">
-        <!-- Languages will be dynamically added here -->
-      </select>
-    </div>
-
-    <label for="identifierSelect">Select Identifiers:</label>
-    <div class="select-container">
-      <select id="identifierSelect" multiple>
-        <!-- Identifiers will be dynamically added here -->
-      </select>
-    </div>
-
-    <button onclick="applySettings()">Apply</button>
-  </div>
-
   <script>
-    let selectedLanguages = ["ar", "en", "ur"];
     let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"];
 
     function getPageFromUrl() {
@@ -66,12 +39,16 @@
         fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
       );
       const results = await Promise.all(promises);
-      return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
+      return results.map(result => ({
+        name: `${result.data.edition.englishName} (${result.data.edition.language})`,
+        ayahs: result.data.ayahs,
+      }));
     }
 
     function displayAyahs(data) {
       const ayahContainer = document.getElementById('ayahs');
       ayahContainer.innerHTML = '';
+
       const ayahCount = data[0].ayahs.length;
 
       for (let i = 0; i < ayahCount; i++) {
@@ -80,9 +57,10 @@
 
         data.forEach(translationData => {
           const ayah = translationData.ayahs[i];
-          let langClass = translationData.translation === 'ar.quran-uthmani' ? 'arabic' : 
-                          translationData.translation === 'en.ahmedraza' ? 'english' : 'urdu';
-          ayahElement.innerHTML += `<div><p class="${langClass}">${ayah.text}</p></div>`;
+          ayahElement.innerHTML += `
+            <p class="identifier">${translationData.name}:</p>
+            <p>${ayah.text}</p>
+          `;
         });
 
         ayahElement.innerHTML += '<hr />';
@@ -103,55 +81,10 @@
       loadPage(currentPage);
     }
 
-    function toggleSettings() {
-      document.getElementById('settingsContainer').classList.toggle('show');
-    }
-
-    async function fetchLanguages() {
-      const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
-      const languagesData = await languagesResponse.json();
-
-      const languageSelect = document.getElementById('languageSelect');
-      languageSelect.innerHTML = languagesData.data.map(lang => `
-        <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
-      `).join('');
-
-      updateIdentifiers();
-    }
-
-    async function updateIdentifiers() {
-      const languageSelect = document.getElementById('languageSelect');
-      selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
-
-      const promises = selectedLanguages.map(language =>
-        fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
-      );
-      const results = await Promise.all(promises);
-
-      const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
-        identifier: trans.identifier,
-        name: `${trans.englishName} (${trans.language})`
-      })));
-
-      const identifierSelect = document.getElementById('identifierSelect');
-      identifierSelect.innerHTML = identifiers.map(identifier => `
-        <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
-          ${identifier.name}
-        </option>
-      `).join('');
-    }
-
-    function applySettings() {
-      const identifierSelect = document.getElementById('identifierSelect');
-      selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
-      toggleSettings();
-      loadPage(getPageFromUrl());
-    }
-
     window.onload = () => {
-      fetchLanguages();
       loadPage(getPageFromUrl());
     };
   </script>
+
 </body>
 </html>
