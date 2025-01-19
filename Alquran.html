@@ -214,7 +214,7 @@
     return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
   }
 
-  // Function to display the ayahs on the page
+  // Function to display the ayahs on the page with identifier and language
   function displayAyahs(data) {
     const ayahContainer = document.getElementById('ayahs');
     ayahContainer.innerHTML = '';
@@ -227,16 +227,26 @@
       data.forEach(translationData => {
         const ayah = translationData.ayahs[i];
         let langClass = '';
+        let identifierName = '';
+
+        // Assigning a language class and identifier name based on translationData
         if (translationData.translation === 'ar.quran-uthmani') {
           langClass = 'arabic';
+          identifierName = 'Arabic (Uthmani)';
         } else if (translationData.translation === 'en.ahmedraza') {
           langClass = 'english';
+          identifierName = 'English (Ahmed Raza)';
         } else if (translationData.translation === 'ur.qadri') {
           langClass = 'urdu';
+          identifierName = 'Urdu (Qadri)';
         }
+
+        // Constructing HTML to display the verse with identifier and language
         ayahElement.innerHTML += `
           <div>
-            <p class="${langClass}">${ayah.text}</p>
+            <p class="${langClass}">
+              <strong>(${identifierName}):</strong> ${ayah.text}
+            </p>
           </div>
         `;
       });
