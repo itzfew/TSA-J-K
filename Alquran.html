@@ -188,133 +188,139 @@
     <button onclick="applySettings()">Apply</button>
   </div>
 
-  <script>
-    let currentPage = 1;
-    let selectedLanguages = ["ar", "en", "ur"]; // Default languages
-    let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"]; // Default identifiers
+<script>
+  let currentPage = 1;
+  let selectedLanguages = ["ar", "en", "ur"]; // Default languages
+  let selectedIdentifiers = ["ar.quran-uthmani", "en.ahmedraza", "ur.qadri"]; // Default identifiers
 
-    // Fetch current page from URL
-    function getPageFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return parseInt(params.get('index'), 10) || 1;
+  // Function to get the page index from the URL
+  function getPageFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return parseInt(params.get('index'), 10) || 1;  // Defaults to page 1 if 'index' is not in URL
+  }
+
+  // Function to update the URL with the new page index
+  function updateUrl(index) {
+    const newUrl = `${window.location.origin}${window.location.pathname}?index=${index}`;
+    history.pushState({}, '', newUrl);
+  }
+
+  // Function to fetch data for the selected page
+  async function fetchData(page, identifiers) {
+    const promises = identifiers.map(identifier =>
+      fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
+    );
+    const results = await Promise.all(promises);
+    return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
+  }
+
+  // Function to display the ayahs on the page
+  function displayAyahs(data) {
+    const ayahContainer = document.getElementById('ayahs');
+    ayahContainer.innerHTML = '';
+
+    const ayahCount = data[0].ayahs.length;
+    for (let i = 0; i < ayahCount; i++) {
+      const ayahElement = document.createElement('div');
+      ayahElement.classList.add('ayah-container');
+
+      data.forEach(translationData => {
+        const ayah = translationData.ayahs[i];
+        let langClass = '';
+        if (translationData.translation === 'ar.quran-uthmani') {
+          langClass = 'arabic';
+        } else if (translationData.translation === 'en.ahmedraza') {
+          langClass = 'english';
+        } else if (translationData.translation === 'ur.qadri') {
+          langClass = 'urdu';
+        }
+        ayahElement.innerHTML += `
+          <div>
+            <p class="${langClass}">${ayah.text}</p>
+          </div>
+        `;
+      });
+
+      ayahElement.innerHTML += '<hr />';
+      ayahContainer.appendChild(ayahElement);
     }
+  }
 
-    // Update URL with page number
-    function updateUrl(index) {
-      const newUrl = `${window.location.origin}${window.location.pathname}?index=${index}`;
-      history.pushState({}, '', newUrl);
-    }
+  // Function to load the page with the specified index
+  async function loadPage(page) {
+    const data = await fetchData(page, selectedIdentifiers);
+    displayAyahs(data);
+  }
 
-    // Fetch Quran data from API
-    async function fetchData(page, identifiers) {
-      const promises = identifiers.map(identifier =>
-        fetch(`https://api.alquran.cloud/v1/page/${page}/${identifier}`).then(response => response.json())
-      );
-      const results = await Promise.all(promises);
-      return results.map(result => ({ translation: result.data.edition.identifier, ayahs: result.data.ayahs }));
-    }
-
-    // Display Ayahs data
-    function displayAyahs(data) {
-      const ayahContainer = document.getElementById('ayahs');
-      ayahContainer.innerHTML = '';
-
-      const ayahCount = data[0].ayahs.length;
-      for (let i = 0; i < ayahCount; i++) {
-        const ayahElement = document.createElement('div');
-        ayahElement.classList.add('ayah-container');
-
-        data.forEach(translationData => {
-          const ayah = translationData.ayahs[i];
-          let langClass = '';
-          if (translationData.translation === 'ar.quran-uthmani') {
-            langClass = 'arabic';
-          } else if (translationData.translation === 'en.ahmedraza') {
-            langClass = 'english';
-          } else if (translationData.translation === 'ur.qadri') {
-            langClass = 'urdu';
-          }
-          ayahElement.innerHTML += `
-            <div>
-              <p class="${langClass}">${ayah.text}</p>
-            </div>
-          `;
-        });
-
-        ayahElement.innerHTML += '<hr />';
-        ayahContainer.appendChild(ayahElement);
-      }
-    }
-
-    // Load page content
-    async function loadPage(page) {
-      const data = await fetchData(page, selectedIdentifiers);
-      displayAyahs(data);
-    }
-
-    // Navigate between pages
-    function navigateToPage(direction) {
-      if (direction === 'prev' && currentPage > 1) {
-        currentPage--;
-      } else if (direction === 'next') {
-        currentPage++;
-      }
-      updateUrl(currentPage);
-      loadPage(currentPage);
-    }
-
-    // Toggle settings panel
-    function toggleSettings() {
-      const settingsContainer = document.getElementById('settingsContainer');
-      settingsContainer.classList.toggle('show');
-    }
-
-    // Fetch available languages
-    async function fetchLanguages() {
-      const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
-      const languagesData = await languagesResponse.json();
-
-      const languageSelect = document.getElementById('languageSelect');
-      languageSelect.innerHTML = languagesData.data.map(lang => `
-        <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
-      `).join('');
-
-      updateIdentifiers();
-    }
-
-    // Update identifiers based on selected languages
-    async function updateIdentifiers() {
-      const languageSelect = document.getElementById('languageSelect');
-      selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
-
-      const promises = selectedLanguages.map(language =>
-        fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
-      );
-      const results = await Promise.all(promises);
-
-      const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
-        identifier: trans.identifier,
-        name: `${trans.englishName} (${trans.language})`
-      })));
-
-      const identifierSelect = document.getElementById('identifierSelect');
-      identifierSelect.innerHTML = identifiers.map(identifier => `
-        <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
-          ${identifier.name}
-        </option>
-      `).join('');
-    }
-
-    // Apply settings and reload page
-    function applySettings() {
-      const identifierSelect = document.getElementById('identifierSelect');
-      selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
-      toggleSettings();
-      loadPage(currentPage);
-    }
-
-    fetchLanguages();
+  // Function to handle page navigation (prev/next)
+  function changePage(direction) {
+    let currentPage = getPageFromUrl();
+    if (direction === 'prev' && currentPage > 1) currentPage--;
+    if (direction === 'next') currentPage++;
+    updateUrl(currentPage);
     loadPage(currentPage);
-  </script>
+  }
+
+  // Page load handling
+  window.onload = () => {
+    currentPage = getPageFromUrl();  // Get page index from URL
+    loadPage(currentPage);  // Load page content based on the index
+  };
+
+  // Function to toggle the settings sidebar
+  function toggleSettings() {
+    const settingsContainer = document.getElementById('settingsContainer');
+    settingsContainer.classList.toggle('show');
+  }
+
+  // Fetch languages and identifiers for settings
+  async function fetchLanguages() {
+    const languagesResponse = await fetch('https://api.alquran.cloud/v1/edition/language');
+    const languagesData = await languagesResponse.json();
+
+    const languageSelect = document.getElementById('languageSelect');
+    languageSelect.innerHTML = languagesData.data.map(lang => `
+      <option value="${lang}" ${selectedLanguages.includes(lang) ? 'selected' : ''}>${lang}</option>
+    `).join('');
+
+    updateIdentifiers();
+  }
+
+  // Update the list of available identifiers based on selected languages
+  async function updateIdentifiers() {
+    const languageSelect = document.getElementById('languageSelect');
+    selectedLanguages = Array.from(languageSelect.selectedOptions).map(option => option.value);
+
+    const promises = selectedLanguages.map(language =>
+      fetch(`https://api.alquran.cloud/v1/edition/language/${language}`).then(response => response.json())
+    );
+    const results = await Promise.all(promises);
+
+    const identifiers = results.flatMap(result => result.data.filter(trans => trans.format === 'text').map(trans => ({
+      identifier: trans.identifier,
+      name: `${trans.englishName} (${trans.language})`
+    })));
+
+    const identifierSelect = document.getElementById('identifierSelect');
+    identifierSelect.innerHTML = identifiers.map(identifier => `
+      <option value="${identifier.identifier}" ${selectedIdentifiers.includes(identifier.identifier) ? 'selected' : ''}>
+        ${identifier.name}
+      </option>
+    `).join('');
+  }
+
+  // Apply the selected settings
+  function applySettings() {
+    const identifierSelect = document.getElementById('identifierSelect');
+    selectedIdentifiers = Array.from(identifierSelect.selectedOptions).map(option => option.value);
+    toggleSettings();
+    loadPage(currentPage);
+  }
+
+  // Fetch languages and load initial page
+  fetchLanguages();
+  loadPage(currentPage);
+</script>
+
 </body>
 </html>
