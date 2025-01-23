@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waheed Challa's Portfolio</title>
+    <!-- Tailwind and DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .quote {
+            color: #E0E0E0;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body class="bg-[#120A53] text-white">
+    <!-- Current Date and Time Section -->
+    <section class="container mx-auto py-4">
+        <div id="date-time" class="flex justify-between items-center">
+            <p class="text-lg">Loading date and time...</p>
+            <button id="allow-location" class="btn btn-primary">Allow Location for Local Time</button>
+        </div>
+        <div id="quote" class="text-center mt-4">
+            <p class="quote">"Loading random quote..."</p>
+        </div>
+    </section>
+
+    <!-- Navbar Section -->
+    <section class="container mx-auto">
+        <div class="navbar">
+            <div class="navbar-start">
+                <div class="dropdown">
+                    <div tabindex="0" role="button" class="btn text-white btn-ghost lg:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h8m-8 6h16" />
+                        </svg>
+                    </div>
+                    <ul tabindex="0"
+                        class="menu menu-sm dropdown-content text-white bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <a class="btn btn-ghost text-white text-xl" href="#home">Waheed Challa</a>
+            </div>
+            <div class="navbar-center hidden text-white lg:flex">
+                <ul class="menu menu-horizontal px-1">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            <div class="navbar-end">
+                <a class="btn bg-[#C425E5] border-none text-white" href="#contact">Let's Connect</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other Sections Remain Unchanged -->
+    <section>
+        <img src="./images/banner-2.png" alt="Banner">
+    </section>
+    <section id="services" class="container mx-auto mt-14">
+        <h1 class="text-3xl font-medium text-center mb-10">Services</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-9">
+            <!-- Content Here -->
+        </div>
+    </section>
+    <section id="about" class="container mx-auto mt-14 mb-14">
+        <h1 class="text-3xl font-medium text-center mb-4">About Me</h1>
+        <p class="text-center">I am Waheed Challa, a student from Jammu and Kashmir, India.</p>
+    </section>
+
+    <footer class="container mx-auto text-center py-6">
+        <p>© 2025 Waheed Challa. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Display Current Date and Time
+        const dateTimeElement = document.getElementById("date-time");
+        const updateTime = () => {
+            const now = new Date();
+            dateTimeElement.querySelector("p").innerText = now.toLocaleString();
+        };
+        setInterval(updateTime, 1000);
+
+        // Request Location Permission for Local Time
+        document.getElementById("allow-location").addEventListener("click", () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    dateTimeElement.querySelector("p").innerText =
+                        `Your Location: Lat: ${latitude.toFixed(2)}, Long: ${longitude.toFixed(2)}`;
+                }, () => {
+                    alert("Location permission denied.");
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        });
+
+        // Fetch Random Quote from quote.json
+        const quotes = [
+            { "quoteText": "Genius is one percent inspiration and ninety-nine percent perspiration.", "quoteAuthor": "Thomas Edison" },
+            { "quoteText": "You can observe a lot just by watching.", "quoteAuthor": "Yogi Berra" },
+            { "quoteText": "A house divided against itself cannot stand.", "quoteAuthor": "Abraham Lincoln" }
+        ];
+
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById("quote").querySelector(".quote").innerText = `"${randomQuote.quoteText}" - ${randomQuote.quoteAuthor}`;
+    </script>
+</body>
+
+</html>
