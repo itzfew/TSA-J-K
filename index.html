@@ -155,7 +155,7 @@
         };
 
         // Fetch Random Quote from quote.json
-        fetch('quotes.json')
+        fetch('quote.json')
             .then(response => response.json())
             .then(data => {
                 const randomQuote = data[Math.floor(Math.random() * data.length)];
