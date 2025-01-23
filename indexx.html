@@ -5,34 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waheed Challa's Portfolio</title>
-    <!-- Tailwind and DaisyUI -->
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- tailwind cdn -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- daisy UI cdn -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <!-- Font Awesome -->
+    <!-- font awesome cdn -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        .quote {
-            color: #E0E0E0;
-            font-style: italic;
-        }
-    </style>
 </head>
-
 <body class="bg-[#120A53] text-white">
-    <!-- Current Date and Time Section -->
     <section class="container mx-auto py-4">
         <div id="date-time" class="flex justify-between items-center">
             <p class="text-lg">Loading date and time...</p>
-            <button id="allow-location" class="btn btn-primary">Allow Location for Local Time</button>
         </div>
         <div id="quote" class="text-center mt-4">
             <p class="quote">"Loading random quote..."</p>
         </div>
     </section>
-
-    <!-- Navbar Section -->
+    <!-- this is navbar section-->
     <section class="container mx-auto">
         <div class="navbar">
             <div class="navbar-start">
@@ -46,47 +39,97 @@
                     </div>
                     <ul tabindex="0"
                         class="menu menu-sm dropdown-content text-white bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#about">About</a></li>
+                        <li><a>Home</a></li>
+                        <li><a>Projects</a></li>
+                        <li><a>Services</a></li>
+                        <li><a>About</a></li>
                     </ul>
                 </div>
-                <a class="btn btn-ghost text-white text-xl" href="#home">Waheed Challa</a>
+                <a class="btn btn-ghost text-white text-xl">Waheed Challa</a>
             </div>
             <div class="navbar-center hidden text-white lg:flex">
                 <ul class="menu menu-horizontal px-1">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#projects">Projects</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#about">About</a></li>
+                    <li><a>Home</a></li>
+                    <li><a>Projects</a></li>
+                    <li><a>Services</a></li>
+                    <li><a>About</a></li>
                 </ul>
             </div>
             <div class="navbar-end">
-                <a class="btn bg-[#C425E5] border-none text-white" href="#contact">Let's Connect</a>
+                <a class="btn bg-[#C425E5] border-none text-white">Let's Connect</a>
             </div>
         </div>
     </section>
-
-    <!-- Other Sections Remain Unchanged -->
+    <!-- This is banner section -->
     <section>
-        <img src="./images/banner-2.png" alt="Banner">
+        <img src="./images/banner-2.png" alt="">
     </section>
-    <section id="services" class="container mx-auto mt-14">
-        <h1 class="text-3xl font-medium text-center mb-10">Services</h1>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-9">
-            <!-- Content Here -->
+    <!-- This is Services Section -->
+    <section class="container mx-auto mt-14">
+        <h1 class="text-3xl font-medium text-white text-center mb-10">Services</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 justify-between items-center gap-9">
+            <div class="border border-[#C425E5] p-4 rounded-xl text-center">
+                <img class="mx-auto w-24" src="./images/seo.png" alt="seo">
+                <h3 class="text-2xl text-white font-medium mt-2 mb-2">Basic SEO</h3>
+                <P class="text-[#E0E0E0] w-9/12 mx-auto">SEO optimizing your website to improve its visibility on search
+                    engines.</P>
+            </div>
+            <div class="border border-[#C425E5] p-4 rounded-xl text-center">
+                <img class="mx-auto w-24" src="./images/design.png" alt="design">
+                <h3 class="text-2xl text-white font-medium mt-2 mb-2">Web Design</h3>
+                <P class="text-[#E0E0E0] w-9/12 mx-auto">Creating modern and responsive web designs to meet your needs.</P>
+            </div>
+            <div class="border border-[#C425E5] p-4 text-center rounded-xl">
+                <img class="mx-auto w-24" src="./images/development.png" alt="">
+                <h3 class="text-2xl text-white font-medium mt-2 mb-2">Web Development</h3>
+                <P class="text-[#E0E0E0] w-9/12 mx-auto">Developing scalable and efficient web applications for your business.</P>
+            </div>
         </div>
     </section>
-    <section id="about" class="container mx-auto mt-14 mb-14">
-        <h1 class="text-3xl font-medium text-center mb-4">About Me</h1>
-        <p class="text-center">I am Waheed Challa, a student from Jammu and Kashmir, India.</p>
+    <!-- This is about me section -->
+    <section class="container mx-auto mt-14 mb-14">
+        <div class="w-full flex flex-col items-center gap-6">
+            <div class="w-full text-center">
+                <h1 class="text-3xl font-medium text-white mb-4">About Me</h1>
+                <p class="text-[#999999] leading-relaxed w-10/12 mx-auto">I am Waheed Challa, a student from Jammu and Kashmir, India</p>
+            </div>
+        </div>
     </section>
+    <!-- This is My Latest Posts Section -->
+    <section class="container mx-auto mb-14">
+        <h1 class="text-3xl font-medium text-white mb-4 text-center">My Latest Posts</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="border border-[#C425E5] p-4 rounded-xl">
+                <h3 class="text-2xl text-white font-medium mb-2">Post Title 1</h3>
+                <p class="text-[#E0E0E0]">An insightful look into modern web development techniques and best practices.</p>
+            </div>
+            <div class="border border-[#C425E5] p-4 rounded-xl">
+                <h3 class="text-2xl text-white font-medium mb-2">Post Title 2</h3>
+                <p class="text-[#E0E0E0]">Understanding the importance of SEO in building a successful online presence.</p>
+            </div>
+            <div class="border border-[#C425E5] p-4 rounded-xl">
+                <h3 class="text-2xl text-white font-medium mb-2">Post Title 3</h3>
+                <p class="text-[#E0E0E0]">Tips for creating user-friendly and accessible web designs.</p>
+            </div>
+        </div>
+    </section>
+  
 
-    <footer class="container mx-auto text-center py-6">
-        <p>© 2025 Waheed Challa. All rights reserved.</p>
-    </footer>
+    <!-- this is footer section -->
+    <section class="container mx-auto">
+        <div class="flex items-center justify-center gap-4">
+    <a href="https://www.instagram.com/waheedchalla/" class="fa-brands fa-instagram text-white p-3 border border-[#C425E5] rounded-full"></a>
+    <a href="https://twitter.com/waheedChalla" class="fa-brands fa-twitter text-white p-3 border border-[#C425E5] rounded-full"></a>
+    <a href="https://m.facebook.com/Challawaheed/" class="fa-brands fa-facebook text-white p-3 border border-[#C425E5] rounded-full"></a>
+    <a href="https://github.com/itzfew" class="fa-brands fa-github text-white p-3 border border-[#C425E5] rounded-full"></a>
+</div>
 
+        <div class="flex justify-center gap-6 text-white mt-4 pb-14">
+            <a href="#">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms & Condition</a>
+        </div>
+    </section>
     <script>
         // Display Current Date and Time
         const dateTimeElement = document.getElementById("date-time");
@@ -96,30 +139,32 @@
         };
         setInterval(updateTime, 1000);
 
-        // Request Location Permission for Local Time
-        document.getElementById("allow-location").addEventListener("click", () => {
+        // Fetch Geolocation Automatically
+        window.onload = () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
                     const { latitude, longitude } = position.coords;
                     dateTimeElement.querySelector("p").innerText =
                         `Your Location: Lat: ${latitude.toFixed(2)}, Long: ${longitude.toFixed(2)}`;
                 }, () => {
-                    alert("Location permission denied.");
+                    dateTimeElement.querySelector("p").innerText = "Unable to fetch location.";
                 });
             } else {
-                alert("Geolocation is not supported by your browser.");
+                dateTimeElement.querySelector("p").innerText = "Geolocation is not supported by your browser.";
             }
-        });
+        };
 
         // Fetch Random Quote from quote.json
-        const quotes = [
-            { "quoteText": "Genius is one percent inspiration and ninety-nine percent perspiration.", "quoteAuthor": "Thomas Edison" },
-            { "quoteText": "You can observe a lot just by watching.", "quoteAuthor": "Yogi Berra" },
-            { "quoteText": "A house divided against itself cannot stand.", "quoteAuthor": "Abraham Lincoln" }
-        ];
-
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        document.getElementById("quote").querySelector(".quote").innerText = `"${randomQuote.quoteText}" - ${randomQuote.quoteAuthor}`;
+        fetch('quote.json')
+            .then(response => response.json())
+            .then(data => {
+                const randomQuote = data[Math.floor(Math.random() * data.length)];
+                document.getElementById("quote").querySelector(".quote").innerText =
+                    `"${randomQuote.quoteText}" - ${randomQuote.quoteAuthor}`;
+            })
+            .catch(() => {
+                document.getElementById("quote").querySelector(".quote").innerText = "Failed to load quote.";
+            });
     </script>
 </body>
 
