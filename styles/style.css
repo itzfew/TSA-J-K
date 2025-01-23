@@ -5,3 +5,20 @@
     font-family: "Poppins", serif;
    
 }
+
+    .tweet-wrapper {
+        flex: 0 0 auto; /* Prevent tweets from stretching */
+        width: 350px; /* Fixed width for each tweet */
+        height: 500px; /* Fixed height */
+        overflow: hidden; /* Hide overflow to maintain ratio */
+        border: 1px solid #C425E5;
+        border-radius: 8px;
+        padding: 10px;
+        box-sizing: border-box; /* Include padding in dimensions */
+    }
+
+    .tweet-wrapper iframe {
+        transform: scale(0.85); /* Adjust scale to fit content */
+        transform-origin: top left;
+    }
+
