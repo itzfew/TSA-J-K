@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Waheed Challa</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .post-card {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .post-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .post-card .post-excerpt {
+            color: #ddd;
+            font-size: 1rem;
+        }
+
+        .post-date {
+            color: #888;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body class="bg-[#120A53] text-white">
+    <section class="container mx-auto py-4">
+        <div class="navbar flex justify-between items-center">
+            <a class="text-xl font-bold text-white" href="index.html">Waheed Challa</a>
+            <ul class="flex space-x-6 text-white">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Blog Posts Section -->
+    <section class="container mx-auto py-14">
+        <h1 class="text-3xl text-center font-bold mb-12 text-white">Latest Blog Posts</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Blog Post 1 -->
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
+                <a href="blog-post.html?post=24-01-2025" class="post-title">Surah Al-Fatiha: The Opening of the Qur'an</a>
+                <p class="post-excerpt mt-4">Surah Al-Fatiha is known as the essence of the Qur'an. It’s a prayer for guidance, lordship, and mercy from Allah.</p>
+                <p class="post-date mt-2">Posted on January 24, 2025</p>
+            </div>
+            <!-- Blog Post 2 -->
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
+                <a href="blog-post.html?post=24-01-2025" class="post-title">The Importance of Sincerity in Islam</a>
+                <p class="post-excerpt mt-4">Sincerity is a crucial element of Islamic faith. It brings purity to one’s actions and connects them directly with Allah.</p>
+                <p class="post-date mt-2">Posted on January 24, 2025</p>
+            </div>
+            <!-- Blog Post 3 -->
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
+                <a href="blog-post.html?post=24-01-2025" class="post-title">Faith and Action: An Integral Part of Islamic Teaching</a>
+                <p class="post-excerpt mt-4">Islam teaches the balance between belief and action. A true believer is one who acts upon his faith.</p>
+                <p class="post-date mt-2">Posted on January 24, 2025</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto py-10 text-center">
+        <a href="blog-post.html?post=24-01-2025" class="btn btn-primary text-lg">View More Posts</a>
+    </section>
+
+    <footer class="bg-[#120A53] text-white py-6">
+        <div class="flex justify-center space-x-6">
+            <a href="https://www.instagram.com/waheedchalla/" class="fa-brands fa-instagram text-white p-3 border border-[#C425E5] rounded-full"></a>
+            <a href="https://twitter.com/waheedChalla" class="fa-brands fa-twitter text-white p-3 border border-[#C425E5] rounded-full"></a>
+            <a href="https://m.facebook.com/Challawaheed/" class="fa-brands fa-facebook text-white p-3 border border-[#C425E5] rounded-full"></a>
+            <a href="https://github.com/itzfew" class="fa-brands fa-github text-white p-3 border border-[#C425E5] rounded-full"></a>
+        </div>
+    </footer>
+</body>
+
+</html>
