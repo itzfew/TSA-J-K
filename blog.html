@@ -13,7 +13,7 @@
 <body class="bg-gray-900 text-white">
 
     <!-- Blog Section -->
-    <section class="container mx-auto py-6">
+    <section class="container mx-auto py-6" id="blog-section">
         <h1 class="text-4xl font-medium text-center mb-6">Blog Posts</h1>
 
         <!-- Posts container -->
@@ -26,6 +26,11 @@
             <button id="load-more-btn" class="btn btn-primary">Load More Posts</button>
         </div>
 
+    </section>
+
+    <!-- No Posts Available Message -->
+    <section id="no-posts-message" class="hidden text-center text-xl">
+        <p>No Posts Available</p>
     </section>
 
     <!-- Full Post View Modal (same page) -->
@@ -83,6 +88,11 @@
             const postTitle = document.getElementById('post-title');
             const postContent = document.getElementById('post-content');
 
+            if (!post) {
+                document.getElementById('no-posts-message').classList.remove('hidden');
+                return;
+            }
+
             postTitle.textContent = post.title;
             postContent.textContent = post.content;
 
@@ -101,13 +111,15 @@
             const postId = parseInt(urlParams.get('id'));
 
             if (postId) {
+                document.getElementById('blog-section').classList.add('hidden');
                 openFullPost(postId);
+            } else {
+                loadPosts();
             }
         }
 
         // Load posts on page load
         window.onload = () => {
-            loadPosts();
             checkForFullPost();
         };
 
