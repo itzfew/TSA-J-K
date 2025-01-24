@@ -1,7 +1,7 @@
 {
   "id": 2,
-  "title": "CSS Flexbox Guide",
-  "content": "<p>Flexbox is a layout module in CSS that helps with aligning and distributing space among items in a container, even when their size is unknown or dynamic. <style>.flex-container { display: flex; }</style></p>",
+  "title": "Verse - Quran",
+  "content": "<p>وَمَا جَعَلَهُ ٱللَّهُ إِلَّا بُشْرَىٰ وَلِتَطْمَئِنَّ بِهِۦ قُلُوبُكُمْ ۚ وَمَا ٱلنَّصْرُ إِلَّا مِنْ عِندِ ٱللَّهِ ۚ إِنَّ ٱللَّهَ عَزِيزٌ حَكِيمٌ</p><p><strong>Translation (English):</strong> God only made it a message of hope, and to set your hearts at rest. Victory comes only from God. God is Mighty and Wise.</p><p><strong>Translation (Urdu):</strong> اس مدد کو خدا نے محض بشارت بنایا تھا کہ تمہارے دل سے اطمینان حاصل کریں۔ اور مدد تو الله ہی کی طرف سے ہے۔ بےشک خدا غالب حکمت والا ہے</p>",
   "publisher": "Waheed Challa",
-  "date": "2025-01-23T15:45:00"
+  "date": "2025-01-24T00:00:00"
 }
