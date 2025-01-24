@@ -7,6 +7,7 @@
     <title>Blog | Waheed Challa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="bg-gray-900 text-white font-sans leading-normal">
@@ -52,17 +53,17 @@
         </div>
     </section>
 
-    <!-- No Posts Available Message -->
-    <section id="no-posts-message" class="hidden text-center text-xl">
-        <p>No Posts Available</p>
-    </section>
-
     <!-- Full Post View Modal -->
     <section id="full-post-view" class="hidden max-w-4xl mx-auto mt-10">
         <h2 id="post-title" class="text-3xl font-bold mt-4"></h2>
+        <div id="publisher-profile" class="flex items-center mt-4 gap-2">
+            <img src="https://via.placeholder.com/40" alt="Publisher" class="rounded-full">
+            <span class="text-blue-500 font-medium">
+                <i class="fas fa-check-circle"></i> <span id="post-publisher"></span>
+            </span>
+        </div>
+        <p id="post-date" class="text-sm text-gray-400 mt-2"></p>
         <p id="post-content" class="mt-4 text-lg leading-relaxed"></p>
-        <p id="post-publisher" class="text-sm text-gray-400 mt-2"></p>
-        <p id="post-date" class="text-sm text-gray-400"></p>
     </section>
 
     <!-- Footer -->
@@ -92,7 +93,7 @@
         // Convert HTML, CSS, JS in the post content to render properly
         function convertContent(content) {
             const div = document.createElement('div');
-            div.innerHTML = content; // safely add content with HTML/CSS/JS
+            div.innerHTML = content;
             return div.innerHTML;
         }
 
@@ -107,10 +108,17 @@
                 const postElement = document.createElement('div');
                 postElement.classList.add('py-6', 'border-b', 'border-gray-700');
                 postElement.innerHTML = `
-                    <h2 class="text-2xl font-bold mb-2">${post.title}</h2>
-                    <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
-                    <p class="text-sm text-gray-400">Published by: ${post.publisher}</p>
+                    <h2 class="text-2xl font-bold mb-2">
+                        <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
+                    </h2>
+                    <div class="flex items-center mb-2">
+                        <img src="https://via.placeholder.com/30" alt="Publisher" class="rounded-full">
+                        <span class="text-blue-500 ml-2 font-medium">
+                            <i class="fas fa-check-circle"></i> ${post.publisher}
+                        </span>
+                    </div>
                     <p class="text-sm text-gray-400">${new Date(post.date).toLocaleString()}</p>
+                    <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
                     <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
                 `;
                 postContainer.appendChild(postElement);
@@ -140,7 +148,7 @@
 
             postTitle.textContent = post.title;
             postContent.innerHTML = convertContent(post.content);
-            postPublisher.textContent = `Published by: ${post.publisher}`;
+            postPublisher.textContent = post.publisher;
             postDate.textContent = new Date(post.date).toLocaleString();
             fullPostView.classList.remove('hidden');
         }
