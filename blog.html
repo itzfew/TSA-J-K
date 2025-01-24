@@ -37,6 +37,25 @@
             color: #888;
             font-size: 0.875rem;
         }
+
+        .full-post {
+            background-color: #2E1A88;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .full-post h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .full-post p {
+            color: #ddd;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 
@@ -55,30 +74,38 @@
     <!-- Blog Posts Section -->
     <section class="container mx-auto py-14">
         <h1 class="text-3xl text-center font-bold mb-12 text-white">Latest Blog Posts</h1>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <!-- Blog Post 1 -->
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
-                <a href="blog-post.html?post=24-01-2025" class="post-title">Surah Al-Fatiha: The Opening of the Qur'an</a>
+        <div id="blog-posts" class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Initial Posts -->
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(1)">
+                <a href="#" class="post-title">Surah Al-Fatiha: The Opening of the Qur'an</a>
                 <p class="post-excerpt mt-4">Surah Al-Fatiha is known as the essence of the Qur'an. It’s a prayer for guidance, lordship, and mercy from Allah.</p>
                 <p class="post-date mt-2">Posted on January 24, 2025</p>
             </div>
-            <!-- Blog Post 2 -->
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
-                <a href="blog-post.html?post=24-01-2025" class="post-title">The Importance of Sincerity in Islam</a>
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(2)">
+                <a href="#" class="post-title">The Importance of Sincerity in Islam</a>
                 <p class="post-excerpt mt-4">Sincerity is a crucial element of Islamic faith. It brings purity to one’s actions and connects them directly with Allah.</p>
                 <p class="post-date mt-2">Posted on January 24, 2025</p>
             </div>
-            <!-- Blog Post 3 -->
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl">
-                <a href="blog-post.html?post=24-01-2025" class="post-title">Faith and Action: An Integral Part of Islamic Teaching</a>
+            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(3)">
+                <a href="#" class="post-title">Faith and Action: An Integral Part of Islamic Teaching</a>
                 <p class="post-excerpt mt-4">Islam teaches the balance between belief and action. A true believer is one who acts upon his faith.</p>
                 <p class="post-date mt-2">Posted on January 24, 2025</p>
             </div>
         </div>
-    </section>
 
-    <section class="container mx-auto py-10 text-center">
-        <a href="blog-post.html?post=24-01-2025" class="btn btn-primary text-lg">View More Posts</a>
+        <!-- Full Post View -->
+        <div id="full-post-view" class="hidden">
+            <div class="full-post">
+                <h2 id="post-title"></h2>
+                <p id="post-content"></p>
+                <button class="bg-[#C425E5] text-white px-6 py-2 rounded-lg mt-4" onclick="closeFullPost()">Close Post</button>
+            </div>
+        </div>
+
+        <!-- Load More Posts Section -->
+        <section class="text-center mt-10">
+            <button id="load-more-btn" class="btn btn-primary text-lg" onclick="loadMorePosts()">Load More Posts</button>
+        </section>
     </section>
 
     <footer class="bg-[#120A53] text-white py-6">
@@ -89,6 +116,80 @@
             <a href="https://github.com/itzfew" class="fa-brands fa-github text-white p-3 border border-[#C425E5] rounded-full"></a>
         </div>
     </footer>
+
+    <script>
+        const posts = [
+            {
+                id: 1,
+                title: "Surah Al-Fatiha: The Opening of the Qur'an",
+                content: "Surah Al-Fatiha is known as the essence of the Qur'an. It’s a prayer for guidance, lordship, and mercy from Allah. It holds significant importance in daily prayers and is recited by Muslims worldwide."
+            },
+            {
+                id: 2,
+                title: "The Importance of Sincerity in Islam",
+                content: "Sincerity is a crucial element of Islamic faith. It brings purity to one’s actions and connects them directly with Allah. True worship in Islam is not merely physical actions but requires sincerity from the heart."
+            },
+            {
+                id: 3,
+                title: "Faith and Action: An Integral Part of Islamic Teaching",
+                content: "Islam teaches the balance between belief and action. A true believer is one who acts upon his faith. This principle is crucial in understanding how faith manifests in real-life actions."
+            },
+            {
+                id: 4,
+                title: "The Role of Charity in Islam",
+                content: "Charity (Sadaqah) is one of the most important pillars of Islam. It helps to strengthen the bond within the community and purifies wealth. Giving charity is not just a financial act but can also be a good deed in many forms."
+            },
+            {
+                id: 5,
+                title: "The Five Pillars of Islam",
+                content: "The Five Pillars of Islam represent the core beliefs and practices for Muslims. These pillars form the foundation of a Muslim's life and cover beliefs, prayers, charity, fasting, and pilgrimage."
+            }
+        ];
+
+        let currentPosts = 3;
+
+        function loadMorePosts() {
+            if (currentPosts < posts.length) {
+                const blogPostsContainer = document.getElementById('blog-posts');
+                const nextPosts = posts.slice(currentPosts, currentPosts + 3);
+
+                nextPosts.forEach(post => {
+                    const postCard = document.createElement('div');
+                    postCard.classList.add('post-card', 'bg-[#2E1A88]', 'p-6', 'rounded-xl', 'shadow-lg', 'hover:shadow-2xl');
+                    postCard.innerHTML = `
+                        <a href="#" class="post-title" onclick="openFullPost(${post.id})">${post.title}</a>
+                        <p class="post-excerpt mt-4">${post.content.slice(0, 100)}...</p>
+                        <p class="post-date mt-2">Posted on January 24, 2025</p>
+                    `;
+                    blogPostsContainer.appendChild(postCard);
+                });
+
+                currentPosts += 3;
+
+                if (currentPosts >= posts.length) {
+                    document.getElementById('load-more-btn').style.display = 'none';
+                }
+            }
+        }
+function openFullPost(postId) {
+            const post = posts.find(p => p.id === postId);
+            const fullPostView = document.getElementById('full-post-view');
+            const postTitle = document.getElementById('post-title');
+            const postContent = document.getElementById('post-content');
+
+            // Display the full post
+            postTitle.textContent = post.title;
+            postContent.textContent = post.content;
+
+            fullPostView.classList.remove('hidden');
+        }
+
+        function closeFullPost() {
+            const fullPostView = document.getElementById('full-post-view');
+            fullPostView.classList.add('hidden');
+        }
+    </script>
 </body>
 
 </html>
+        
