@@ -13,7 +13,7 @@
 <body class="bg-gray-900 text-white font-sans leading-normal">
 
     <!-- Navbar -->
-    <nav class="bg-gray-800 shadow-md py-4">
+    <nav class="bg-gray-800 py-4">
         <div class="container mx-auto flex justify-between items-center px-6">
             <a href="index.html" class="text-3xl font-bold text-blue-400 hover:text-white">Waheed Challa</a>
             <div class="space-x-6 text-xl">
@@ -45,8 +45,7 @@
     </section>
 
     <!-- Full Post View Modal (same page) -->
-    <section id="full-post-view" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-10">
-        <button onclick="closeFullPost()" class="btn btn-ghost text-white mb-4">Close Post</button>
+    <section id="full-post-view" class="hidden max-w-4xl mx-auto mt-10">
         <h2 id="post-title" class="text-3xl font-bold mt-4"></h2>
         <p id="post-content" class="mt-4 text-lg leading-relaxed"></p>
     </section>
@@ -80,11 +79,11 @@
             const postsToShow = posts.slice(currentPostIndex, currentPostIndex + postsPerPage);
             postsToShow.forEach(post => {
                 const postElement = document.createElement('div');
-                postElement.classList.add('bg-gray-800', 'p-6', 'rounded-lg', 'shadow-md', 'hover:bg-gray-700', 'transition', 'duration-300');
+                postElement.classList.add('py-6', 'border-b', 'border-gray-700');
                 postElement.innerHTML = `
-                    <h2 class="text-2xl font-bold">${post.title}</h2>
-                    <p class="text-sm text-gray-400">${post.content.slice(0, 100)}...</p>
-                    <a href="blog.html?id=${post.id}" class="text-blue-400 mt-4 inline-block">Read more</a>
+                    <h2 class="text-2xl font-bold mb-2">${post.title}</h2>
+                    <p class="text-sm text-gray-400 mb-4">${post.content.slice(0, 100)}...</p>
+                    <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
                 `;
                 postContainer.appendChild(postElement);
             });
@@ -113,13 +112,6 @@
             postContent.textContent = post.content;
 
             fullPostView.classList.remove('hidden');
-        }
-
-        // Function to close full post view and return to blog
-        function closeFullPost() {
-            const fullPostView = document.getElementById('full-post-view');
-            fullPostView.classList.add('hidden');
-            window.location.href = 'blog.html'; // Redirect to blog page
         }
 
         // Function to check URL and open the full post if present
