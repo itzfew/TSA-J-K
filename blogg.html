@@ -63,7 +63,7 @@
         // Function to fetch posts from the JSON file
         async function fetchPosts() {
             try {
-                const response = await fetch('posts.json');
+                const response = await fetch('posts/1.json');
                 if (!response.ok) throw new Error('Unable to fetch posts');
                 const posts = await response.json();
 
