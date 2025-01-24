@@ -8,6 +8,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<style>
+    .verified-tick {
+  width: 20px;
+  height: 20px;
+  background-color: #1DA1F2; /* Twitter blue color */
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%; /* Circle shape */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+</style>
 </head>
 
 <body class="bg-gray-900 text-white font-sans leading-normal">
@@ -115,7 +131,7 @@
     <i class="fas fa-user-circle text-2xl text-gray-400"></i>
     <div class="ml-2 flex items-center">
         <span class="text-blue-500 font-medium">${post.publisher}</span>
-        <i class="fas fa-check-circle text-blue-500 ml-1"></i>
+        <div class="verified-tick">✔</div>
     </div>
 </div>
 
