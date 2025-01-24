@@ -4,13 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog</title>
+    <title>Blog | Waheed Challa</title>
     <link rel="stylesheet" href="styles/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body class="bg-gray-900 text-white">
+<body class="bg-gray-900 text-white font-sans leading-normal">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-800 shadow-md py-4">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <a href="index.html" class="text-3xl font-bold text-blue-400 hover:text-white">Waheed Challa</a>
+            <div class="space-x-6 text-xl">
+                <a href="index.html" class="text-white hover:text-blue-400">Home</a>
+                <a href="blog.html" class="text-white hover:text-blue-400">Blog</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- Blog Section -->
     <section class="container mx-auto py-6" id="blog-section">
@@ -34,22 +45,27 @@
     </section>
 
     <!-- Full Post View Modal (same page) -->
-    <section id="full-post-view" class="hidden">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-10">
-            <button onclick="closeFullPost()" class="btn btn-ghost text-white">Close</button>
-            <h2 id="post-title" class="text-3xl font-bold mt-4"></h2>
-            <p id="post-content" class="mt-4"></p>
-        </div>
+    <section id="full-post-view" class="hidden bg-gray-800 p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-10">
+        <button onclick="closeFullPost()" class="btn btn-ghost text-white mb-4">Close Post</button>
+        <h2 id="post-title" class="text-3xl font-bold mt-4"></h2>
+        <p id="post-content" class="mt-4 text-lg leading-relaxed"></p>
     </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-6 mt-10">
+        <div class="container mx-auto text-center text-gray-400">
+            <p>&copy; 2025 Waheed Challa. All Rights Reserved.</p>
+        </div>
+    </footer>
 
     <script>
         // Sample Posts Data
         const posts = [
-            { id: 1, title: "First Post", content: "This is the content of the first post." },
-            { id: 2, title: "Second Post", content: "This is the content of the second post." },
-            { id: 3, title: "Third Post", content: "This is the content of the third post." },
-            { id: 4, title: "Fourth Post", content: "This is the content of the fourth post." },
-            { id: 5, title: "Fifth Post", content: "This is the content of the fifth post." },
+            { id: 1, title: "First Post", content: "This is the content of the first post. It contains some introductory content. You can read more here." },
+            { id: 2, title: "Second Post", content: "This is the content of the second post. It gives details on a different topic with interesting points to consider." },
+            { id: 3, title: "Third Post", content: "This is the content of the third post. The post has valuable information on a subject you're likely interested in." },
+            { id: 4, title: "Fourth Post", content: "This is the content of the fourth post. It covers advanced topics that help to boost your knowledge and skills." },
+            { id: 5, title: "Fifth Post", content: "This is the content of the fifth post. The post goes deeper into practical advice and tips." },
             // Add more posts as needed
         ];
 
@@ -64,9 +80,9 @@
             const postsToShow = posts.slice(currentPostIndex, currentPostIndex + postsPerPage);
             postsToShow.forEach(post => {
                 const postElement = document.createElement('div');
-                postElement.classList.add('bg-gray-800', 'p-4', 'rounded-lg', 'shadow-md');
+                postElement.classList.add('bg-gray-800', 'p-6', 'rounded-lg', 'shadow-md', 'hover:bg-gray-700', 'transition', 'duration-300');
                 postElement.innerHTML = `
-                    <h2 class="text-xl font-bold">${post.title}</h2>
+                    <h2 class="text-2xl font-bold">${post.title}</h2>
                     <p class="text-sm text-gray-400">${post.content.slice(0, 100)}...</p>
                     <a href="blog.html?id=${post.id}" class="text-blue-400 mt-4 inline-block">Read more</a>
                 `;
@@ -99,10 +115,11 @@
             fullPostView.classList.remove('hidden');
         }
 
-        // Function to close full post view
+        // Function to close full post view and return to blog
         function closeFullPost() {
             const fullPostView = document.getElementById('full-post-view');
             fullPostView.classList.add('hidden');
+            window.location.href = 'blog.html'; // Redirect to blog page
         }
 
         // Function to check URL and open the full post if present
