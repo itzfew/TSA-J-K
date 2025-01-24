@@ -1,5 +1,7 @@
 {
-    "id": 2,
-    "title": "First Post",
-    "content": "This is the content of the first post. It contains some introductory content. You can read more here."
+  "id": 2,
+  "title": "CSS Flexbox Guide",
+  "content": "<p>Flexbox is a layout module in CSS that helps with aligning and distributing space among items in a container, even when their size is unknown or dynamic. <style>.flex-container { display: flex; }</style></p>",
+  "publisher": "Waheed Challa",
+  "date": "2025-01-23T15:45:00"
 }
