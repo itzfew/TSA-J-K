@@ -4,192 +4,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - Waheed Challa</title>
+    <title>Blog</title>
     <link rel="stylesheet" href="styles/style.css">
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        .post-card {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .post-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .post-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #fff;
-            text-decoration: none;
-        }
-
-        .post-card .post-excerpt {
-            color: #ddd;
-            font-size: 1rem;
-        }
-
-        .post-date {
-            color: #888;
-            font-size: 0.875rem;
-        }
-
-        .full-post {
-            background-color: #2E1A88;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .full-post h2 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .full-post p {
-            color: #ddd;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body class="bg-[#120A53] text-white">
-    <section class="container mx-auto py-4">
-        <div class="navbar flex justify-between items-center">
-            <a class="text-xl font-bold text-white" href="index.html">Waheed Challa</a>
-            <ul class="flex space-x-6 text-white">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
+<body class="bg-gray-900 text-white">
+
+    <!-- Blog Section -->
+    <section class="container mx-auto py-6">
+        <h1 class="text-4xl font-medium text-center mb-6">Blog Posts</h1>
+
+        <!-- Posts container -->
+        <div id="post-container" class="space-y-6">
+            <!-- Blog Posts will be populated here -->
         </div>
+
+        <!-- Load More Posts Button -->
+        <div id="load-more-container" class="text-center mt-6">
+            <button id="load-more-btn" class="btn btn-primary">Load More Posts</button>
+        </div>
+
     </section>
 
-    <!-- Blog Posts Section -->
-    <section class="container mx-auto py-14">
-        <h1 class="text-3xl text-center font-bold mb-12 text-white">Latest Blog Posts</h1>
-        <div id="blog-posts" class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <!-- Initial Posts -->
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(1)">
-                <a href="#" class="post-title">Surah Al-Fatiha: The Opening of the Qur'an</a>
-                <p class="post-excerpt mt-4">Surah Al-Fatiha is known as the essence of the Qur'an. It’s a prayer for guidance, lordship, and mercy from Allah.</p>
-                <p class="post-date mt-2">Posted on January 24, 2025</p>
-            </div>
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(2)">
-                <a href="#" class="post-title">The Importance of Sincerity in Islam</a>
-                <p class="post-excerpt mt-4">Sincerity is a crucial element of Islamic faith. It brings purity to one’s actions and connects them directly with Allah.</p>
-                <p class="post-date mt-2">Posted on January 24, 2025</p>
-            </div>
-            <div class="post-card bg-[#2E1A88] p-6 rounded-xl shadow-lg hover:shadow-2xl" onclick="openFullPost(3)">
-                <a href="#" class="post-title">Faith and Action: An Integral Part of Islamic Teaching</a>
-                <p class="post-excerpt mt-4">Islam teaches the balance between belief and action. A true believer is one who acts upon his faith.</p>
-                <p class="post-date mt-2">Posted on January 24, 2025</p>
-            </div>
+    <!-- Full Post View Modal (same page) -->
+    <section id="full-post-view" class="hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-10">
+            <button onclick="closeFullPost()" class="btn btn-ghost text-white">Close</button>
+            <h2 id="post-title" class="text-3xl font-bold mt-4"></h2>
+            <p id="post-content" class="mt-4"></p>
         </div>
-
-        <!-- Full Post View -->
-        <div id="full-post-view" class="hidden">
-            <div class="full-post">
-                <h2 id="post-title"></h2>
-                <p id="post-content"></p>
-                <button class="bg-[#C425E5] text-white px-6 py-2 rounded-lg mt-4" onclick="closeFullPost()">Close Post</button>
-            </div>
-        </div>
-
-        <!-- Load More Posts Section -->
-        <section class="text-center mt-10">
-            <button id="load-more-btn" class="btn btn-primary text-lg" onclick="loadMorePosts()">Load More Posts</button>
-        </section>
     </section>
-
-    <footer class="bg-[#120A53] text-white py-6">
-        <div class="flex justify-center space-x-6">
-            <a href="https://www.instagram.com/waheedchalla/" class="fa-brands fa-instagram text-white p-3 border border-[#C425E5] rounded-full"></a>
-            <a href="https://twitter.com/waheedChalla" class="fa-brands fa-twitter text-white p-3 border border-[#C425E5] rounded-full"></a>
-            <a href="https://m.facebook.com/Challawaheed/" class="fa-brands fa-facebook text-white p-3 border border-[#C425E5] rounded-full"></a>
-            <a href="https://github.com/itzfew" class="fa-brands fa-github text-white p-3 border border-[#C425E5] rounded-full"></a>
-        </div>
-    </footer>
 
     <script>
+        // Sample Posts Data
         const posts = [
-            {
-                id: 1,
-                title: "Surah Al-Fatiha: The Opening of the Qur'an",
-                content: "Surah Al-Fatiha is known as the essence of the Qur'an. It’s a prayer for guidance, lordship, and mercy from Allah. It holds significant importance in daily prayers and is recited by Muslims worldwide."
-            },
-            {
-                id: 2,
-                title: "The Importance of Sincerity in Islam",
-                content: "Sincerity is a crucial element of Islamic faith. It brings purity to one’s actions and connects them directly with Allah. True worship in Islam is not merely physical actions but requires sincerity from the heart."
-            },
-            {
-                id: 3,
-                title: "Faith and Action: An Integral Part of Islamic Teaching",
-                content: "Islam teaches the balance between belief and action. A true believer is one who acts upon his faith. This principle is crucial in understanding how faith manifests in real-life actions."
-            },
-            {
-                id: 4,
-                title: "The Role of Charity in Islam",
-                content: "Charity (Sadaqah) is one of the most important pillars of Islam. It helps to strengthen the bond within the community and purifies wealth. Giving charity is not just a financial act but can also be a good deed in many forms."
-            },
-            {
-                id: 5,
-                title: "The Five Pillars of Islam",
-                content: "The Five Pillars of Islam represent the core beliefs and practices for Muslims. These pillars form the foundation of a Muslim's life and cover beliefs, prayers, charity, fasting, and pilgrimage."
-            }
+            { id: 1, title: "First Post", content: "This is the content of the first post." },
+            { id: 2, title: "Second Post", content: "This is the content of the second post." },
+            { id: 3, title: "Third Post", content: "This is the content of the third post." },
+            { id: 4, title: "Fourth Post", content: "This is the content of the fourth post." },
+            { id: 5, title: "Fifth Post", content: "This is the content of the fifth post." },
+            // Add more posts as needed
         ];
 
-        let currentPosts = 3;
+        let currentPostIndex = 0;
+        const postsPerPage = 3;
 
-        function loadMorePosts() {
-            if (currentPosts < posts.length) {
-                const blogPostsContainer = document.getElementById('blog-posts');
-                const nextPosts = posts.slice(currentPosts, currentPosts + 3);
+        // Function to Load Posts
+        function loadPosts() {
+            const postContainer = document.getElementById('post-container');
+            const loadMoreButton = document.getElementById('load-more-btn');
 
-                nextPosts.forEach(post => {
-                    const postCard = document.createElement('div');
-                    postCard.classList.add('post-card', 'bg-[#2E1A88]', 'p-6', 'rounded-xl', 'shadow-lg', 'hover:shadow-2xl');
-                    postCard.innerHTML = `
-                        <a href="#" class="post-title" onclick="openFullPost(${post.id})">${post.title}</a>
-                        <p class="post-excerpt mt-4">${post.content.slice(0, 100)}...</p>
-                        <p class="post-date mt-2">Posted on January 24, 2025</p>
-                    `;
-                    blogPostsContainer.appendChild(postCard);
-                });
+            const postsToShow = posts.slice(currentPostIndex, currentPostIndex + postsPerPage);
+            postsToShow.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('bg-gray-800', 'p-4', 'rounded-lg', 'shadow-md');
+                postElement.innerHTML = `
+                    <h2 class="text-xl font-bold">${post.title}</h2>
+                    <p class="text-sm text-gray-400">${post.content.slice(0, 100)}...</p>
+                    <a href="blog.html?id=${post.id}" class="text-blue-400 mt-4 inline-block">Read more</a>
+                `;
+                postContainer.appendChild(postElement);
+            });
 
-                currentPosts += 3;
+            currentPostIndex += postsPerPage;
 
-                if (currentPosts >= posts.length) {
-                    document.getElementById('load-more-btn').style.display = 'none';
-                }
+            // Hide the load more button if there are no more posts
+            if (currentPostIndex >= posts.length) {
+                loadMoreButton.style.display = 'none';
             }
         }
-function openFullPost(postId) {
+
+        // Function to open post in full view
+        function openFullPost(postId) {
             const post = posts.find(p => p.id === postId);
             const fullPostView = document.getElementById('full-post-view');
             const postTitle = document.getElementById('post-title');
             const postContent = document.getElementById('post-content');
 
-            // Display the full post
             postTitle.textContent = post.title;
             postContent.textContent = post.content;
 
             fullPostView.classList.remove('hidden');
         }
 
+        // Function to close full post view
         function closeFullPost() {
             const fullPostView = document.getElementById('full-post-view');
             fullPostView.classList.add('hidden');
         }
+
+        // Function to check URL and open the full post if present
+        function checkForFullPost() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = parseInt(urlParams.get('id'));
+
+            if (postId) {
+                openFullPost(postId);
+            }
+        }
+
+        // Load posts on page load
+        window.onload = () => {
+            loadPosts();
+            checkForFullPost();
+        };
+
+        // Event Listener for Load More Button
+        document.getElementById('load-more-btn').addEventListener('click', loadPosts);
     </script>
+
 </body>
 
 </html>
-        
