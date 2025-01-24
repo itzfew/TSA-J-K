@@ -15,44 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>.gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            padding: 20px;
-        }
-        .gallery img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            cursor: pointer;
-            border-radius: 8px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 10px;
-        }
-        .modal .close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
+    <style>
     </style>
 </head>
 <body class="bg-[#120A53] text-white">
@@ -127,43 +90,19 @@
         </div>
     </section>
 
-    <!-- This is My Latest Posts Section -->
-<section class="container mx-auto mb-14">
-    <h1 class="text-3xl font-medium text-white mb-4 text-center">.....Posts.....</h1>
-    <div class="flex overflow-x-auto space-x-6">
-        <div class="flex-none w-64 h-64 border border-[#C425E5] p-4 rounded-xl">
-            <h3 class="text-xl text-white font-medium mb-2">Surah Al-Fatiha (1:2)</h3>
-            <p class="text-[#E0E0E0] text-sm">"All praise is due to Allah, Lord of all the worlds."</p>
-        </div>
-        <div class="flex-none w-64 h-64 border border-[#C425E5] p-4 rounded-xl">
-            <h3 class="text-xl text-white font-medium mb-2">Surah Al-Baqarah (2:255)</h3>
-            <p class="text-[#E0E0E0] text-sm">"Allah! There is no deity except Him, the Ever-Living, the Sustainer of existence."</p>
-        </div>
-        <div class="flex-none w-64 h-64 border border-[#C425E5] p-4 rounded-xl">
-            <h3 class="text-xl text-white font-medium mb-2">Surah Ikhlas (112:1)</h3>
-            <p class="text-[#E0E0E0] text-sm">"Say, He is Allah, [who is] One."</p>
-        </div>
-    </div>
-</section>
+    <!-- Blog Section -->
+    <section class="container mx-auto py-6" id="blog-section">
+        <h1 class="text-4xl font-medium text-center mb-6">Blog Posts</h1>
 
-    <section class="container mx-auto mb-14">
-        <h1 class="text-3xl font-medium text-white mb-6 text-center">Image Gallery</h1>
-        <!-- Gallery Section -->
-        <div class="gallery">
-            <img src="https://itzfew.github.io/img/1200px-Altja_j%C3%B5gi_Lahemaal.jpg" alt="Image 1" onclick="openModal(this)">
-            <img src="https://itzfew.github.io/img/nature-quotes-landscape-1648265648.jpg" alt="Image 2" onclick="openModal(this)">
-            <img src="https://itzfew.github.io/img/nature-books-for-kids_canva-pro-image.png" alt="Image 3" onclick="openModal(this)">
-          <img src="https://itzfew.github.io/img/Female_Woods_hike_732x549-thumbnail.jpg" alt="Image 4" onclick="openModal(this)">
-     
-        </div>
+        <!-- Posts container -->
+        <div id="post-container" class="space-y-6"></div>
 
-        <!-- Modal Section -->
-        <div class="modal" id="modal">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <img id="modal-img" src="" alt="Full Size Image">
+        <!-- Load More Posts Button -->
+        <div id="load-more-container" class="text-center mt-6">
+            <a href="blog.html" class="btn btn-primary">View More Posts</a>
         </div>
     </section>
-  
+
 
     <!-- this is footer section -->
     <section class="container mx-auto">
@@ -216,20 +155,63 @@
                 document.getElementById("quote").querySelector(".quote").innerText = "Failed to load quote.";
             });
         
-        const modal = document.getElementById("modal");
-        const modalImg = document.getElementById("modal-img");
-
-        function openModal(image) {
-            modal.style.display = "flex";
-            modalImg.src = image.src;
-        }
-
-        function closeModal() {
-            modal.style.display = "none";
-            modalImg.src = "";
-        }
+        
     
     </script>
+
+    <script>
+        let currentPostIndex = 1; // Start from the first post
+        const postsPerPage = 3;   // Number of posts to display per page
+
+        // Function to fetch and display a single post
+        async function fetchPost(postId) {
+            try {
+                const response = await fetch(`posts/${postId}.json`);
+                if (!response.ok) return null;  // Return null if post doesn't exist
+                const post = await response.json();
+                return post;
+            } catch (error) {
+                console.error(`Error fetching post ${postId}:`, error);
+                return null;
+            }
+        }
+
+        // Function to render posts on the page
+        async function loadPosts() {
+            const postContainer = document.getElementById('post-container');
+
+            // Try to load the latest 3 posts
+            let postsLoaded = 0;
+            for (let i = currentPostIndex; postsLoaded < postsPerPage; i++) {
+                const post = await fetchPost(i);
+                if (post) {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('py-6', 'border-b', 'border-gray-700');
+                    postElement.innerHTML = `
+                        <h2 class="text-2xl font-bold mb-2">
+                            <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
+                        </h2>
+                        <p class="text-sm text-gray-400 mb-4">${post.content.slice(0, 100)}...</p>
+                        <p class="text-sm text-gray-400">Published on: ${new Date(post.date).toLocaleString()}</p>
+                    `;
+                    postContainer.appendChild(postElement);
+                    postsLoaded++;
+                    currentPostIndex++;  // Move to the next post ID
+                }
+            }
+
+            // If fewer than 3 posts are loaded, hide the "View More" button
+            if (postsLoaded < postsPerPage) {
+                document.getElementById('load-more-container').style.display = 'none';
+            }
+        }
+
+        // Load posts on page load
+        window.onload = () => {
+            loadPosts();
+        };
+    </script>
+
 </body>
 
 </html>
