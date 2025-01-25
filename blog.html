@@ -163,11 +163,11 @@
                 document.getElementById('no-posts-message').classList.remove('hidden');
                 return;
             }
-            
-            postPublisher.textContent = post.publisher;
-            postDate.textContent = new Date(post.date).toLocaleString();
+
             postTitle.textContent = post.title;
             postContent.innerHTML = convertContent(post.content);
+            postPublisher.textContent = post.publisher;
+            postDate.textContent = new Date(post.date).toLocaleString();
             fullPostView.classList.remove('hidden');
         }
 
