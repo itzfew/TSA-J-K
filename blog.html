@@ -68,6 +68,17 @@
             <button id="load-more-btn" class="btn btn-primary">Load More Posts</button>
         </div>
     </section>
+<section class="container mx-auto py-6" id="oldest-posts-section">
+    <h1 class="text-4xl font-medium text-center mb-6">Oldest Posts</h1>
+
+    <!-- Posts Grid Container -->
+    <div id="oldest-post-container" class="grid grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+    <!-- View More Posts Button -->
+    <div id="view-more-container" class="text-center mt-6">
+        <button id="view-more-btn" class="btn btn-primary">View More</button>
+    </div>
+</section>
 
     <!-- Full Post View Modal -->
     <section id="full-post-view" class="hidden max-w-4xl mx-auto mt-10">
@@ -92,7 +103,9 @@
     <script>
         let currentPostIndex = 1; // Start from the first post
         const postsPerPage = 3;
-
+let oldestPostIndex = 1; // Start from the first post (oldest)
+const postsPerLoad = 6; // Number of posts to load each time
+        
         // Function to fetch and display posts
         async function fetchPost(postId) {
             try {
@@ -157,6 +170,57 @@
         loadMoreButton.style.display = 'none';
     }
 }
+        // Function to fetch and display oldest posts
+async function loadOldestPosts() {
+    const oldestPostContainer = document.getElementById('oldest-post-container');
+    const viewMoreButton = document.getElementById('view-more-btn');
+    const fetchedPosts = [];
+
+    // Fetch the next batch of oldest posts
+    for (let i = 0; i < postsPerLoad; i++) {
+        const post = await fetchPost(oldestPostIndex);
+        if (!post) break;
+        fetchedPosts.push(post);
+        oldestPostIndex++;
+    }
+
+    // Render the fetched posts in a grid layout
+    for (const post of fetchedPosts) {
+        const postElement = document.createElement('div');
+        postElement.classList.add(
+            'border',
+            'border-gray-700',
+            'rounded-lg',
+            'p-4',
+            'bg-gray-800'
+        );
+        postElement.innerHTML = `
+            <div class="mb-2">
+                <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                <span class="text-blue-500 font-medium">${post.publisher}</span>
+            </div>
+            <p class="text-sm text-gray-400 mb-2">${new Date(post.date).toLocaleString()}</p>
+            <h3 class="text-lg font-bold mb-2">${post.title}</h3>
+            <p class="text-sm text-gray-400">${convertContent(post.content).slice(0, 50)}...</p>
+            <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
+        `;
+        oldestPostContainer.appendChild(postElement);
+    }
+
+    // Hide the "View More" button if no more posts are available
+    const nextPost = await fetchPost(oldestPostIndex);
+    if (!nextPost) {
+        viewMoreButton.style.display = 'none';
+    }
+}
+
+// Load initial 6 oldest posts on page load
+window.onload = () => {
+    loadOldestPosts();
+
+    // Add event listener for "View More" button
+    document.getElementById('view-more-btn').addEventListener('click', loadOldestPosts);
+};
 
         // Function to open full post view
         async function openFullPost(postId) {
