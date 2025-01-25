@@ -124,21 +124,20 @@
                 const postElement = document.createElement('div');
                 postElement.classList.add('py-6', 'border-b', 'border-gray-700');
                 postElement.innerHTML = `
-                    <h2 class="text-2xl font-bold mb-2">
-                        <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
-                    </h2>
-                    <div class="flex items-center mb-2">
-    <i class="fas fa-user-circle text-2xl text-gray-400"></i>
-    <div class="ml-2 flex items-center">
-        <span class="text-blue-500 font-medium">${post.publisher}</span>
-        <div class="verified-tick">✔</div>
+    <div class="flex items-center mb-2">
+        <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+        <div class="ml-2 flex items-center">
+            <span class="text-blue-500 font-medium">${post.publisher}</span>
+            <div class="verified-tick">✔</div>
+        </div>
     </div>
-</div>
-
-                    <p class="text-sm text-gray-400">${new Date(post.date).toLocaleString()}</p>
-                    <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
-                    <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
-                `;
+    <p class="text-sm text-gray-400 mb-2">${new Date(post.date).toLocaleString()}</p>
+    <h2 class="text-2xl font-bold mb-2">
+        <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
+    </h2>
+    <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
+    <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
+`;
                 postContainer.appendChild(postElement);
                 currentPostIndex++;
             }
