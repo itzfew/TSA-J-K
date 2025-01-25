@@ -6,19 +6,43 @@
    
 }
 
-    .tweet-wrapper {
-        flex: 0 0 auto; /* Prevent tweets from stretching */
-        width: 350px; /* Fixed width for each tweet */
-        height: 500px; /* Fixed height */
-        overflow: hidden; /* Hide overflow to maintain ratio */
-        border: 1px solid #C425E5;
-        border-radius: 8px;
-        padding: 10px;
-        box-sizing: border-box; /* Include padding in dimensions */
-    }
+/* Make the text invisible but keep icons */
+.social-icon a {
+    display: inline-block;
+    text-decoration: none;
+    position: relative;
+}
 
-    .tweet-wrapper iframe {
-        transform: scale(0.85); /* Adjust scale to fit content */
-        transform-origin: top left;
-    }
+.social-icon a span {
+    visibility: hidden; /* Makes the text invisible */
+}
 
+/* Responsive grid setup */
+.grid {
+    display: grid;
+    gap: 20px;
+}
+
+@media (min-width: 640px) {
+    .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on small screens */
+    }
+}
+
+@media (min-width: 768px) {
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-6 {
+        grid-template-columns: repeat(6, 1fr); /* 6 columns on large screens */
+    }
+}
+
+/* Style for icons */
+.social-icon i {
+    font-size: 2rem;
+    color: white;
+}
