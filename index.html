@@ -190,48 +190,50 @@
         </div>
     </section>
     <script>
-         // Fetch Date, Time, and Hijri Details from the API
-const dateTimeElement = document.getElementById("date-time");
+// Function to get current date in DD-MM-YYYY format
+        const getCurrentDate = () => {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth is zero-indexed
+            const year = now.getFullYear();
+            return `${day}-${month}-${year}`;
+        };
 
-const updateDateTime = async () => {
-    const now = new Date();
-    const gregorianDate = now.toLocaleString();
+        const dateTimeElement = document.getElementById("date-time");
 
-    // Get the current Gregorian year and month dynamically
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;  // getMonth() is zero-indexed, so we add 1
+        const updateDateTime = async () => {
+            const currentDate = getCurrentDate(); // Get current date
 
-    // API for Hijri Calendar Data (Updated for dynamic year and month)
-    const hijriApiUrl = `https://api.aladhan.com/v1/gToHCalendar/${currentMonth}/${currentYear}?calendarMethod=UAQ`;
+            // API for Hijri and Gregorian Calendar Data for the current date
+            const hijriApiUrl = `https://api.aladhan.com/v1/gToH/${currentDate}?calendarMethod=UAQ`;
 
-    try {
-        const response = await fetch(hijriApiUrl);
-        const data = await response.json();
+            try {
+                const response = await fetch(hijriApiUrl);
+                const data = await response.json();
 
-        if (data.code === 200) {
-            const hijriData = data.data[0];
-            const gregorian = hijriData.gregorian;
-            const hijri = hijriData.hijri;
+                if (data.code === 200) {
+                    const hijriData = data.data;
+                    const gregorian = hijriData.gregorian;
+                    const hijri = hijriData.hijri;
 
-            // Formatting the date information
-            const fullDate = `${gregorian.weekday.en}, ${gregorian.day} ${gregorian.month.en} ${gregorian.year} | ${hijri.day} ${hijri.month.en} ${hijri.year} (Hijri)`;
+                    // Formatting the date information with both English and Arabic weekday names
+                    const fullDate = `${gregorian.weekday.en}, ${gregorian.day} ${gregorian.month.en} ${gregorian.year} | ${hijri.day} ${hijri.month.en} ${hijri.year} (${hijri.weekday.en}) (${hijri.weekday.ar})`;
 
-            // Displaying in the Marquee
-            dateTimeElement.querySelector("p").innerText = `${fullDate} | ${gregorianDate}`;
-        } else {
-            dateTimeElement.querySelector("p").innerText = "Error fetching Hijri data.";
-        }
-    } catch (error) {
-        dateTimeElement.querySelector("p").innerText = "Unable to fetch date and time.";
-    }
-};
+                    // Displaying in the Marquee
+                    dateTimeElement.querySelector("p").innerText = `${fullDate} | Gregorian: ${gregorian.date}`;
+                } else {
+                    dateTimeElement.querySelector("p").innerText = "Error fetching Hijri data.";
+                }
+            } catch (error) {
+                dateTimeElement.querySelector("p").innerText = "Unable to fetch date and time.";
+            }
+        };
 
-// Update every second to display real-time changes
-setInterval(updateDateTime, 1000);
+        // Update every second to display real-time changes
+        setInterval(updateDateTime, 1000);
 
-// Initial load on page load
-window.onload = updateDateTime;
-
+        // Initial load on page load
+        window.onload = updateDateTime;
         // Fetch Geolocation Automatically
         window.onload = () => {
             if (navigator.geolocation) {
