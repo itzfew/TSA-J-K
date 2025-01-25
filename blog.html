@@ -114,40 +114,49 @@
         }
 
         async function loadPosts() {
-            const postContainer = document.getElementById('post-container');
-            const loadMoreButton = document.getElementById('load-more-btn');
+    const postContainer = document.getElementById('post-container');
+    const loadMoreButton = document.getElementById('load-more-btn');
+    const fetchedPosts = [];
 
-            for (let i = 0; i < postsPerPage; i++) {
-                const post = await fetchPost(currentPostIndex);
-                if (!post) break;
+    // Fetch posts for the current batch
+    for (let i = 0; i < postsPerPage; i++) {
+        const post = await fetchPost(currentPostIndex);
+        if (!post) break;
+        fetchedPosts.push(post);
+        currentPostIndex++;
+    }
 
-                const postElement = document.createElement('div');
-                postElement.classList.add('py-6', 'border-b', 'border-gray-700');
-                postElement.innerHTML = `
-    <div class="flex items-center mb-2">
-        <i class="fas fa-user-circle text-2xl text-gray-400"></i>
-        <div class="ml-2 flex items-center">
-            <span class="text-blue-500 font-medium">${post.publisher}</span>
-            <div class="verified-tick">✔</div>
-        </div>
-    </div>
-    <p class="text-sm text-gray-400 mb-2">${new Date(post.date).toLocaleString()}</p>
-    <h2 class="text-2xl font-bold mb-2">
-        <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
-    </h2>
-    <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
-    <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
-`;
-                postContainer.appendChild(postElement);
-                currentPostIndex++;
-            }
+    // Sort posts by date (most recent first)
+    fetchedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Hide the load more button if there are no more posts
-            const nextPost = await fetchPost(currentPostIndex);
-            if (!nextPost) {
-                loadMoreButton.style.display = 'none';
-            }
-        }
+    // Render the sorted posts
+    for (const post of fetchedPosts) {
+        const postElement = document.createElement('div');
+        postElement.classList.add('py-6', 'border-b', 'border-gray-700');
+        postElement.innerHTML = `
+            <div class="flex items-center mb-2">
+                <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                <div class="ml-2 flex items-center">
+                    <span class="text-blue-500 font-medium">${post.publisher}</span>
+                    <div class="verified-tick">✔</div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-400 mb-2">${new Date(post.date).toLocaleString()}</p>
+            <h2 class="text-2xl font-bold mb-2">
+                <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
+            </h2>
+            <p class="text-sm text-gray-400 mb-4">${convertContent(post.content).slice(0, 100)}...</p>
+            <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">Read more</a>
+        `;
+        postContainer.appendChild(postElement);
+    }
+
+    // Hide the load more button if no more posts are available
+    const nextPost = await fetchPost(currentPostIndex);
+    if (!nextPost) {
+        loadMoreButton.style.display = 'none';
+    }
+}
 
         // Function to open full post view
         async function openFullPost(postId) {
