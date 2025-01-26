@@ -251,6 +251,55 @@ displayVisitDetails(); // Display visit details only for the current user
                 document.getElementById("quote").querySelector(".quote").innerText = "Failed to load quote.";
             });
         
-        
+        let currentPostIndex = 1; // Start from the first post
+        const postsPerPage = 3;   // Number of posts to display per page
+
+        // Function to fetch and display a single post
+        async function fetchPost(postId) {
+            try {
+                const response = await fetch(`posts/${postId}.json`);
+                if (!response.ok) return null;  // Return null if post doesn't exist
+                const post = await response.json();
+                return post;
+            } catch (error) {
+                console.error(`Error fetching post ${postId}:`, error);
+                return null;
+            }
+        }
+
+        // Function to render posts on the page
+        async function loadPosts() {
+            const postContainer = document.getElementById('post-container');
+
+            // Try to load the latest 3 posts
+            let postsLoaded = 0;
+            for (let i = currentPostIndex; postsLoaded < postsPerPage; i++) {
+                const post = await fetchPost(i);
+                if (post) {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('py-6', 'border-b', 'border-gray-700');
+                    postElement.innerHTML = `
+                        <h2 class="text-2xl font-bold mb-2">
+                            <a href="blog.html?id=${post.id}" class="text-blue-400 hover:text-blue-600">${post.title}</a>
+                        </h2>
+                        <p class="text-sm text-gray-400 mb-4">${post.content.slice(0, 100)}...</p>
+                        <p class="text-sm text-gray-400">Published on: ${new Date(post.date).toLocaleString()}</p>
+                    `;
+                    postContainer.appendChild(postElement);
+                    postsLoaded++;
+                    currentPostIndex++;  // Move to the next post ID
+                }
+            }
+
+            // If fewer than 3 posts are loaded, hide the "View More" button
+            if (postsLoaded < postsPerPage) {
+                document.getElementById('load-more-container').style.display = 'none';
+            }
+        }
+
+        // Load posts on page load
+        window.onload = () => {
+            loadPosts();
+        };
     
     
