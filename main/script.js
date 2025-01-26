@@ -50,19 +50,21 @@ async function saveVisitDetails() {
 
   console.log("Visit Data:", visit); // Log visit data before saving
 
-  // Construct a unique key based on location (city, state, country)
+  // Construct a unique key based on location (city, state, country), device, and browser
   const locationKey = `${visit.location.city}_${visit.location.state}_${visit.location.country}`;
+  const visitKey = `${locationKey}_${device}_${browser}`;
 
-  // Get the reference to that specific location in Firebase
+  // Save the visit data to localStorage (to filter later)
+  const userVisitKey = `${locationKey}_${device}_${browser}`;
+  localStorage.setItem("userVisitKey", userVisitKey);
+
+  // Get the reference to that specific location and device/browser in Firebase
   const locationRef = database.ref("locations/" + locationKey);
 
-  // Check if this combination of location, device, and browser already exists
-  const visitKey = `${device}_${browser}`;
-
-  // Check if this combination exists in the database
+  // Check if the combination of location, device, and browser exists
   locationRef.child(visitKey).once('value').then((snapshot) => {
     if (!snapshot.exists()) {
-      // If it doesn't exist, create a new entry with the device and browser details
+      // If it doesn't exist, create a new entry with the visit details
       locationRef.child(visitKey).set({
         visits: 1,
         device: device,
@@ -74,7 +76,7 @@ async function saveVisitDetails() {
         console.error("Error saving visit to Firebase:", error);
       });
     } else {
-      // If it exists, increment the visit count
+      // If the combination exists, increment the visit count for this combination
       locationRef.child(visitKey).transaction((currentData) => {
         if (currentData === null) {
           return { visits: 1 };
@@ -100,16 +102,20 @@ function updateViewCount() {
   });
 }
 
-// Display all visit details (location, device, browser, and visit count)
+// Display all visit details (location, device, browser, and visit count) for the user
 function displayVisitDetails() {
   const visitDetailsRef = database.ref("locations");
+  const userVisitKey = localStorage.getItem("userVisitKey");
+
   visitDetailsRef.on("child_added", (snapshot) => {
     const visit = snapshot.val();
-    const visitItem = document.createElement("li");
 
+    // Filter and display only the user's own visit details (matching location, device, browser)
     for (const [key, value] of Object.entries(visit)) {
-      if (key !== "visits") {
-        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits} - Device: ${key.split('_')[0]} - Browser: ${key.split('_')[1]}`;
+      if (key === userVisitKey) {
+        const visitItem = document.createElement("li");
+
+        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits} - Device: ${key.split('_')[3]} - Browser: ${key.split('_')[4]}`;
         document.getElementById("visitDetails").appendChild(visitItem);
       }
     }
@@ -119,4 +125,4 @@ function displayVisitDetails() {
 // Initialize functions
 saveVisitDetails(); // Save current visit
 updateViewCount();  // Update and display view count
-displayVisitDetails(); // Display visit details
+displayVisitDetails(); // Display visit details only for the current user
