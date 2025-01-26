@@ -217,7 +217,7 @@ displayVisitDetails(); // Display visit details only for the current user
             } catch (error) {
                 dateTimeElement.querySelector("p").innerText = "Unable to fetch date and time.";
             }
-        };
+        
 
         // Update every second to display real-time changes
         setInterval(updateDateTime, 1000);
@@ -248,9 +248,8 @@ displayVisitDetails(); // Display visit details only for the current user
             })
             .catch(() => {
                 document.getElementById("quote").querySelector(".quote").innerText = "Failed to load quote.";
-            });
-        
-        let currentPostIndex = 1; // Start from the first post
+            
+              let currentPostIndex = 1; // Start from the first post
         const postsPerPage = 3;   // Number of posts to display per page
 
         // Function to fetch and display a single post
