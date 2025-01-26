@@ -1,13 +1,14 @@
+// Firebase configuration (directly included)
 const firebaseConfig = {
-      apiKey: `${import.meta.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY}`,
-      authDomain: `${import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || process.env.FIREBASE_AUTH_DOMAIN}`,
-      databaseURL: `${import.meta.env.VITE_FIREBASE_DATABASE_URL || process.env.FIREBASE_DATABASE_URL}`,
-      projectId: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID}`,
-      storageBucket: `${import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_STORAGE_BUCKET}`,
-      messagingSenderId: `${import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || process.env.FIREBASE_MESSAGING_SENDER_ID}`,
-      appId: `${import.meta.env.VITE_FIREBASE_APP_ID || process.env.FIREBASE_APP_ID}`,
-      measurementId: `${import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || process.env.FIREBASE_MEASUREMENT_ID}`
-    };
+  apiKey: "AIzaSyCkw9Vh_fxRrVf2l1qErXexBZVdDuoYEyk",
+  authDomain: "waheedchalla.firebaseapp.com",
+  databaseURL: "https://waheedchalla-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "waheedchalla",
+  storageBucket: "waheedchalla.appspot.com",
+  messagingSenderId: "460397540007",
+  appId: "1:460397540007:web:d39c857878aad2bae7e182",
+  measurementId: "G-5P3W3EEF1C"
+};
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
