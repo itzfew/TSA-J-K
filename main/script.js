@@ -1,4 +1,3 @@
-
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCkw9Vh_fxRrVf2l1qErXexBZVdDuoYEyk",
@@ -15,7 +14,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Save visit details (date, time, and location)
+    // Save visit details (date, time, location, device, browser)
     async function saveVisitDetails() {
       const visit = {
         time: new Date().toISOString() // Save the current timestamp
@@ -25,17 +24,29 @@
       try {
         const response = await fetch("https://ipapi.co/json/");
         const location = await response.json();
-        visit.location = {
-          country: location.country_name,
-          state: location.region,
-          city: location.city,
-          ip: location.ip
-        };
-        console.log("Location fetched:", visit.location); // Check location data
+
+        // Ensure the location data is valid
+        if (location && location.city && location.region && location.country_name) {
+          visit.location = {
+            country: location.country_name,
+            state: location.region,
+            city: location.city,
+            ip: location.ip
+          };
+        } else {
+          visit.location = "Unable to fetch valid location";
+        }
       } catch (error) {
         console.error("Error fetching location:", error);
         visit.location = "Unable to fetch location";
       }
+
+      // Get device and browser information from the user agent
+      const userAgent = navigator.userAgent;
+      const device = /mobile/i.test(userAgent) ? "Mobile" : "Desktop";
+      const browser = userAgent.includes("Chrome") ? "Chrome" :
+                     userAgent.includes("Firefox") ? "Firefox" :
+                     userAgent.includes("Safari") ? "Safari" : "Other";
 
       console.log("Visit Data:", visit); // Log visit data before saving
 
@@ -49,10 +60,17 @@
       locationRef.transaction((currentData) => {
         if (currentData === null) {
           // First time visit, create a new entry
-          return { visits: 1, ...visit.location };
+          return {
+            visits: 1,
+            ...visit.location,
+            device: device,
+            browser: browser
+          };
         } else {
-          // Increment visit count for the location
+          // Increment visit count for the location and add device/browser details
           currentData.visits += 1;
+          currentData.device = device;
+          currentData.browser = browser;
           return currentData; // Save the updated data
         }
       }).then(() => {
@@ -71,14 +89,14 @@
       });
     }
 
-    // Display all visit details (location and visit count)
+    // Display all visit details (location, device, browser, and visit count)
     function displayVisitDetails() {
       const visitDetailsRef = database.ref("locations");
       visitDetailsRef.on("child_added", (snapshot) => {
         const visit = snapshot.val();
         const visitItem = document.createElement("li");
 
-        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits}`;
+        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits} - Device: ${visit.device} - Browser: ${visit.browser}`;
         document.getElementById("visitDetails").appendChild(visitItem);
       });
     }
@@ -87,4 +105,3 @@
     saveVisitDetails(); // Save current visit
     updateViewCount();  // Update and display view count
     displayVisitDetails(); // Display visit details
-  
