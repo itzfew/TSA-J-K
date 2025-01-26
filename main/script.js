@@ -237,8 +237,7 @@ displayVisitDetails(); // Display visit details only for the current user
             } else {
                 dateTimeElement.querySelector("p").innerText = "Geolocation is not supported by your browser.";
             }
-        };
-
+        
         // Fetch Random Quote from quote.json
         fetch('quotes.json')
             .then(response => response.json())
