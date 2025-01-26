@@ -65,22 +65,41 @@
 
       console.log("Visit Data:", visit); // Log visit data before saving
 
-      // Create a unique visit ID based on the timestamp
-      const visitId = Date.now(); // Use the current timestamp as a unique ID
+      // Create a unique key for the location and browser combination
+      const locationKey = `${visit.location.city}_${visit.location.state}_${visit.location.country}_${browser}`;
 
-      // Create a reference for the visit in Firebase under the 'visits' node
-      const visitRef = database.ref("visits/" + visitId);
+      // Get the reference to that specific location and browser in Firebase
+      const locationRef = database.ref("locations/" + locationKey);
 
-      // Save the visit data without updating existing data
-      visitRef.set({
-        time: visit.time,
-        location: visit.location,
-        device: device,
-        browser: browser
-      }).then(() => {
-        console.log("Visit data saved.");
-      }).catch((error) => {
-        console.error("Error saving visit to Firebase:", error);
+      // Check if the entry already exists
+      locationRef.once("value", (snapshot) => {
+        const existingData = snapshot.val();
+
+        if (existingData === null) {
+          // If no existing entry, create a new entry with a visit count of 1
+          locationRef.set({
+            visits: 1,
+            location: visit.location,
+            device: device,
+            browser: browser
+          }).then(() => {
+            console.log("New visit data saved.");
+          }).catch((error) => {
+            console.error("Error saving visit to Firebase:", error);
+          });
+        } else {
+          // If the entry exists, increment the visit count
+          locationRef.transaction((currentData) => {
+            if (currentData) {
+              currentData.visits += 1;
+            }
+            return currentData;
+          }).then(() => {
+            console.log("Visit count updated.");
+          }).catch((error) => {
+            console.error("Error updating visit count:", error);
+          });
+        }
       });
     }
 
@@ -95,12 +114,12 @@
 
     // Display all visit details (location, device, browser, and visit count)
     function displayVisitDetails() {
-      const visitDetailsRef = database.ref("visits");
+      const visitDetailsRef = database.ref("locations");
       visitDetailsRef.on("child_added", (snapshot) => {
         const visit = snapshot.val();
         const visitItem = document.createElement("li");
 
-        visitItem.textContent = `Location: ${visit.location.city}, ${visit.location.state}, ${visit.location.country} - Time: ${visit.time} - Device: ${visit.device} - Browser: ${visit.browser}`;
+        visitItem.textContent = `Location: ${visit.location.city}, ${visit.location.state}, ${visit.location.country} - Visits: ${visit.visits} - Device: ${visit.device} - Browser: ${visit.browser}`;
         document.getElementById("visitDetails").appendChild(visitItem);
       });
     }
