@@ -118,6 +118,9 @@ applyButton.addEventListener("click", () => {
     selectedTranslations.set(language, identifier);
   });
 
+  // Store selections locally on the browser/device
+  localStorage.setItem('selectedTranslations', JSON.stringify(Array.from(selectedTranslations.entries())));
+
   fetchVerses();
 });
 
@@ -166,3 +169,12 @@ async function fetchVerses() {
 
 // Initialize the language fetch process
 fetchLanguages();
+
+// Retrieve previously selected translations from localStorage (if any)
+const savedTranslations = JSON.parse(localStorage.getItem('selectedTranslations'));
+if (savedTranslations && savedTranslations.length > 0) {
+  savedTranslations.forEach(([language, identifier]) => {
+    selectedTranslations.set(language, identifier);
+  });
+  applyButton.click(); // Trigger to apply saved translations
+}
