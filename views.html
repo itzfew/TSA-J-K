@@ -65,31 +65,20 @@
 
       console.log("Visit Data:", visit); // Log visit data before saving
 
-      // Construct a unique key based on location (city, state, country)
-      const locationKey = `${visit.location.city}_${visit.location.state}_${visit.location.country}`;
+      // Create a unique visit ID based on the timestamp
+      const visitId = Date.now(); // Use the current timestamp as a unique ID
 
-      // Get the reference to that specific location in Firebase
-      const locationRef = database.ref("locations/" + locationKey);
+      // Create a reference for the visit in Firebase under the 'visits' node
+      const visitRef = database.ref("visits/" + visitId);
 
-      // Update or create the location entry
-      locationRef.transaction((currentData) => {
-        if (currentData === null) {
-          // First time visit, create a new entry
-          return {
-            visits: 1,
-            ...visit.location,
-            device: device,
-            browser: browser
-          };
-        } else {
-          // Increment visit count for the location and add device/browser details
-          currentData.visits += 1;
-          currentData.device = device;
-          currentData.browser = browser;
-          return currentData; // Save the updated data
-        }
+      // Save the visit data without updating existing data
+      visitRef.set({
+        time: visit.time,
+        location: visit.location,
+        device: device,
+        browser: browser
       }).then(() => {
-        console.log("Visit data saved/updated.");
+        console.log("Visit data saved.");
       }).catch((error) => {
         console.error("Error saving visit to Firebase:", error);
       });
@@ -106,12 +95,12 @@
 
     // Display all visit details (location, device, browser, and visit count)
     function displayVisitDetails() {
-      const visitDetailsRef = database.ref("locations");
+      const visitDetailsRef = database.ref("visits");
       visitDetailsRef.on("child_added", (snapshot) => {
         const visit = snapshot.val();
         const visitItem = document.createElement("li");
 
-        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits} - Device: ${visit.device} - Browser: ${visit.browser}`;
+        visitItem.textContent = `Location: ${visit.location.city}, ${visit.location.state}, ${visit.location.country} - Time: ${visit.time} - Device: ${visit.device} - Browser: ${visit.browser}`;
         document.getElementById("visitDetails").appendChild(visitItem);
       });
     }
