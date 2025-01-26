@@ -41,67 +41,68 @@ async function saveVisitDetails() {
     visit.location = "Unable to fetch location";
   }
 
-// Get device and browser information from the user agent
-const userAgent = navigator.userAgent;
+  // Get device and browser information from the user agent
+  const userAgent = navigator.userAgent;
 
-// Detect device (Mobile or Desktop)
-const device = /mobile/i.test(userAgent) ? "Mobile" : "Desktop";
+  // Detect device (Mobile or Desktop)
+  const device = /mobile/i.test(userAgent) ? "Mobile" : "Desktop";
 
-// Detect specific mobile devices
-const mobileDevices = [
-  /iPhone 12|iPhone 11|iPhone SE/i,   // iPhones
-  /Samsung Galaxy S21|Samsung Galaxy S20|Samsung Galaxy S10/i,  // Samsung
-  /Pixel 6|Pixel 5/i, // Google Pixel
-  /OnePlus 9|OnePlus 8/i, // OnePlus
-  /Redmi|Mi 11/i, // Xiaomi
-  /Huawei P40|Huawei P30/i, // Huawei
-  /Oppo Reno|Oppo F19/i, // Oppo
-  /Realme 8|Realme Narzo/i, // Realme
-  /Vivo V21|Vivo Y20/i, // Vivo
-  /LG Velvet|LG G8X/i, // LG
-  /Moto G Power|Moto Edge/i, // Motorola
-];
+  // Detect specific mobile devices
+  const mobileDevices = [
+    /iPhone 12|iPhone 11|iPhone SE/i,   // iPhones
+    /Samsung Galaxy S21|Samsung Galaxy S20|Samsung Galaxy S10/i,  // Samsung
+    /Pixel 6|Pixel 5/i, // Google Pixel
+    /OnePlus 9|OnePlus 8/i, // OnePlus
+    /Redmi|Mi 11/i, // Xiaomi
+    /Huawei P40|Huawei P30/i, // Huawei
+    /Oppo Reno|Oppo F19/i, // Oppo
+    /Realme 8|Realme Narzo/i, // Realme
+    /Vivo V21|Vivo Y20/i, // Vivo
+    /LG Velvet|LG G8X/i, // LG
+    /Moto G Power|Moto Edge/i, // Motorola
+  ];
 
-// Detect the matching mobile device
-const mobileMatch = mobileDevices.find(device => device.test(userAgent));
-const deviceType = mobileMatch ? mobileMatch.source : device; // Default to Desktop if no match
+  // Detect the matching mobile device
+  const mobileMatch = mobileDevices.find(device => device.test(userAgent));
+  const deviceType = mobileMatch ? mobileMatch.source : device; // Default to Desktop if no match
 
-// Detect browser
-const browsers = {
-  chrome: /Chrome/i,
-  firefox: /Firefox/i,
-  safari: /Safari/i,
-  edge: /Edg/i,
-  opera: /Opera/i,
-  ie: /MSIE|Trident/i,
-  brave: /Brave/i,
-  vivaldi: /Vivaldi/i,
-  samsung: /SamsungBrowser/i,
-  uc: /UCBrowser/i,
-  yandex: /YaBrowser/i,
-  duckduckgo: /DuckDuckGo/i,
-  chromium: /Chromium/i
-};
+  // Detect browser
+  const browsers = {
+    chrome: /Chrome/i,
+    firefox: /Firefox/i,
+    safari: /Safari/i,
+    edge: /Edg/i,
+    opera: /Opera/i,
+    ie: /MSIE|Trident/i,
+    brave: /Brave/i,
+    vivaldi: /Vivaldi/i,
+    samsung: /SamsungBrowser/i,
+    uc: /UCBrowser/i,
+    yandex: /YaBrowser/i,
+    duckduckgo: /DuckDuckGo/i,
+    chromium: /Chromium/i
+  };
 
-// Detect the matching browser
-let browserType = "Other";
-for (const [key, regex] of Object.entries(browsers)) {
-  if (regex.test(userAgent)) {
-    browserType = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize first letter
-    break;
-}
+  // Detect the matching browser
+  let browserType = "Other";
+  for (const [key, regex] of Object.entries(browsers)) {
+    if (regex.test(userAgent)) {
+      browserType = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize first letter
+      break;
+    }
+  }
 
-console.log("Device:", deviceType);  // Log detected device type (Mobile/Desktop)
-console.log("Browser:", browserType); // Log detected browser type
-  
+  console.log("Device:", deviceType);  // Log detected device type (Mobile/Desktop)
+  console.log("Browser:", browserType); // Log detected browser type
+
   console.log("Visit Data:", visit); // Log visit data before saving
 
   // Construct a unique key based on location (city, state, country), device, and browser
   const locationKey = `${visit.location.city}_${visit.location.state}_${visit.location.country}`;
-  const visitKey = `${locationKey}_${device}_${browser}`;
+  const visitKey = `${locationKey}_${deviceType}_${browserType}`;
 
   // Save the visit data to localStorage (to filter later)
-  const userVisitKey = `${locationKey}_${device}_${browser}`;
+  const userVisitKey = `${locationKey}_${deviceType}_${browserType}`;
   localStorage.setItem("userVisitKey", userVisitKey);
 
   // Get the reference to that specific location and device/browser in Firebase
@@ -113,8 +114,8 @@ console.log("Browser:", browserType); // Log detected browser type
       // If it doesn't exist, create a new entry with the visit details
       locationRef.child(visitKey).set({
         visits: 1,
-        device: device,
-        browser: browser,
+        device: deviceType,
+        browser: browserType,
         ...visit.location
       }).then(() => {
         console.log("Visit data saved/updated.");
