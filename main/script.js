@@ -108,16 +108,29 @@ function displayVisitDetails() {
   const userVisitKey = localStorage.getItem("userVisitKey");
 
   visitDetailsRef.on("child_added", (snapshot) => {
-    const visit = snapshot.val();
+    const visitData = snapshot.val();
 
-    // Filter and display only the user's own visit details (matching location, device, browser)
-    for (const [key, value] of Object.entries(visit)) {
-      if (key === userVisitKey) {
-        const visitItem = document.createElement("li");
+    // Loop through visitData and filter by userVisitKey
+    if (visitData) {
+      Object.keys(visitData).forEach((visitKey) => {
+        // Match only the user's own visit details
+        if (visitKey === userVisitKey) {
+          const visitInfo = visitData[visitKey];
+          const visitItem = document.createElement("li");
 
-        visitItem.textContent = `Location: ${visit.location.city}, ${visit.location.state}, ${visit.location.country} - Visits: ${visit.visits} - Device: ${key.split('_')[3]} - Browser: ${key.split('_')[4]}`;
-        document.getElementById("visitDetails").appendChild(visitItem);
-      }
+          // Extract the details
+          const { city, state, country, visits } = visitInfo;
+          const device = visitKey.split('_')[3];
+          const browser = visitKey.split('_')[4];
+
+          // Format the display text
+          const locationText = `${city}, ${state}, ${country}`;
+          const visitText = `Visits: ${visits || "No visits"}`;
+
+          visitItem.textContent = `Location: ${locationText} - ${visitText} - Device: ${device} - Browser: ${browser}`;
+          document.getElementById("visitDetails").appendChild(visitItem);
+        }
+      });
     }
   });
 }
