@@ -115,7 +115,7 @@ function displayVisitDetails() {
       if (key === userVisitKey) {
         const visitItem = document.createElement("li");
 
-        visitItem.textContent = `Location: ${visit.city}, ${visit.state}, ${visit.country} - Visits: ${visit.visits} - Device: ${key.split('_')[3]} - Browser: ${key.split('_')[4]}`;
+        visitItem.textContent = `Location: ${visit.location.city}, ${visit.location.state}, ${visit.location.country} - Visits: ${visit.visits} - Device: ${key.split('_')[3]} - Browser: ${key.split('_')[4]}`;
         document.getElementById("visitDetails").appendChild(visitItem);
       }
     }
